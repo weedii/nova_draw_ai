@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../colors.dart';
+import '../../core/constants/colors.dart';
 import '../animations/app_animations.dart';
 
 class WelcomeScreen extends StatefulWidget {
