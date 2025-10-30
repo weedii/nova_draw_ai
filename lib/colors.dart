@@ -41,4 +41,15 @@ class AppColors {
 
   /// Lighter version of primary for hover/disabled states
   static const Color primaryLight = Color(0xFF80C1FF);
+
+  // Gradient Backgrounds
+  // Usage: Container(decoration: BoxDecoration(gradient: AppColors.backgroundGradient))
+  static const LinearGradient backgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFFFF9E6), // Light cream
+      Color(0xFF99E5F0), // Soft blue
+    ],
+  );
 }
