@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/colors.dart';
 import '../animations/app_animations.dart';
 
@@ -79,6 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   void _onStartDrawing() {
     // TODO: Navigate to drawing screen
+    context.go("/signin");
   }
 
   @override

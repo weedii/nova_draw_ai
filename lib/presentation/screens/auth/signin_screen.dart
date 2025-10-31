@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
@@ -28,13 +29,9 @@ class _SignInScreenState extends State<SignInScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
     _fadeController.forward();
   }
 
@@ -72,20 +69,18 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   void _navigateToSignUp() {
-    // TODO: Navigate to sign up screen
+    context.go("/signup");
   }
 
   void _navigateToResetPassword() {
-    // TODO: Navigate to reset password screen
+    context.go("/resetpassword");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -99,19 +94,6 @@ class _SignInScreenState extends State<SignInScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Back button
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                      ),
-                    ),
-
                     const SizedBox(height: 20),
 
                     // Logo and title
@@ -125,10 +107,7 @@ class _SignInScreenState extends State<SignInScreen>
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: [
-                                AppColors.primary,
-                                AppColors.accent,
-                              ],
+                              colors: [AppColors.primary, AppColors.accent],
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -187,8 +166,9 @@ class _SignInScreenState extends State<SignInScreen>
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';
                               }
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                  .hasMatch(value)) {
+                              if (!RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              ).hasMatch(value)) {
                                 return 'Please enter a valid email';
                               }
                               return null;

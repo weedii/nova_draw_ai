@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
@@ -72,7 +73,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   }
 
   void _navigateToSignIn() {
-    // TODO: Navigate to sign in screen
+    context.go("/signin");
   }
 
   @override

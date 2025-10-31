@@ -6,7 +6,7 @@ import 'package:nova_draw_ai/presentation/screens/auth/signup_screen.dart';
 import '../presentation/screens/welcome_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: "/resetpassword",
+  initialLocation: "/welcome",
   routes: <RouteBase>[
     // Welcome Route
     GoRoute(
