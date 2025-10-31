@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
 import '../animations/app_animations.dart';
@@ -187,7 +188,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           Column(
                             children: [
                               Text(
-                                'Welcome to',
+                                'welcome'.tr(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize:
@@ -200,7 +201,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 ),
                               ),
                               Text(
-                                'NovaDraw ✨',
+                                'app_name'.tr(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize:
@@ -213,12 +214,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: Text(
-                                  'Draw, create, and watch your art come to life with magic!',
+                                  'app_description'.tr(),
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     color: Color(0xFF2D3748),
                                     height: 1.5,
@@ -274,10 +277,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     children: [
                                       const Icon(Icons.auto_awesome, size: 24),
                                       const SizedBox(width: 8),
-                                      const Flexible(
+                                      Flexible(
                                         child: Text(
-                                          'Start Drawing!',
-                                          style: TextStyle(
+                                          'start_drawing'.tr(),
+                                          style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                           ),

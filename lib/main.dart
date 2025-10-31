@@ -1,9 +1,22 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'core/constants/colors.dart';
 import 'routes/app_router.dart';
 
-void main() {
-  runApp(const MainApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+
+  runApp(
+    EasyLocalization(
+      supportedLocales: [Locale('en'), Locale('de')],
+      path: 'assets/translations',
+      fallbackLocale: Locale('en'),
+      startLocale: Locale('de'),
+
+      child: MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -15,6 +28,11 @@ class MainApp extends StatelessWidget {
       title: 'NovaDraw AI',
 
       debugShowCheckedModeBanner: false,
+
+      // Add EasyLocalization configuration
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
 
       theme: ThemeData(
         primarySwatch: MaterialColor(0xFF4DA6FF, {
