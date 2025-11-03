@@ -73,7 +73,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   }
 
   void _navigateToSignIn() {
-    context.go("/signin");
+    context.push("/signin");
   }
 
   @override

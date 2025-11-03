@@ -73,7 +73,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   void _navigateToSignIn() {
-    context.go("/signin");
+    context.push("/signin");
   }
 
   @override

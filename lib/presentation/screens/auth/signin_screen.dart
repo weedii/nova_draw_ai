@@ -44,7 +44,7 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   void _signIn() async {
-    context.go("/drawing");
+    context.push("/drawing-selection");
     return; // TODO: Remove this
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -71,11 +71,11 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   void _navigateToSignUp() {
-    context.go("/signup");
+    context.push("/signup");
   }
 
   void _navigateToResetPassword() {
-    context.go("/resetpassword");
+    context.push("/resetpassword");
   }
 
   @override

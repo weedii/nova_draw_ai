@@ -139,7 +139,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                context.go('/drawing-selection');
+                context.push('/drawing-selection');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -156,9 +156,130 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
     );
   }
 
+  Widget _buildStepImage(DrawingStep stepData) {
+    if (stepData.stepImg.isEmpty) {
+      // Show placeholder when no image is available
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.primary.withValues(alpha: 0.8),
+              AppColors.accent.withValues(alpha: 0.6),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.palette, size: 80, color: AppColors.white),
+            const SizedBox(height: 16),
+            Text(
+              '${'step'.tr()} ${currentStep + 1}',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
+                fontFamily: 'Comic Sans MS',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Use your imagination! 🎨',
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColors.white.withValues(alpha: 0.9),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // TODO: When API is ready, decode base64 image here
+    // For now, show placeholder
+    try {
+      // This will be implemented when we have actual base64 images from API
+      // final bytes = base64Decode(stepData.stepImg);
+      // return Image.memory(bytes, fit: BoxFit.contain);
+
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.success.withValues(alpha: 0.8),
+              AppColors.primary.withValues(alpha: 0.6),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.image, size: 80, color: AppColors.white),
+            const SizedBox(height: 16),
+            Text(
+              '${'step'.tr()} ${currentStep + 1}',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
+                fontFamily: 'Comic Sans MS',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Image will load from API 📱',
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColors.white.withValues(alpha: 0.9),
+              ),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Fallback to placeholder
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.error.withValues(alpha: 0.8),
+              AppColors.accent.withValues(alpha: 0.6),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 80, color: AppColors.white),
+            const SizedBox(height: 16),
+            Text(
+              'Image Error',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentStepData = steps[currentStep];
+    final isGerman = context.locale.languageCode == 'de';
+    final stepText = isGerman ? currentStepData.stepDe : currentStepData.stepEn;
 
     return Scaffold(
       body: Container(
@@ -242,9 +363,9 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: Column(
                         children: [
-                          // Step title
+                          // Step title and description
                           Text(
-                            currentStepData.titleKey.tr(),
+                            '${'step'.tr()} ${currentStep + 1}',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 28,
@@ -256,9 +377,9 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
 
                           const SizedBox(height: 16),
 
-                          // Step description
+                          // Step instruction
                           Text(
-                            currentStepData.descriptionKey.tr(),
+                            stepText,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 18,
@@ -285,35 +406,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                child: Image.network(
-                                  currentStepData.imageUrl,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: AppColors.primaryLight,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.draw,
-                                            size: 80,
-                                            color: AppColors.white,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Text(
-                                            '${'step'.tr()} ${currentStepData.stepNumber}',
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.white,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
+                                child: _buildStepImage(currentStepData),
                               ),
                             ),
                           ),

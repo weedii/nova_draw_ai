@@ -51,7 +51,7 @@ class _DrawingSelectionScreenState extends State<DrawingSelectionScreen>
 
   void _onCategorySelected(DrawingCategory category) {
     // Navigate to drawing items screen to select specific drawing
-    context.go('/drawing-items/${category.id}');
+    context.push('/drawing-items/${category.id}');
   }
 
   @override
@@ -71,26 +71,9 @@ class _DrawingSelectionScreenState extends State<DrawingSelectionScreen>
                     children: [
                       // Decorative sparkles
                       Positioned(
-                        top: 10,
-                        right: 20,
-                        child: AppAnimatedFloat(
-                          animation: _sparkleFloat,
-                          child: const Text(
-                            '✨',
-                            style: TextStyle(fontSize: 30),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 40,
-                        left: 30,
-                        child: AppAnimatedFloat(
-                          animation: _sparkleFloat,
-                          child: const Text(
-                            '🎨',
-                            style: TextStyle(fontSize: 25),
-                          ),
-                        ),
+                        top: 5,
+                        right: 0,
+                        child: const Text('🎨', style: TextStyle(fontSize: 30)),
                       ),
 
                       // Main title
@@ -134,6 +117,7 @@ class _DrawingSelectionScreenState extends State<DrawingSelectionScreen>
                     child: GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
+                            mainAxisExtent: 200,
                             crossAxisCount: 2,
                             childAspectRatio: 1.0,
                             crossAxisSpacing: 16,
@@ -182,6 +166,18 @@ class _CategoryCardState extends State<_CategoryCard>
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
+
+  String _getCategoryTitle() {
+    final isGerman = context.locale.languageCode == 'de';
+    return isGerman ? widget.category.titleDe : widget.category.titleEn;
+  }
+
+  String _getCategoryDescription() {
+    final isGerman = context.locale.languageCode == 'de';
+    return isGerman
+        ? widget.category.descriptionDe
+        : widget.category.descriptionEn;
+  }
 
   @override
   void initState() {
@@ -268,7 +264,7 @@ class _CategoryCardState extends State<_CategoryCard>
 
               // Title
               Text(
-                widget.category.titleKey.tr(),
+                _getCategoryTitle(),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -278,12 +274,14 @@ class _CategoryCardState extends State<_CategoryCard>
               ),
               const SizedBox(height: 4),
 
-              // Item count
-              Text(
-                '${widget.category.items.length} items',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.white.withValues(alpha: 0.8),
+              // Description
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  _getCategoryDescription(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: AppColors.white),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
