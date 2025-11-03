@@ -80,7 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   void _onStartDrawing() {
     // TODO: Navigate to drawing screen
-    context.go("/signin");
+    context.push("/signin");
   }
 
   @override

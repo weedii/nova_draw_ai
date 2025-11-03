@@ -9,7 +9,7 @@ import '../presentation/screens/drawing/drawing_items_screen.dart';
 import '../presentation/screens/drawing/drawing_steps_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: "/drawing-selection",
+  initialLocation: "/welcome",
   routes: <RouteBase>[
     // Welcome Route
     GoRoute(

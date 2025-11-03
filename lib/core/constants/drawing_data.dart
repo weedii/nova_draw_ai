@@ -1,50 +1,50 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
+class DrawingStep {
+  final String stepEn;
+  final String stepDe;
+  final String stepImg; // base64 image string
+
+  const DrawingStep({
+    required this.stepEn,
+    required this.stepDe,
+    required this.stepImg,
+  });
+}
+
 class DrawingItem {
   final String id;
-  final String nameKey;
+  final String nameEn;
+  final String nameDe;
   final String emoji;
-  final String description;
-  final int difficulty; // 1-3 (easy, medium, hard)
   final List<DrawingStep> steps;
 
   const DrawingItem({
     required this.id,
-    required this.nameKey,
+    required this.nameEn,
+    required this.nameDe,
     required this.emoji,
-    required this.description,
-    required this.difficulty,
     required this.steps,
-  });
-}
-
-class DrawingStep {
-  final int stepNumber;
-  final String titleKey;
-  final String descriptionKey;
-  final String imageUrl;
-
-  const DrawingStep({
-    required this.stepNumber,
-    required this.titleKey,
-    required this.descriptionKey,
-    required this.imageUrl,
   });
 }
 
 class DrawingCategory {
   final String id;
-  final String titleKey;
-  final String descriptionKey;
+  final String titleEn;
+  final String titleDe;
+  final String descriptionEn;
+  final String descriptionDe;
   final String icon;
   final Color color;
   final List<DrawingItem> items;
 
   const DrawingCategory({
     required this.id,
-    required this.titleKey,
-    required this.descriptionKey,
+    required this.titleEn,
+    required this.titleDe,
+    required this.descriptionEn,
+    required this.descriptionDe,
     required this.icon,
     required this.color,
     required this.items,
@@ -56,149 +56,117 @@ class DrawingData {
     // Animals Category
     DrawingCategory(
       id: 'animals',
-      titleKey: 'animals',
-      descriptionKey: 'animals_description',
+      titleEn: 'Animals',
+      titleDe: 'Tiere',
+      descriptionEn: 'Draw cute animals like dogs, cats, and more!',
+      descriptionDe: 'Zeichne süße Tiere wie Hunde, Katzen und mehr!',
       icon: '🐶',
       color: AppColors.primary,
       items: [
         DrawingItem(
           id: 'dog',
-          nameKey: 'dog',
+          nameEn: 'Dog',
+          nameDe: 'Hund',
           emoji: '🐕',
-          description: 'A friendly dog with floppy ears',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_circle_head',
-              descriptionKey: 'draw_circle_head_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/4DA6FF/FFFFFF?text=Dog+Head',
+              stepEn: 'Draw a circle for the head',
+              stepDe: 'Zeichne einen Kreis für den Kopf',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_ears',
-              descriptionKey: 'add_ears_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Dog+Ears',
+              stepEn: 'Add floppy ears on both sides',
+              stepDe: 'Füge schlappende Ohren an beiden Seiten hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'draw_body',
-              descriptionKey: 'draw_body_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Dog+Body',
+              stepEn: 'Draw an oval body below the head',
+              stepDe: 'Zeichne einen ovalen Körper unter den Kopf',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 4,
-              titleKey: 'add_legs_tail',
-              descriptionKey: 'add_legs_tail_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Dog+Complete',
+              stepEn: 'Add four legs and a wagging tail',
+              stepDe: 'Füge vier Beine und einen wedelnden Schwanz hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'cat',
-          nameKey: 'cat',
+          nameEn: 'Cat',
+          nameDe: 'Katze',
           emoji: '🐱',
-          description: 'A cute cat with pointy ears',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_circle_head',
-              descriptionKey: 'draw_circle_head_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/4DA6FF/FFFFFF?text=Cat+Head',
+              stepEn: 'Draw a circle for the head',
+              stepDe: 'Zeichne einen Kreis für den Kopf',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_triangle_ears',
-              descriptionKey: 'add_triangle_ears_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Cat+Ears',
+              stepEn: 'Add pointy triangle ears on top',
+              stepDe: 'Füge spitze Dreiecksohren oben hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'draw_oval_body',
-              descriptionKey: 'draw_oval_body_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Cat+Body',
+              stepEn: 'Draw an oval body',
+              stepDe: 'Zeichne einen ovalen Körper',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 4,
-              titleKey: 'add_face_details',
-              descriptionKey: 'add_face_details_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Cat+Complete',
+              stepEn: 'Add eyes, nose, mouth, and whiskers',
+              stepDe: 'Füge Augen, Nase, Mund und Schnurrhaare hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'fish',
-          nameKey: 'fish',
+          nameEn: 'Fish',
+          nameDe: 'Fisch',
           emoji: '🐠',
-          description: 'A colorful fish swimming',
-          difficulty: 1,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_oval_body',
-              descriptionKey: 'draw_oval_body_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/4DA6FF/FFFFFF?text=Fish+Body',
+              stepEn: 'Draw an oval for the fish body',
+              stepDe: 'Zeichne ein Oval für den Fischkörper',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_tail_fin',
-              descriptionKey: 'add_tail_fin_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Fish+Tail',
+              stepEn: 'Add a triangle tail and top fin',
+              stepDe: 'Füge einen Dreiecksschwanz und eine obere Flosse hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_fins_eye',
-              descriptionKey: 'add_fins_eye_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Fish+Complete',
+              stepEn: 'Add side fins and a big round eye',
+              stepDe: 'Füge Seitenflossen und ein großes rundes Auge hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'elephant',
-          nameKey: 'elephant',
+          nameEn: 'Elephant',
+          nameDe: 'Elefant',
           emoji: '🐘',
-          description: 'A big elephant with a long trunk',
-          difficulty: 3,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_large_circle',
-              descriptionKey: 'draw_large_circle_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/4DA6FF/FFFFFF?text=Elephant+Head',
+              stepEn: 'Draw a large circle for the head',
+              stepDe: 'Zeichne einen großen Kreis für den Kopf',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_trunk',
-              descriptionKey: 'add_trunk_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Elephant+Trunk',
+              stepEn: 'Add a long curved trunk hanging down',
+              stepDe: 'Füge einen langen gebogenen Rüssel hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'draw_large_body',
-              descriptionKey: 'draw_large_body_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Elephant+Body',
+              stepEn: 'Draw a big oval body behind the head',
+              stepDe: 'Zeichne einen großen ovalen Körper hinter den Kopf',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 4,
-              titleKey: 'add_legs_ears',
-              descriptionKey: 'add_legs_ears_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Elephant+Complete',
+              stepEn: 'Add four thick legs and big floppy ears',
+              stepDe: 'Füge vier dicke Beine und große schlappende Ohren hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
@@ -208,91 +176,76 @@ class DrawingData {
     // Objects Category
     DrawingCategory(
       id: 'objects',
-      titleKey: 'objects',
-      descriptionKey: 'objects_description',
+      titleEn: 'Objects',
+      titleDe: 'Objekte',
+      descriptionEn: 'Learn to draw everyday objects and shapes!',
+      descriptionDe: 'Lerne alltägliche Gegenstände und Formen zu zeichnen!',
       icon: '⚽',
       color: AppColors.accent,
       items: [
         DrawingItem(
           id: 'house',
-          nameKey: 'house',
+          nameEn: 'House',
+          nameDe: 'Haus',
           emoji: '🏠',
-          description: 'A cozy house with a roof',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_square_base',
-              descriptionKey: 'draw_square_base_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=House+Base',
+              stepEn: 'Draw a square for the house base',
+              stepDe: 'Zeichne ein Quadrat für die Hausbasis',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_triangle_roof',
-              descriptionKey: 'add_triangle_roof_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=House+Roof',
+              stepEn: 'Add a triangle on top for the roof',
+              stepDe: 'Füge ein Dreieck oben für das Dach hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_door_windows',
-              descriptionKey: 'add_door_windows_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=House+Complete',
+              stepEn: 'Draw a door and windows to complete the house',
+              stepDe:
+                  'Zeichne eine Tür und Fenster, um das Haus zu vervollständigen',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'ball',
-          nameKey: 'ball',
+          nameEn: 'Ball',
+          nameDe: 'Ball',
           emoji: '⚽',
-          description: 'A round ball for playing',
-          difficulty: 1,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_perfect_circle',
-              descriptionKey: 'draw_perfect_circle_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Ball+Circle',
+              stepEn: 'Draw a perfect circle for the ball',
+              stepDe: 'Zeichne einen perfekten Kreis für den Ball',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_pattern_lines',
-              descriptionKey: 'add_pattern_lines_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Ball+Complete',
+              stepEn: 'Add curved lines to make it look like a soccer ball',
+              stepDe:
+                  'Füge gebogene Linien hinzu, damit es wie ein Fußball aussieht',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'star',
-          nameKey: 'star',
+          nameEn: 'Star',
+          nameDe: 'Stern',
           emoji: '⭐',
-          description: 'A bright shining star',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_star_points',
-              descriptionKey: 'draw_star_points_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Star+Points',
+              stepEn: 'Draw five points around in a circle',
+              stepDe: 'Zeichne fünf Punkte in einem Kreis',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'connect_star_lines',
-              descriptionKey: 'connect_star_lines_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Star+Lines',
+              stepEn: 'Connect the points to make a star shape',
+              stepDe: 'Verbinde die Punkte zu einer Sternform',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_sparkles',
-              descriptionKey: 'add_sparkles_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Star+Complete',
+              stepEn: 'Add small sparkles around the star',
+              stepDe: 'Füge kleine Funken um den Stern hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
@@ -302,91 +255,75 @@ class DrawingData {
     // Nature Category
     DrawingCategory(
       id: 'nature',
-      titleKey: 'nature',
-      descriptionKey: 'nature_description',
+      titleEn: 'Nature',
+      titleDe: 'Natur',
+      descriptionEn: 'Create beautiful nature scenes and plants!',
+      descriptionDe: 'Erschaffe wunderschöne Naturszenen und Pflanzen!',
       icon: '🌳',
       color: AppColors.success,
       items: [
         DrawingItem(
           id: 'tree',
-          nameKey: 'tree',
+          nameEn: 'Tree',
+          nameDe: 'Baum',
           emoji: '🌳',
-          description: 'A tall tree with leaves',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_trunk',
-              descriptionKey: 'draw_trunk_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Tree+Trunk',
+              stepEn: 'Draw a tall rectangle for the tree trunk',
+              stepDe: 'Zeichne ein hohes Rechteck für den Baumstamm',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_branches',
-              descriptionKey: 'add_branches_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/4DA6FF/FFFFFF?text=Tree+Branches',
+              stepEn: 'Add branches coming out from the trunk',
+              stepDe: 'Füge Äste hinzu, die aus dem Stamm kommen',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_leaves',
-              descriptionKey: 'add_leaves_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Tree+Complete',
+              stepEn: 'Draw a big cloud shape for the leaves',
+              stepDe: 'Zeichne eine große Wolkenform für die Blätter',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'flower',
-          nameKey: 'flower',
+          nameEn: 'Flower',
+          nameDe: 'Blume',
           emoji: '🌸',
-          description: 'A beautiful flower with petals',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_flower_center',
-              descriptionKey: 'draw_flower_center_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Flower+Center',
+              stepEn: 'Draw a small circle in the middle for the center',
+              stepDe:
+                  'Zeichne einen kleinen Kreis in die Mitte für das Zentrum',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_petals',
-              descriptionKey: 'add_petals_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Flower+Petals',
+              stepEn: 'Draw oval petals around the center',
+              stepDe: 'Zeichne ovale Blütenblätter um das Zentrum',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_stem_leaves',
-              descriptionKey: 'add_stem_leaves_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Flower+Complete',
+              stepEn: 'Add a stem and small leaves',
+              stepDe: 'Füge einen Stiel und kleine Blätter hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'sun',
-          nameKey: 'sun',
+          nameEn: 'Sun',
+          nameDe: 'Sonne',
           emoji: '☀️',
-          description: 'A bright sunny day',
-          difficulty: 1,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_sun_circle',
-              descriptionKey: 'draw_sun_circle_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Sun+Circle',
+              stepEn: 'Draw a big circle for the sun',
+              stepDe: 'Zeichne einen großen Kreis für die Sonne',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_sun_rays',
-              descriptionKey: 'add_sun_rays_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Sun+Complete',
+              stepEn: 'Add lines coming out like sun rays',
+              stepDe: 'Füge Linien hinzu, die wie Sonnenstrahlen aussehen',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
@@ -396,68 +333,57 @@ class DrawingData {
     // Vehicles Category
     DrawingCategory(
       id: 'vehicles',
-      titleKey: 'vehicles',
-      descriptionKey: 'vehicles_description',
+      titleEn: 'Vehicles',
+      titleDe: 'Fahrzeuge',
+      descriptionEn: 'Draw cars, planes, and other vehicles!',
+      descriptionDe: 'Zeichne Autos, Flugzeuge und andere Fahrzeuge!',
       icon: '🚗',
       color: AppColors.secondary,
       items: [
         DrawingItem(
           id: 'car',
-          nameKey: 'car',
+          nameEn: 'Car',
+          nameDe: 'Auto',
           emoji: '🚗',
-          description: 'A fast car with wheels',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_car_body',
-              descriptionKey: 'draw_car_body_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Car+Body',
+              stepEn: 'Draw a rectangle for the car body',
+              stepDe: 'Zeichne ein Rechteck für die Autokarosserie',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_car_wheels',
-              descriptionKey: 'add_car_wheels_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Car+Wheels',
+              stepEn: 'Add two circles below for wheels',
+              stepDe: 'Füge zwei Kreise unten für die Räder hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_car_details',
-              descriptionKey: 'add_car_details_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Car+Complete',
+              stepEn: 'Add windows, doors, and headlights',
+              stepDe: 'Füge Fenster, Türen und Scheinwerfer hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'airplane',
-          nameKey: 'airplane',
+          nameEn: 'Airplane',
+          nameDe: 'Flugzeug',
           emoji: '✈️',
-          description: 'An airplane flying in the sky',
-          difficulty: 3,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_plane_body',
-              descriptionKey: 'draw_plane_body_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Plane+Body',
+              stepEn: 'Draw an oval for the airplane body',
+              stepDe: 'Zeichne ein Oval für den Flugzeugkörper',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_wings',
-              descriptionKey: 'add_wings_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/4DA6FF/FFFFFF?text=Plane+Wings',
+              stepEn: 'Add wings on both sides of the body',
+              stepDe: 'Füge Flügel an beiden Seiten des Körpers hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_tail_propeller',
-              descriptionKey: 'add_tail_propeller_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Plane+Complete',
+              stepEn: 'Add the tail and propeller to complete the plane',
+              stepDe:
+                  'Füge das Heck und den Propeller hinzu, um das Flugzeug zu vervollständigen',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
@@ -467,61 +393,51 @@ class DrawingData {
     // Food Category
     DrawingCategory(
       id: 'food',
-      titleKey: 'food',
-      descriptionKey: 'food_description',
+      titleEn: 'Food',
+      titleDe: 'Essen',
+      descriptionEn: 'Draw delicious food and treats!',
+      descriptionDe: 'Zeichne leckeres Essen und Leckereien!',
       icon: '🍎',
       color: AppColors.error,
       items: [
         DrawingItem(
           id: 'apple',
-          nameKey: 'apple',
+          nameEn: 'Apple',
+          nameDe: 'Apfel',
           emoji: '🍎',
-          description: 'A red juicy apple',
-          difficulty: 1,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_apple_shape',
-              descriptionKey: 'draw_apple_shape_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF6B6B/FFFFFF?text=Apple+Shape',
+              stepEn: 'Draw a round shape with a small dent on top',
+              stepDe: 'Zeichne eine runde Form mit einer kleinen Delle oben',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_apple_stem',
-              descriptionKey: 'add_apple_stem_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Apple+Complete',
+              stepEn: 'Add a small stem and leaf on top',
+              stepDe: 'Füge einen kleinen Stiel und ein Blatt oben hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'pizza',
-          nameKey: 'pizza',
+          nameEn: 'Pizza',
+          nameDe: 'Pizza',
           emoji: '🍕',
-          description: 'A delicious slice of pizza',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_triangle_slice',
-              descriptionKey: 'draw_triangle_slice_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF6B6B/FFFFFF?text=Pizza+Slice',
+              stepEn: 'Draw a triangle for the pizza slice',
+              stepDe: 'Zeichne ein Dreieck für das Pizzastück',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_pizza_toppings',
-              descriptionKey: 'add_pizza_toppings_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Pizza+Toppings',
+              stepEn: 'Add circles and shapes for toppings',
+              stepDe: 'Füge Kreise und Formen für Beläge hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_crust_details',
-              descriptionKey: 'add_crust_details_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Pizza+Complete',
+              stepEn: 'Make the crust look thick and tasty',
+              stepDe: 'Lass die Kruste dick und lecker aussehen',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
@@ -531,75 +447,62 @@ class DrawingData {
     // Characters Category
     DrawingCategory(
       id: 'characters',
-      titleKey: 'characters',
-      descriptionKey: 'characters_description',
+      titleEn: 'Characters',
+      titleDe: 'Charaktere',
+      descriptionEn: 'Create magical characters and people!',
+      descriptionDe: 'Erschaffe magische Charaktere und Menschen!',
       icon: '👑',
       color: AppColors.primaryDark,
       items: [
         DrawingItem(
           id: 'princess',
-          nameKey: 'princess',
+          nameEn: 'Princess',
+          nameDe: 'Prinzessin',
           emoji: '👸',
-          description: 'A beautiful princess with a crown',
-          difficulty: 3,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_princess_head',
-              descriptionKey: 'draw_princess_head_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/3D8BFF/FFFFFF?text=Princess+Head',
+              stepEn: 'Draw a circle for the princess head',
+              stepDe: 'Zeichne einen Kreis für den Prinzessinnenkopf',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_crown',
-              descriptionKey: 'add_crown_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FF7EB9/FFFFFF?text=Princess+Crown',
+              stepEn: 'Add a beautiful crown on top of her head',
+              stepDe: 'Füge eine wunderschöne Krone auf ihren Kopf hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'draw_dress',
-              descriptionKey: 'draw_dress_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Princess+Dress',
+              stepEn: 'Draw a long, flowing dress',
+              stepDe: 'Zeichne ein langes, fließendes Kleid',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 4,
-              titleKey: 'add_face_hair',
-              descriptionKey: 'add_face_hair_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Princess+Complete',
+              stepEn: 'Add her face and long beautiful hair',
+              stepDe: 'Füge ihr Gesicht und langes schönes Haar hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),
         DrawingItem(
           id: 'robot',
-          nameKey: 'robot',
+          nameEn: 'Robot',
+          nameDe: 'Roboter',
           emoji: '🤖',
-          description: 'A friendly robot helper',
-          difficulty: 2,
           steps: [
             DrawingStep(
-              stepNumber: 1,
-              titleKey: 'draw_robot_head',
-              descriptionKey: 'draw_robot_head_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/3D8BFF/FFFFFF?text=Robot+Head',
+              stepEn: 'Draw a square for the robot head',
+              stepDe: 'Zeichne ein Quadrat für den Roboterkopf',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 2,
-              titleKey: 'add_robot_body',
-              descriptionKey: 'add_robot_body_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/FFD93D/FFFFFF?text=Robot+Body',
+              stepEn: 'Add a rectangle body with arms and legs',
+              stepDe:
+                  'Füge einen rechteckigen Körper mit Armen und Beinen hinzu',
+              stepImg: '', // Will be populated from API
             ),
             DrawingStep(
-              stepNumber: 3,
-              titleKey: 'add_robot_details',
-              descriptionKey: 'add_robot_details_desc',
-              imageUrl:
-                  'https://via.placeholder.com/300x200/7CFFCB/FFFFFF?text=Robot+Complete',
+              stepEn: 'Add buttons, lights, and robot features',
+              stepDe: 'Füge Knöpfe, Lichter und Robotermerkmale hinzu',
+              stepImg: '', // Will be populated from API
             ),
           ],
         ),

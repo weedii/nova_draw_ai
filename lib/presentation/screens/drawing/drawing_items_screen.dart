@@ -23,6 +23,12 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
 
   DrawingCategory? category;
 
+  String _getCategoryTitle() {
+    if (category == null) return '';
+    final isGerman = context.locale.languageCode == 'de';
+    return isGerman ? category!.titleDe : category!.titleEn;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,33 +63,7 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
 
   void _onDrawingItemSelected(DrawingItem item) {
     // Navigate to drawing steps with both category and item IDs
-    context.go('/drawing-steps/${widget.categoryId}/${item.id}');
-  }
-
-  String _getDifficultyText(int difficulty) {
-    switch (difficulty) {
-      case 1:
-        return 'difficulty_easy'.tr();
-      case 2:
-        return 'difficulty_medium'.tr();
-      case 3:
-        return 'difficulty_hard'.tr();
-      default:
-        return 'difficulty_easy'.tr();
-    }
-  }
-
-  Color _getDifficultyColor(int difficulty) {
-    switch (difficulty) {
-      case 1:
-        return AppColors.success;
-      case 2:
-        return AppColors.secondary;
-      case 3:
-        return AppColors.error;
-      default:
-        return AppColors.success;
-    }
+    context.push('/drawing-steps/${widget.categoryId}/${item.id}');
   }
 
   @override
@@ -135,23 +115,9 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
                       Positioned(
                         top: 10,
                         right: 20,
-                        child: AppAnimatedFloat(
-                          animation: _sparkleFloat,
-                          child: Text(
-                            category!.icon,
-                            style: const TextStyle(fontSize: 40),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 40,
-                        right: 80,
-                        child: AppAnimatedFloat(
-                          animation: _sparkleFloat,
-                          child: const Text(
-                            '✨',
-                            style: TextStyle(fontSize: 25),
-                          ),
+                        child: Text(
+                          category!.icon,
+                          style: const TextStyle(fontSize: 40),
                         ),
                       ),
 
@@ -170,7 +136,9 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
                                 fontFamily: 'Comic Sans MS',
                               ),
                             ),
+
                             const SizedBox(height: 8),
+
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -184,7 +152,7 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
                                 ),
                               ),
                               child: Text(
-                                category!.titleKey.tr(),
+                                _getCategoryTitle(),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -224,8 +192,6 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
                           categoryColor: category!.color,
                           onTap: () => _onDrawingItemSelected(item),
                           delay: Duration(milliseconds: 100 * index),
-                          getDifficultyText: _getDifficultyText,
-                          getDifficultyColor: _getDifficultyColor,
                         );
                       },
                     ),
@@ -247,16 +213,12 @@ class _DrawingItemCard extends StatefulWidget {
   final Color categoryColor;
   final VoidCallback onTap;
   final Duration delay;
-  final String Function(int) getDifficultyText;
-  final Color Function(int) getDifficultyColor;
 
   const _DrawingItemCard({
     required this.item,
     required this.categoryColor,
     required this.onTap,
     required this.delay,
-    required this.getDifficultyText,
-    required this.getDifficultyColor,
   });
 
   @override
@@ -267,6 +229,18 @@ class _DrawingItemCardState extends State<_DrawingItemCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
+
+  String _getItemName() {
+    final isGerman = context.locale.languageCode == 'de';
+    return isGerman ? widget.item.nameDe : widget.item.nameEn;
+  }
+
+  String _getStepsDescription() {
+    final isGerman = context.locale.languageCode == 'de';
+    final stepsText = isGerman ? 'Schritte' : 'Steps';
+    return '${widget.item.steps.length} $stepsText';
+  }
+
   bool _isPressed = false;
 
   @override
@@ -362,7 +336,7 @@ class _DrawingItemCardState extends State<_DrawingItemCard>
                       children: [
                         // Item name
                         Text(
-                          widget.item.nameKey.tr(),
+                          _getItemName(),
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -373,79 +347,14 @@ class _DrawingItemCardState extends State<_DrawingItemCard>
 
                         const SizedBox(height: 4),
 
-                        // Item description
+                        // Steps count
                         Text(
-                          widget.item.description,
+                          _getStepsDescription(),
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textDark.withValues(alpha: 0.7),
                             height: 1.3,
                           ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        // Difficulty and steps info
-                        Row(
-                          children: [
-                            // Difficulty badge
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: widget
-                                    .getDifficultyColor(widget.item.difficulty)
-                                    .withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: widget
-                                      .getDifficultyColor(
-                                        widget.item.difficulty,
-                                      )
-                                      .withValues(alpha: 0.3),
-                                ),
-                              ),
-                              child: Text(
-                                widget.getDifficultyText(
-                                  widget.item.difficulty,
-                                ),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: widget.getDifficultyColor(
-                                    widget.item.difficulty,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            // Steps count
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.format_list_numbered,
-                                  size: 16,
-                                  color: AppColors.textDark.withValues(
-                                    alpha: 0.6,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${widget.item.steps.length} ${'step'.tr()}${widget.item.steps.length > 1 ? 's' : ''}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.textDark.withValues(
-                                      alpha: 0.6,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
                         ),
                       ],
                     ),
