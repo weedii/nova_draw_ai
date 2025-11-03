@@ -1,25 +1,26 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
+import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 
-class DrawingItemsScreen extends StatefulWidget {
+class DrawingsScreen extends StatefulWidget {
   final String categoryId;
 
-  const DrawingItemsScreen({super.key, required this.categoryId});
+  const DrawingsScreen({super.key, required this.categoryId});
 
   @override
-  State<DrawingItemsScreen> createState() => _DrawingItemsScreenState();
+  State<DrawingsScreen> createState() => _DrawingsScreenState();
 }
 
-class _DrawingItemsScreenState extends State<DrawingItemsScreen>
+class _DrawingsScreenState extends State<DrawingsScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _sparkleController;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _sparkleFloat;
 
   DrawingCategory? category;
 
@@ -46,10 +47,6 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
     _fadeAnimation = AppAnimations.createFadeAnimation(
       controller: _fadeController,
     );
-    _sparkleFloat = AppAnimations.createFloatAnimation(
-      controller: _sparkleController,
-      distance: 20.0,
-    );
 
     _fadeController.forward();
   }
@@ -61,9 +58,14 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
     super.dispose();
   }
 
-  void _onDrawingItemSelected(DrawingItem item) {
-    // Navigate to drawing steps with both category and item IDs
-    context.push('/drawing-steps/${widget.categoryId}/${item.id}');
+  void _onDrawingSelected(Drawing drawing) {
+    // Update provider state
+    context.read<DrawingProvider>().selectDrawing(
+      widget.categoryId,
+      drawing.id,
+    );
+    // Navigate to drawing steps with both category and drawing IDs
+    context.push('/drawings/${widget.categoryId}/${drawing.id}');
   }
 
   @override
@@ -184,13 +186,13 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: ListView.builder(
-                      itemCount: category!.items.length,
+                      itemCount: category!.drawings.length,
                       itemBuilder: (context, index) {
-                        final item = category!.items[index];
-                        return _DrawingItemCard(
-                          item: item,
+                        final drawing = category!.drawings[index];
+                        return _DrawingCard(
+                          drawing: drawing,
                           categoryColor: category!.color,
-                          onTap: () => _onDrawingItemSelected(item),
+                          onTap: () => _onDrawingSelected(drawing),
                           delay: Duration(milliseconds: 100 * index),
                         );
                       },
@@ -208,37 +210,37 @@ class _DrawingItemsScreenState extends State<DrawingItemsScreen>
   }
 }
 
-class _DrawingItemCard extends StatefulWidget {
-  final DrawingItem item;
+class _DrawingCard extends StatefulWidget {
+  final Drawing drawing;
   final Color categoryColor;
   final VoidCallback onTap;
   final Duration delay;
 
-  const _DrawingItemCard({
-    required this.item,
+  const _DrawingCard({
+    required this.drawing,
     required this.categoryColor,
     required this.onTap,
     required this.delay,
   });
 
   @override
-  State<_DrawingItemCard> createState() => _DrawingItemCardState();
+  State<_DrawingCard> createState() => _DrawingCardState();
 }
 
-class _DrawingItemCardState extends State<_DrawingItemCard>
+class _DrawingCardState extends State<_DrawingCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
 
-  String _getItemName() {
+  String _getDrawingName() {
     final isGerman = context.locale.languageCode == 'de';
-    return isGerman ? widget.item.nameDe : widget.item.nameEn;
+    return isGerman ? widget.drawing.nameDe : widget.drawing.nameEn;
   }
 
   String _getStepsDescription() {
     final isGerman = context.locale.languageCode == 'de';
     final stepsText = isGerman ? 'Schritte' : 'Steps';
-    return '${widget.item.steps.length} $stepsText';
+    return '${widget.drawing.steps.length} $stepsText';
   }
 
   bool _isPressed = false;
@@ -321,7 +323,7 @@ class _DrawingItemCardState extends State<_DrawingItemCard>
                     ),
                     child: Center(
                       child: Text(
-                        widget.item.emoji,
+                        widget.drawing.emoji,
                         style: const TextStyle(fontSize: 32),
                       ),
                     ),
@@ -334,9 +336,9 @@ class _DrawingItemCardState extends State<_DrawingItemCard>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Item name
+                        // Drawing name
                         Text(
-                          _getItemName(),
+                          _getDrawingName(),
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

@@ -44,7 +44,7 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   void _signIn() async {
-    context.push("/drawing-selection");
+    context.push("/drawings/categories");
     return; // TODO: Remove this
     if (_formKey.currentState!.validate()) {
       setState(() {

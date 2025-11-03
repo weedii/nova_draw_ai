@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'core/constants/colors.dart';
+import 'providers/drawing_provider.dart';
 import 'routes/app_router.dart';
 
 void main() async {
@@ -8,13 +10,15 @@ void main() async {
   await EasyLocalization.ensureInitialized();
 
   runApp(
-    EasyLocalization(
-      supportedLocales: [Locale('en'), Locale('de')],
-      path: 'assets/translations',
-      fallbackLocale: Locale('en'),
-      startLocale: Locale('en'),
-
-      child: MainApp(),
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => DrawingProvider())],
+      child: EasyLocalization(
+        supportedLocales: [Locale('en'), Locale('de')],
+        path: 'assets/translations',
+        fallbackLocale: Locale('en'),
+        startLocale: Locale('en'),
+        child: MainApp(),
+      ),
     ),
   );
 }

@@ -4,8 +4,8 @@ import 'package:nova_draw_ai/presentation/screens/auth/reset_password_screen.dar
 import 'package:nova_draw_ai/presentation/screens/auth/signin_screen.dart';
 import 'package:nova_draw_ai/presentation/screens/auth/signup_screen.dart';
 import '../presentation/screens/welcome_screen.dart';
-import '../presentation/screens/drawing/drawing_selection_screen.dart';
-import '../presentation/screens/drawing/drawing_items_screen.dart';
+import '../presentation/screens/drawing/drawing_categories_screen.dart';
+import '../presentation/screens/drawing/drawings_screen.dart';
 import '../presentation/screens/drawing/drawing_steps_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -41,24 +41,24 @@ final GoRouter appRouter = GoRouter(
 
     // Drawing Routes
     GoRoute(
-      path: "/drawing-selection",
+      path: "/drawings/categories",
       builder: (BuildContext context, GoRouterState state) {
-        return const DrawingSelectionScreen();
+        return const DrawingCategoriesScreen();
       },
     ),
     GoRoute(
-      path: "/drawing-items/:categoryId",
+      path: "/drawings/:categoryId",
       builder: (BuildContext context, GoRouterState state) {
         final categoryId = state.pathParameters['categoryId']!;
-        return DrawingItemsScreen(categoryId: categoryId);
+        return DrawingsScreen(categoryId: categoryId);
       },
     ),
     GoRoute(
-      path: "/drawing-steps/:categoryId/:itemId",
+      path: "/drawings/:categoryId/:drawingId",
       builder: (BuildContext context, GoRouterState state) {
         final categoryId = state.pathParameters['categoryId']!;
-        final itemId = state.pathParameters['itemId']!;
-        return DrawingStepsScreen(categoryId: categoryId, itemId: itemId);
+        final drawingId = state.pathParameters['drawingId']!;
+        return DrawingStepsScreen(categoryId: categoryId, drawingId: drawingId);
       },
     ),
   ],

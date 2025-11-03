@@ -13,14 +13,14 @@ class DrawingStep {
   });
 }
 
-class DrawingItem {
+class Drawing {
   final String id;
   final String nameEn;
   final String nameDe;
   final String emoji;
   final List<DrawingStep> steps;
 
-  const DrawingItem({
+  const Drawing({
     required this.id,
     required this.nameEn,
     required this.nameDe,
@@ -37,7 +37,7 @@ class DrawingCategory {
   final String descriptionDe;
   final String icon;
   final Color color;
-  final List<DrawingItem> items;
+  final List<Drawing> drawings;
 
   const DrawingCategory({
     required this.id,
@@ -47,7 +47,7 @@ class DrawingCategory {
     required this.descriptionDe,
     required this.icon,
     required this.color,
-    required this.items,
+    required this.drawings,
   });
 }
 
@@ -62,8 +62,8 @@ class DrawingData {
       descriptionDe: 'Zeichne süße Tiere wie Hunde, Katzen und mehr!',
       icon: '🐶',
       color: AppColors.primary,
-      items: [
-        DrawingItem(
+      drawings: [
+        Drawing(
           id: 'dog',
           nameEn: 'Dog',
           nameDe: 'Hund',
@@ -91,7 +91,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'cat',
           nameEn: 'Cat',
           nameDe: 'Katze',
@@ -119,7 +119,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'fish',
           nameEn: 'Fish',
           nameDe: 'Fisch',
@@ -142,7 +142,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'elephant',
           nameEn: 'Elephant',
           nameDe: 'Elefant',
@@ -182,8 +182,8 @@ class DrawingData {
       descriptionDe: 'Lerne alltägliche Gegenstände und Formen zu zeichnen!',
       icon: '⚽',
       color: AppColors.accent,
-      items: [
-        DrawingItem(
+      drawings: [
+        Drawing(
           id: 'house',
           nameEn: 'House',
           nameDe: 'Haus',
@@ -207,7 +207,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'ball',
           nameEn: 'Ball',
           nameDe: 'Ball',
@@ -226,7 +226,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'star',
           nameEn: 'Star',
           nameDe: 'Stern',
@@ -261,8 +261,8 @@ class DrawingData {
       descriptionDe: 'Erschaffe wunderschöne Naturszenen und Pflanzen!',
       icon: '🌳',
       color: AppColors.success,
-      items: [
-        DrawingItem(
+      drawings: [
+        Drawing(
           id: 'tree',
           nameEn: 'Tree',
           nameDe: 'Baum',
@@ -285,7 +285,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'flower',
           nameEn: 'Flower',
           nameDe: 'Blume',
@@ -309,7 +309,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'sun',
           nameEn: 'Sun',
           nameDe: 'Sonne',
@@ -339,8 +339,8 @@ class DrawingData {
       descriptionDe: 'Zeichne Autos, Flugzeuge und andere Fahrzeuge!',
       icon: '🚗',
       color: AppColors.secondary,
-      items: [
-        DrawingItem(
+      drawings: [
+        Drawing(
           id: 'car',
           nameEn: 'Car',
           nameDe: 'Auto',
@@ -363,7 +363,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'airplane',
           nameEn: 'Airplane',
           nameDe: 'Flugzeug',
@@ -399,8 +399,8 @@ class DrawingData {
       descriptionDe: 'Zeichne leckeres Essen und Leckereien!',
       icon: '🍎',
       color: AppColors.error,
-      items: [
-        DrawingItem(
+      drawings: [
+        Drawing(
           id: 'apple',
           nameEn: 'Apple',
           nameDe: 'Apfel',
@@ -418,7 +418,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'pizza',
           nameEn: 'Pizza',
           nameDe: 'Pizza',
@@ -453,8 +453,8 @@ class DrawingData {
       descriptionDe: 'Erschaffe magische Charaktere und Menschen!',
       icon: '👑',
       color: AppColors.primaryDark,
-      items: [
-        DrawingItem(
+      drawings: [
+        Drawing(
           id: 'princess',
           nameEn: 'Princess',
           nameDe: 'Prinzessin',
@@ -482,7 +482,7 @@ class DrawingData {
             ),
           ],
         ),
-        DrawingItem(
+        Drawing(
           id: 'robot',
           nameEn: 'Robot',
           nameDe: 'Roboter',
@@ -519,12 +519,12 @@ class DrawingData {
     }
   }
 
-  static DrawingItem? getDrawingItemById(String categoryId, String itemId) {
+  static Drawing? getDrawingById(String categoryId, String drawingId) {
     final category = getCategoryById(categoryId);
     if (category == null) return null;
 
     try {
-      return category.items.firstWhere((item) => item.id == itemId);
+      return category.drawings.firstWhere((drawing) => drawing.id == drawingId);
     } catch (e) {
       return null;
     }
@@ -532,9 +532,9 @@ class DrawingData {
 
   static List<DrawingStep> getStepsForDrawing(
     String categoryId,
-    String itemId,
+    String drawingId,
   ) {
-    final item = getDrawingItemById(categoryId, itemId);
-    return item?.steps ?? [];
+    final drawing = getDrawingById(categoryId, drawingId);
+    return drawing?.steps ?? [];
   }
 }

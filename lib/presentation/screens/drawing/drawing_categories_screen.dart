@@ -1,25 +1,26 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
+import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 
-class DrawingSelectionScreen extends StatefulWidget {
-  const DrawingSelectionScreen({super.key});
+class DrawingCategoriesScreen extends StatefulWidget {
+  const DrawingCategoriesScreen({super.key});
 
   @override
-  State<DrawingSelectionScreen> createState() => _DrawingSelectionScreenState();
+  State<DrawingCategoriesScreen> createState() =>
+      _DrawingCategoriesScreenState();
 }
 
-class _DrawingSelectionScreenState extends State<DrawingSelectionScreen>
+class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _sparkleController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _sparkleFloat;
-
-  final List<DrawingCategory> categories = DrawingData.categories;
 
   @override
   void initState() {
@@ -50,98 +51,111 @@ class _DrawingSelectionScreenState extends State<DrawingSelectionScreen>
   }
 
   void _onCategorySelected(DrawingCategory category) {
+    // Update provider state
+    context.read<DrawingProvider>().selectCategory(category.id);
     // Navigate to drawing items screen to select specific drawing
-    context.push('/drawing-items/${category.id}');
+    context.push('/drawings/${category.id}');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Column(
-              children: [
-                // Header with decorative elements
-                Container(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Stack(
-                    children: [
-                      // Decorative sparkles
-                      Positioned(
-                        top: 5,
-                        right: 0,
-                        child: const Text('🎨', style: TextStyle(fontSize: 30)),
-                      ),
+    return Consumer<DrawingProvider>(
+      builder: (context, drawingProvider, child) {
+        final categories = drawingProvider.categories;
 
-                      // Main title
-                      Center(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            Text(
-                              'choose_drawing'.tr(),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                                fontFamily: 'Comic Sans MS',
-                              ),
+        return Scaffold(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: AppColors.backgroundGradient,
+            ),
+            child: SafeArea(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  children: [
+                    // Header with decorative elements
+                    Container(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Stack(
+                        children: [
+                          // Decorative sparkles
+                          Positioned(
+                            top: 5,
+                            right: 0,
+                            child: const Text(
+                              '🎨',
+                              style: TextStyle(fontSize: 30),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'select_category'.tr(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textDark.withValues(
-                                  alpha: 0.7,
+                          ),
+
+                          // Main title
+                          Center(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                Text(
+                                  'choose_drawing'.tr(),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                    fontFamily: 'Comic Sans MS',
+                                  ),
                                 ),
-                                height: 1.4,
-                              ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'select_category'.tr(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.textDark.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Categories Grid
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                mainAxisExtent: 200,
+                                crossAxisCount: 2,
+                                childAspectRatio: 1.0,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                              ),
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) {
+                            final category = categories[index];
+                            return _CategoryCard(
+                              category: category,
+                              onTap: () => _onCategorySelected(category),
+                              delay: Duration(milliseconds: 100 * index),
+                            );
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                // Categories Grid
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            mainAxisExtent: 200,
-                            crossAxisCount: 2,
-                            childAspectRatio: 1.0,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        return _CategoryCard(
-                          category: category,
-                          onTap: () => _onCategorySelected(category),
-                          delay: Duration(milliseconds: 100 * index),
-                        );
-                      },
                     ),
-                  ),
-                ),
 
-                const SizedBox(height: 24),
-              ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
