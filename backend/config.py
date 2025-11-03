@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     min_steps: int = 3
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         case_sensitive = False
         extra = "ignore"  # Ignore extra fields in .env file
 
