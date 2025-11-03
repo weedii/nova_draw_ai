@@ -44,6 +44,8 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   void _signIn() async {
+    context.go("/drawing");
+    return; // TODO: Remove this
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
