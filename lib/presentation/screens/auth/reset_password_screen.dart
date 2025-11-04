@@ -146,7 +146,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          _emailSent ? 'Email Sent!' : 'reset_password'.tr(),
+                          _emailSent
+                              ? 'Email Sent!'
+                              : 'auth.reset_password'.tr(),
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -160,7 +162,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                         Text(
                           _emailSent
                               ? 'We\'ve sent a password reset link to ${_emailController.text}'
-                              : 'enter_email_reset'.tr(),
+                              : 'auth.enter_email_reset'.tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -180,8 +182,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                         child: Column(
                           children: [
                             AuthTextField(
-                              labelText: 'email'.tr(),
-                              hintText: 'email_hint'.tr(),
+                              labelText: 'auth.email'.tr(),
+                              hintText: 'auth.email_hint'.tr(),
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               prefixIcon: const Icon(
@@ -202,7 +204,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                             ),
                             const SizedBox(height: 32),
                             AuthButton(
-                              text: 'send_reset_link'.tr(),
+                              text: 'auth.send_reset_link'.tr(),
                               onPressed: _sendResetLink,
                               isLoading: _isLoading,
                               icon: const Icon(Icons.send, size: 20),
@@ -247,7 +249,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                           ),
                           const SizedBox(height: 32),
                           AuthButton(
-                            text: 'back_to_signin'.tr(),
+                            text: 'auth.back_to_signin'.tr(),
                             onPressed: _navigateToSignIn,
                             isSecondary: true,
                             icon: const Icon(Icons.arrow_back, size: 20),
@@ -272,7 +274,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                           TextButton(
                             onPressed: _navigateToSignIn,
                             child: Text(
-                              'back_to_signin'.tr(),
+                              'auth.back_to_signin'.tr(),
                               style: const TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,

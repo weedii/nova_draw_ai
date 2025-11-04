@@ -1,9 +1,28 @@
 {
-    "hello": "Hello!",
-    "welcome": "Welcome to",
+  "common": {
     "app_name": "NovaDraw ✨",
+    "hello": "Hello!",
+    "step": "Step",
+    "retry": "Retry",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "cancel": "Cancel",
+    "save": "Save",
+    "share": "Share",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  
+  "welcome_screen": {
+    "welcome": "Welcome to",
     "app_description": "Draw, create, and watch your art come to life with magic!",
     "start_drawing": "Start Drawing!",
+    "sign_in": "Sign In"
+  },
+  
+  "auth": {
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
     "email": "Email",
@@ -23,7 +42,10 @@
     "email_hint": "Enter your email",
     "password_hint": "Enter your password",
     "name_hint": "Enter your full name",
-    "confirm_password_hint": "Confirm your password",
+    "confirm_password_hint": "Confirm your password"
+  },
+  
+  "categories": {
     "choose_drawing": "Choose What to Draw",
     "select_category": "Select a category and start your creative journey!",
     "animals": "Animals",
@@ -32,20 +54,21 @@
     "vehicles": "Vehicles",
     "food": "Food",
     "characters": "Characters",
-    "drawing_steps": "Drawing Steps",
-    "step": "Step",
-    "next_step": "Next Step",
-    "finish_drawing": "Finish Drawing",
-    "great_job": "Great Job!",
-    "drawing_complete": "You've completed your drawing!",
     "animals_description": "Draw cute animals like dogs, cats, and more!",
     "objects_description": "Learn to draw everyday objects and shapes!",
     "nature_description": "Create beautiful nature scenes and plants!",
     "vehicles_description": "Draw cars, planes, and other vehicles!",
     "food_description": "Draw delicious food and treats!",
-    "characters_description": "Create magical characters and people!",
+    "characters_description": "Create magical characters and people!"
+  },
+  
+  "drawings": {
     "select_drawing": "Select a Drawing",
     "choose_what_to_draw": "Choose what you want to draw from this category!",
+    "back_to_categories": "Back to Categories"
+  },
+  
+  "drawing_items": {
     "dog": "Dog",
     "cat": "Cat",
     "fish": "Fish",
@@ -61,7 +84,26 @@
     "apple": "Apple",
     "pizza": "Pizza",
     "princess": "Princess",
-    "robot": "Robot",
+    "robot": "Robot"
+  },
+  
+  "drawing_steps": {
+    "drawing_steps": "Drawing Steps",
+    "next_step": "Next Step",
+    "finish_drawing": "Finish Drawing",
+    "great_job": "Great Job!",
+    "drawing_complete": "You've completed your drawing!",
+    "generating_tutorial": "Generating Tutorial",
+    "creating_drawing_steps": "Creating drawing steps with AI...",
+    "please_wait": "This may take 30-60 seconds",
+    "error_occurred": "Error Occurred",
+    "failed_to_generate": "Failed to Generate Tutorial",
+    "unknown_error": "Unknown error occurred",
+    "use_offline": "Use Offline",
+    "no_steps_available": "No steps available"
+  },
+  
+  "step_instructions": {
     "draw_circle_head": "Draw a Circle for the Head",
     "draw_circle_head_desc": "Start by drawing a big circle for the head",
     "add_ears": "Add the Ears",
@@ -155,24 +197,19 @@
     "add_robot_body": "Add Robot Body",
     "add_robot_body_desc": "Draw a rectangle body with arms and legs",
     "add_robot_details": "Add Robot Details",
-    "add_robot_details_desc": "Add buttons, lights, and robot features",
-    "generating_tutorial": "Generating Tutorial",
-    "creating_drawing_steps": "Creating drawing steps with AI...",
-    "please_wait": "This may take 30-60 seconds",
-    "error_occurred": "Error Occurred",
-    "failed_to_generate": "Failed to Generate Tutorial",
-    "unknown_error": "Unknown error occurred",
-    "retry": "Retry",
-    "use_offline": "Use Offline",
-    "no_steps_available": "No steps available",
-    "back_to_categories": "Back to Categories",
-    
+    "add_robot_details_desc": "Add buttons, lights, and robot features"
+  },
+  
+  "upload": {
     "upload_drawing": "Upload Your Drawing",
     "upload_subtitle": "Show us your amazing artwork!",
     "upload_description": "Take a photo or upload your drawing and let our AI make it even more stunning!",
     "take_photo": "Take Photo",
     "choose_from_gallery": "Choose from Gallery",
-    "upload_later": "Maybe Later",
+    "upload_later": "Maybe Later"
+  },
+  
+  "ai_enhancement": {
     "ai_magic": "AI Magic",
     "ai_magic_subtitle": "Your drawing is getting magical!",
     "processing_image": "Processing your artwork with AI...",
@@ -186,4 +223,5 @@
     "draw_another": "Draw Another",
     "processing_failed": "Processing Failed",
     "try_again": "Try Again"
+  }
 }

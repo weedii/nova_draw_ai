@@ -1,9 +1,28 @@
 {
-    "hello": "Hallo!",
-    "welcome": "Willkommen bei",
+  "common": {
     "app_name": "NovaDraw ✨",
+    "hello": "Hallo!",
+    "step": "Schritt",
+    "retry": "Wiederholen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "finish": "Fertig",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "share": "Teilen",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
+  
+  "welcome_screen": {
+    "welcome": "Willkommen bei",
     "app_description": "Zeichne, erschaffe und erwecke deine Kunst mit Magie zum Leben!",
     "start_drawing": "Zeichnen beginnen!",
+    "sign_in": "Anmelden"
+  },
+  
+  "auth": {
     "sign_in": "Anmelden",
     "sign_up": "Registrieren",
     "email": "E-Mail",
@@ -23,7 +42,10 @@
     "email_hint": "E-Mail eingeben",
     "password_hint": "Passwort eingeben",
     "name_hint": "Vollständigen Namen eingeben",
-    "confirm_password_hint": "Passwort bestätigen",
+    "confirm_password_hint": "Passwort bestätigen"
+  },
+  
+  "categories": {
     "choose_drawing": "Wähle was du zeichnen möchtest",
     "select_category": "Wähle eine Kategorie und beginne deine kreative Reise!",
     "animals": "Tiere",
@@ -32,20 +54,21 @@
     "vehicles": "Fahrzeuge",
     "food": "Essen",
     "characters": "Charaktere",
-    "drawing_steps": "Zeichenschritte",
-    "step": "Schritt",
-    "next_step": "Nächster Schritt",
-    "finish_drawing": "Zeichnung beenden",
-    "great_job": "Großartige Arbeit!",
-    "drawing_complete": "Du hast deine Zeichnung fertiggestellt!",
     "animals_description": "Zeichne süße Tiere wie Hunde, Katzen und mehr!",
     "objects_description": "Lerne alltägliche Gegenstände und Formen zu zeichnen!",
     "nature_description": "Erschaffe wunderschöne Naturszenen und Pflanzen!",
     "vehicles_description": "Zeichne Autos, Flugzeuge und andere Fahrzeuge!",
     "food_description": "Zeichne leckeres Essen und Süßigkeiten!",
-    "characters_description": "Erschaffe magische Charaktere und Menschen!",
+    "characters_description": "Erschaffe magische Charaktere und Menschen!"
+  },
+  
+  "drawings": {
     "select_drawing": "Wähle eine Zeichnung",
     "choose_what_to_draw": "Wähle aus dieser Kategorie, was du zeichnen möchtest!",
+    "back_to_categories": "Zurück zu Kategorien"
+  },
+  
+  "drawing_items": {
     "dog": "Hund",
     "cat": "Katze",
     "fish": "Fisch",
@@ -61,7 +84,26 @@
     "apple": "Apfel",
     "pizza": "Pizza",
     "princess": "Prinzessin",
-    "robot": "Roboter",
+    "robot": "Roboter"
+  },
+  
+  "drawing_steps": {
+    "drawing_steps": "Zeichenschritte",
+    "next_step": "Nächster Schritt",
+    "finish_drawing": "Zeichnung beenden",
+    "great_job": "Großartige Arbeit!",
+    "drawing_complete": "Du hast deine Zeichnung fertiggestellt!",
+    "generating_tutorial": "Tutorial wird erstellt",
+    "creating_drawing_steps": "Zeichenschritte werden mit KI erstellt...",
+    "please_wait": "Das kann 30-60 Sekunden dauern",
+    "error_occurred": "Fehler aufgetreten",
+    "failed_to_generate": "Tutorial konnte nicht erstellt werden",
+    "unknown_error": "Unbekannter Fehler aufgetreten",
+    "use_offline": "Offline verwenden",
+    "no_steps_available": "Keine Schritte verfügbar"
+  },
+  
+  "step_instructions": {
     "draw_circle_head": "Zeichne einen Kreis für den Kopf",
     "draw_circle_head_desc": "Beginne mit einem großen Kreis für den Kopf",
     "add_ears": "Füge die Ohren hinzu",
@@ -75,24 +117,19 @@
     "draw_oval_body": "Zeichne einen ovalen Körper",
     "draw_oval_body_desc": "Füge eine ovale Form für den Körper hinzu",
     "add_face_details": "Füge Gesichtsdetails hinzu",
-    "add_face_details_desc": "Zeichne Augen, Nase, Mund und Schnurrhaare",
-    "generating_tutorial": "Tutorial wird erstellt",
-    "creating_drawing_steps": "Zeichenschritte werden mit KI erstellt...",
-    "please_wait": "Das kann 30-60 Sekunden dauern",
-    "error_occurred": "Fehler aufgetreten",
-    "failed_to_generate": "Tutorial konnte nicht erstellt werden",
-    "unknown_error": "Unbekannter Fehler aufgetreten",
-    "retry": "Wiederholen",
-    "use_offline": "Offline verwenden",
-    "no_steps_available": "Keine Schritte verfügbar",
-    "back_to_categories": "Zurück zu Kategorien",
-    
+    "add_face_details_desc": "Zeichne Augen, Nase, Mund und Schnurrhaare"
+  },
+  
+  "upload": {
     "upload_drawing": "Zeichnung hochladen",
     "upload_subtitle": "Zeig uns dein tolles Kunstwerk!",
     "upload_description": "Mach ein Foto oder lade deine Zeichnung hoch und lass unsere KI sie noch beeindruckender machen!",
     "take_photo": "Foto aufnehmen",
     "choose_from_gallery": "Aus Galerie wählen",
-    "upload_later": "Vielleicht später",
+    "upload_later": "Vielleicht später"
+  },
+  
+  "ai_enhancement": {
     "ai_magic": "KI-Magie",
     "ai_magic_subtitle": "Deine Zeichnung wird magisch!",
     "processing_image": "Dein Kunstwerk wird mit KI bearbeitet...",
@@ -106,4 +143,5 @@
     "draw_another": "Noch eine zeichnen",
     "processing_failed": "Verarbeitung fehlgeschlagen",
     "try_again": "Nochmal versuchen"
+  }
 }

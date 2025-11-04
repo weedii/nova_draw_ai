@@ -129,7 +129,7 @@ class _DrawingsScreenState extends State<DrawingsScreen>
                           children: [
                             const SizedBox(height: 20),
                             Text(
-                              'select_drawing'.tr(),
+                              'drawings.select_drawing'.tr(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 28,
@@ -164,7 +164,7 @@ class _DrawingsScreenState extends State<DrawingsScreen>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'choose_what_to_draw'.tr(),
+                              'drawings.choose_what_to_draw'.tr(),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,

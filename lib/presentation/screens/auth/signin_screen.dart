@@ -127,7 +127,7 @@ class _SignInScreenState extends State<SignInScreen>
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'app_name'.tr(),
+                          'common.app_name'.tr(),
                           style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -137,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'sign_in_subtitle'.tr(),
+                          'auth.sign_in_subtitle'.tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -156,8 +156,8 @@ class _SignInScreenState extends State<SignInScreen>
                       child: Column(
                         children: [
                           AuthTextField(
-                            labelText: 'email'.tr(),
-                            hintText: 'email_hint'.tr(),
+                            labelText: 'auth.email'.tr(),
+                            hintText: 'auth.email_hint'.tr(),
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             prefixIcon: const Icon(
@@ -178,8 +178,8 @@ class _SignInScreenState extends State<SignInScreen>
                           ),
                           const SizedBox(height: 20),
                           AuthTextField(
-                            labelText: 'password'.tr(),
-                            hintText: 'password_hint'.tr(),
+                            labelText: 'auth.password'.tr(),
+                            hintText: 'auth.password_hint'.tr(),
                             isPassword: true,
                             controller: _passwordController,
                             prefixIcon: const Icon(
@@ -202,7 +202,7 @@ class _SignInScreenState extends State<SignInScreen>
                             child: TextButton(
                               onPressed: _navigateToResetPassword,
                               child: Text(
-                                'forgot_password'.tr(),
+                                'auth.forgot_password'.tr(),
                                 style: const TextStyle(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w600,
@@ -212,7 +212,7 @@ class _SignInScreenState extends State<SignInScreen>
                           ),
                           const SizedBox(height: 32),
                           AuthButton(
-                            text: 'sign_in'.tr(),
+                            text: 'auth.sign_in'.tr(),
                             onPressed: _signIn,
                             isLoading: _isLoading,
                             icon: const Icon(Icons.login, size: 20),
@@ -228,7 +228,7 @@ class _SignInScreenState extends State<SignInScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'dont_have_account'.tr(),
+                          'auth.dont_have_account'.tr(),
                           style: TextStyle(
                             color: AppColors.textDark.withValues(alpha: 0.7),
                             fontSize: 16,
@@ -237,7 +237,7 @@ class _SignInScreenState extends State<SignInScreen>
                         TextButton(
                           onPressed: _navigateToSignUp,
                           child: Text(
-                            'sign_up'.tr(),
+                            'auth.sign_up'.tr(),
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,

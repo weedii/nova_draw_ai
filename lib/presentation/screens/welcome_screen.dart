@@ -190,7 +190,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           Column(
                             children: [
                               Text(
-                                'welcome'.tr(),
+                                'welcome_screen.welcome'.tr(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize:
@@ -203,7 +203,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 ),
                               ),
                               Text(
-                                'app_name'.tr(),
+                                'common.app_name'.tr(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize:
@@ -221,7 +221,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   horizontal: 16,
                                 ),
                                 child: Text(
-                                  'app_description'.tr(),
+                                  'welcome_screen.app_description'.tr(),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 18,
@@ -281,7 +281,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                       const SizedBox(width: 8),
                                       Flexible(
                                         child: Text(
-                                          'start_drawing'.tr(),
+                                          'welcome_screen.start_drawing'.tr(),
                                           style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,

@@ -94,7 +94,7 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                               children: [
                                 const SizedBox(height: 20),
                                 Text(
-                                  'choose_drawing'.tr(),
+                                  'categories.choose_drawing'.tr(),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 32,
@@ -105,7 +105,7 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'select_category'.tr(),
+                                  'categories.select_category'.tr(),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 16,

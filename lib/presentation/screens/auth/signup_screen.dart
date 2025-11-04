@@ -125,7 +125,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'create_account'.tr(),
+                          'auth.create_account'.tr(),
                           style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -135,7 +135,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'sign_up_subtitle'.tr(),
+                          'auth.sign_up_subtitle'.tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -154,8 +154,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                       child: Column(
                         children: [
                           AuthTextField(
-                            labelText: 'full_name'.tr(),
-                            hintText: 'name_hint'.tr(),
+                            labelText: 'auth.full_name'.tr(),
+                            hintText: 'auth.name_hint'.tr(),
                             controller: _nameController,
                             keyboardType: TextInputType.name,
                             prefixIcon: const Icon(
@@ -174,8 +174,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                           ),
                           const SizedBox(height: 20),
                           AuthTextField(
-                            labelText: 'email'.tr(),
-                            hintText: 'email_hint'.tr(),
+                            labelText: 'auth.email'.tr(),
+                            hintText: 'auth.email_hint'.tr(),
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             prefixIcon: const Icon(
@@ -196,8 +196,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                           ),
                           const SizedBox(height: 20),
                           AuthTextField(
-                            labelText: 'password'.tr(),
-                            hintText: 'password_hint'.tr(),
+                            labelText: 'auth.password'.tr(),
+                            hintText: 'auth.password_hint'.tr(),
                             isPassword: true,
                             controller: _passwordController,
                             prefixIcon: const Icon(
@@ -216,8 +216,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                           ),
                           const SizedBox(height: 20),
                           AuthTextField(
-                            labelText: 'confirm_password'.tr(),
-                            hintText: 'confirm_password_hint'.tr(),
+                            labelText: 'auth.confirm_password'.tr(),
+                            hintText: 'auth.confirm_password_hint'.tr(),
                             isPassword: true,
                             controller: _confirmPasswordController,
                             prefixIcon: const Icon(
@@ -236,7 +236,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                           ),
                           const SizedBox(height: 32),
                           AuthButton(
-                            text: 'create_account'.tr(),
+                            text: 'auth.create_account'.tr(),
                             onPressed: _signUp,
                             isLoading: _isLoading,
                             icon: const Icon(Icons.person_add, size: 20),
@@ -252,7 +252,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'already_have_account'.tr(),
+                          'auth.already_have_account'.tr(),
                           style: TextStyle(
                             color: AppColors.textDark.withValues(alpha: 0.7),
                             fontSize: 16,
@@ -261,7 +261,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                         TextButton(
                           onPressed: _navigateToSignIn,
                           child: Text(
-                            'sign_in'.tr(),
+                            'auth.sign_in'.tr(),
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,

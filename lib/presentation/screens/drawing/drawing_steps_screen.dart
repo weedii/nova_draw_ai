@@ -111,7 +111,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
             const Icon(Icons.celebration, size: 60, color: AppColors.success),
             const SizedBox(height: 16),
             Text(
-              'great_job'.tr(),
+              'drawing_steps.great_job'.tr(),
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'drawing_complete'.tr(),
+              'drawing_steps.drawing_complete'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -142,7 +142,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                   );
                 },
                 icon: const Icon(Icons.camera_alt, size: 20),
-                label: Text('upload_drawing'.tr()),
+                label: Text('upload.upload_drawing'.tr()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.white,
@@ -167,7 +167,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                   context.push('/drawings/categories');
                 },
                 icon: const Icon(Icons.palette, size: 20),
-                label: Text('draw_another'.tr()),
+                label: Text('ai_enhancement.draw_another'.tr()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.white,
                   foregroundColor: AppColors.primary,
@@ -206,7 +206,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
             const Icon(Icons.palette, size: 80, color: AppColors.white),
             const SizedBox(height: 16),
             Text(
-              '${'step'.tr()} ${stepIndex + 1}',
+              '${'common.step'.tr()} ${stepIndex + 1}',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -342,7 +342,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                     ),
                     Expanded(
                       child: Text(
-                        'generating_tutorial'.tr(),
+                        'drawing_steps.generating_tutorial'.tr(),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 24,
@@ -369,7 +369,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'creating_drawing_steps'.tr(),
+                        'drawing_steps.creating_drawing_steps'.tr(),
                         style: TextStyle(
                           fontSize: 18,
                           color: AppColors.textDark.withValues(alpha: 0.8),
@@ -377,7 +377,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'please_wait'.tr(),
+                        'drawing_steps.please_wait'.tr(),
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textDark.withValues(alpha: 0.6),
@@ -417,7 +417,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                     ),
                     Expanded(
                       child: Text(
-                        'error_occurred'.tr(),
+                        'drawing_steps.error_occurred'.tr(),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 24,
@@ -447,7 +447,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'failed_to_generate'.tr(),
+                          'drawing_steps.failed_to_generate'.tr(),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 20,
@@ -457,7 +457,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          provider.error ?? 'unknown_error'.tr(),
+                          provider.error ?? 'drawing_steps.unknown_error'.tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -474,7 +474,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                             ElevatedButton.icon(
                               onPressed: () => provider.retryLoadSteps(),
                               icon: const Icon(Icons.refresh),
-                              label: Text('retry'.tr()),
+                              label: Text('common.retry'.tr()),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: AppColors.white,
@@ -492,7 +492,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                             ElevatedButton.icon(
                               onPressed: () => provider.useStaticDataFallback(),
                               icon: const Icon(Icons.offline_bolt),
-                              label: Text('use_offline'.tr()),
+                              label: Text('drawing_steps.use_offline'.tr()),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.white,
                                 foregroundColor: AppColors.primary,
@@ -539,7 +539,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'no_steps_available'.tr(),
+                  'drawing_steps.no_steps_available'.tr(),
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -571,7 +571,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'drawing_complete'.tr(),
+                  'drawing_steps.drawing_complete'.tr(),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -581,7 +581,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () => context.push('/drawings/categories'),
-                  child: Text('back_to_categories'.tr()),
+                  child: Text('drawings.back_to_categories'.tr()),
                 ),
               ],
             ),
@@ -650,7 +650,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                             child: Column(
                               children: [
                                 Text(
-                                  'drawing_steps'.tr(),
+                                  'drawing_steps.drawing_steps'.tr(),
                                   style: const TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
@@ -660,7 +660,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${'step'.tr()} ${currentStepIndex + 1} of ${steps.length}',
+                                  '${'common.step'.tr()} ${currentStepIndex + 1} of ${steps.length}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: AppColors.textDark.withValues(
@@ -710,7 +710,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                             children: [
                               // Step title and description
                               Text(
-                                '${'step'.tr()} ${currentStepIndex + 1}',
+                                '${'common.step'.tr()} ${currentStepIndex + 1}',
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontSize: 28,
@@ -836,8 +836,8 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                                 children: [
                                   Text(
                                     !provider.hasNextStep
-                                        ? 'finish_drawing'.tr()
-                                        : 'next_step'.tr(),
+                                        ? 'drawing_steps.finish_drawing'.tr()
+                                        : 'drawing_steps.next_step'.tr(),
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
