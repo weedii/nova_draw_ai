@@ -29,60 +29,118 @@ class ImageService:
         Returns (image_path, base64_image, generation_time)
         """
 
-        # For first step - generate fresh
+        # Complete instructions from original working code - enhanced for kids
         if step_number == 1:
             prompt = (
-                f"We are creating a step-by-step drawing tutorial to teach kids how to draw a {subject}. "
-                f"This is step {step_number} of the tutorial. "
-                f"Your task: {step_description} "
-                f"CRITICAL: ONLY ADD what is described in this step. NEVER modify, erase, or change anything. "
-                f"Do not add elements from future steps. Do not remove or alter any existing elements. "
-                f"Do NOT include any text, labels, or words in the image. Only draw the shapes and lines. "
-                f"Background: Pure white background - no patterns, textures, or colors in the background. "
-                f"Style: Clean, engaging black line drawing with personality, cartoon style, no shading or color fill. "
-                f"Use only black lines on pure white background - no gray tones or colored areas. "
-                f"Make the drawing look fun and appealing while still being simple enough for children to copy. "
-                f"Avoid overly geometric shapes - use curved lines, expressive features, and natural proportions. "
-                f"Show only what is described in this specific step, but make it look good and engaging."
+                f"⚠️ CRITICAL STEP 1 INSTRUCTION ⚠️\n"
+                f"This is ONLY step 1 of a multi-step tutorial. DO NOT draw a complete {subject}!\n"
+                f"\n"
+                f"TASK FOR STEP 1: {step_description}\n"
+                f"\n"
+                f"🚫 WHAT YOU MUST NOT DRAW (FORBIDDEN IN STEP 1):\n"
+                f"For a FISH: NO tail, NO fins, NO eyes, NO mouth, NO scales\n"
+                f"For a CAT: NO eyes, NO nose, NO mouth, NO whiskers, NO body (if step says only head)\n"
+                f"For a DRAGON: NO wings, NO legs, NO tail, NO eyes, NO spikes (if step says only head/body)\n"
+                f"For ANY subject: NO features that will come in future steps!\n"
+                f"\n"
+                f"✅ WHAT YOU MUST DRAW (ONLY THIS):\n"
+                f"Read the description word by word: {step_description}\n"
+                f"- If it says 'oval body', draw ONLY an oval shape - NOTHING attached to it!\n"
+                f"- If it says 'round head', draw ONLY a round shape - NOTHING attached to it!\n"
+                f"- Draw the SHAPE ONLY - no decorations, no features, no additions!\n"
+                f"\n"
+                f"EXAMPLE FOR FISH BODY:\n"
+                f"- Task: 'Draw a big oval body in the center, lying sideways'\n"
+                f"- ✅ CORRECT: Just draw one simple oval shape lying sideways - NOTHING ELSE\n"
+                f"- ❌ WRONG: Drawing oval + tail (tail comes in step 2!)\n"
+                f"- ❌ WRONG: Drawing oval + fins (fins come later!)\n"
+                f"- ❌ WRONG: Drawing anything that looks like a complete fish\n"
+                f"\n"
+                f"EXAMPLE FOR CAT HEAD:\n"
+                f"- Task: 'Draw a round head with two triangle ears'\n"
+                f"- ✅ CORRECT: Round circle + two triangle shapes on top - NOTHING ELSE\n"
+                f"- ❌ WRONG: Adding eyes (eyes come in step 2!)\n"
+                f"- ❌ WRONG: Adding body (body comes later!)\n"
+                f"\n"
+                f"WHY THIS MATTERS:\n"
+                f"Kids will draw this step, then add more in the next steps. If you draw extra parts now, the tutorial won't work!\n"
+                f"\n"
+                f"STYLE:\n"
+                f"- White background, black lines only\n"
+                f"- Fun curved shapes - wiggly, bouncy, cartoon style (not geometric)\n"
+                f"- Simple enough for a 5-year-old\n"
+                f"- No text or labels\n"
+                f"\n"
+                f"⚠️ FINAL CHECK: Does your drawing have ONLY what the step description says?\n"
+                f"If you added ANYTHING extra (tail, fins, eyes, etc.), you did it WRONG!\n"
+                f"Draw ONLY the shape described - kids will add the rest later!"
             )
-            contents = [prompt]
+        else:
+            prompt = (
+                f"⚠️ CRITICAL PRESERVATION INSTRUCTION ⚠️\n"
+                f"This is step {step_number} of a multi-step tutorial. The previous image is SACRED - do NOT change it!\n"
+                f"\n"
+                f"🚫 ABSOLUTELY FORBIDDEN - NEVER DO THESE:\n"
+                f"- DO NOT redraw, modify, improve, or 'fix' ANY existing element\n"
+                f"- DO NOT change the shape, size, position, or style of ANY existing line\n"
+                f"- DO NOT erase or remove ANY existing element\n"
+                f"- DO NOT move or reposition ANY existing element\n"
+                f"- DO NOT change line thickness or curve of existing elements\n"
+                f"- DO NOT 'improve' or 'enhance' existing parts\n"
+                f"- DO NOT redraw the body, head, tail, or ANY part that already exists\n"
+                f"\n"
+                f"✅ YOUR ONLY JOB:\n"
+                f"1. COPY the previous image EXACTLY as it is - pixel-perfect, line-for-line\n"
+                f"2. ADD ONLY the new element described below: {step_description}\n"
+                f"3. Place the new element relative to existing ones WITHOUT touching them\n"
+                f"\n"
+                f"TASK FOR THIS STEP: {step_description}\n"
+                f"- Read carefully: ONLY add what's described\n"
+                f"- If it says 'add fins', add ONLY fins - don't touch the body or tail!\n"
+                f"- If it says 'add eyes', add ONLY eyes - don't touch the head or body!\n"
+                f"- If it says 'add a tail', add ONLY a tail - don't modify the body!\n"
+                f"\n"
+                f"EXAMPLE OF WHAT TO DO:\n"
+                f"- Previous image has: oval body\n"
+                f"- Task: 'add a tail'\n"
+                f"- You draw: EXACT same oval body + NEW tail attached\n"
+                f"- You DO NOT: redraw the body, change the body shape, 'improve' the body\n"
+                f"\n"
+                f"EXAMPLE OF WHAT NOT TO DO:\n"
+                f"- Previous image has: oval body and tail\n"
+                f"- Task: 'add fins'\n"
+                f"- ❌ WRONG: Redraw body, change tail shape, then add fins\n"
+                f"- ✅ RIGHT: Keep body and tail EXACTLY as they are, add fins only\n"
+                f"\n"
+                f"STYLE FOR NEW ELEMENTS:\n"
+                f"- White background, black lines only\n"
+                f"- Fun curved shapes - wiggly, bouncy, cartoon style\n"
+                f"- Match existing style but DON'T change existing elements!\n"
+                f"\n"
+                f"⚠️ FINAL WARNING: If you change ANY existing element, the tutorial is RUINED!\n"
+                f"Kids are following step-by-step - they need consistency!\n"
+                f"COPY the previous image exactly, ADD only what's described!"
+            )
 
-        # For subsequent steps - edit previous image
+        # Add previous image if this isn't the first step
+        if step_number == 1:
+            contents = [prompt]
+            print(f"🎨 Generating fresh image for step {step_number}")
+            print(f"   Subject: {subject}")
+            print(f"   Task: {step_description}")
         else:
             if not previous_image_path or not Path(previous_image_path).exists():
-                raise ValueError(
-                    f"Step {step_number} requires previous image, but no previous image available!"
-                )
+                raise ValueError(f"Step {step_number} needs previous image!")
 
-            prompt = (
-                f"CRITICAL: You are editing step {step_number} of a {subject} drawing tutorial. "
-                f"The previous image shows the result of steps 1-{step_number-1}. "
-                f"ABSOLUTE PRESERVATION RULE: Copy the previous image EXACTLY - every single line, curve, shape, and detail must remain 100% identical. "
-                f"ONLY ADD: {step_description} "
-                f"FORBIDDEN ACTIONS (NEVER DO THESE): "
-                f"- Do NOT erase, remove, or delete ANY existing lines or shapes "
-                f"- Do NOT modify, change, or alter ANY existing elements "
-                f"- Do NOT move, resize, or reposition ANY existing elements "
-                f"- Do NOT redraw, update, or improve ANY existing elements "
-                f"- Do NOT change the style, thickness, or appearance of existing lines "
-                f"ALLOWED ACTIONS (ONLY THESE): "
-                f"- ADD new elements exactly as described in the step "
-                f"- Position new elements relative to existing ones WITHOUT touching existing elements "
-                f"- Match the existing drawing style for new elements only "
-                f"SPECIFIC EXAMPLES: "
-                f"- If the step says 'add eyes to the head', the head must remain pixel-perfect identical "
-                f"- If the step says 'add legs below the body', the body must stay completely unchanged "
-                f"- If the step says 'add a tail', all existing body parts must remain exactly as they were "
-                f"Background: Keep the pure white background - no patterns, textures, or colors in the background. "
-                f"Style: Clean, engaging black line drawing with personality, cartoon style, no shading or color fill. "
-                f"Use only black lines on pure white background - no gray tones or colored areas. "
-                f"Make NEW additions look good while leaving ALL existing elements completely untouched. "
-                f"REMEMBER: Consistency preservation of existing elements is the highest priority."
-            )
             previous_image = Image.open(previous_image_path)
             contents = [prompt, previous_image]
+            print(f"🔗 Editing previous image for step {step_number}")
+            print(f"   Subject: {subject}")
+            print(f"   Task: {step_description}")
+            print(f"   Building on: {Path(previous_image_path).name}")
 
         # Call Nano Banana API
+        print("⏳ Calling Nano Banana API...")
         start_time = time.time()
 
         response = self.client.models.generate_content(
@@ -91,6 +149,7 @@ class ImageService:
         )
 
         duration = time.time() - start_time
+        print(f"⚡ API Response Time: {duration:.2f} seconds")
 
         # Extract and save the image
         for part in response.candidates[0].content.parts:
@@ -144,9 +203,8 @@ class ImageService:
                         f"Successfully opened image: {result_image.format} {result_image.size} {result_image.mode}"
                     )
 
-                    # Convert to RGB if necessary (some formats might need this)
-                    if result_image.mode != "RGB":
-                        result_image = result_image.convert("RGB")
+                    # Convert to grayscale to remove colors, then back to RGB
+                    result_image = result_image.convert("L").convert("RGB")
 
                     # Save the image
                     filename_subject = subject.lower().replace(" ", "_")
@@ -155,7 +213,7 @@ class ImageService:
                     file_path = session_folder / filename
 
                     result_image.save(file_path, "PNG")
-                    print(f"Successfully saved image to: {file_path}")
+                    print(f"💾 Image saved: {file_path}")
 
                     # Convert to base64 for response
                     import base64
@@ -163,6 +221,10 @@ class ImageService:
                     buffered = BytesIO()
                     result_image.save(buffered, format="PNG")
                     img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+                    print(f"✅ Step {step_number} completed successfully")
+                    print(f"   Image size: {result_image.size}")
+                    print(f"   Base64 length: {len(img_base64)} characters")
 
                     return str(file_path), img_base64, duration
 

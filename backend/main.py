@@ -58,19 +58,32 @@ async def generate_tutorial(request: FullTutorialRequest):
     Generate a complete drawing tutorial with steps in English & German plus base64 images.
     """
     try:
+        print(f"\n🎨 Starting tutorial generation for: {request.subject}")
+        print("=" * 60)
+        
         # Generate drawing steps in both languages
-        steps, steps_german, _ = drawing_service.generate_steps(request.subject)
+        print("📝 Generating drawing steps...")
+        steps, steps_german, step_duration = drawing_service.generate_steps(request.subject)
+        print(f"✅ Generated {len(steps)} steps in {step_duration:.2f}s")
 
         # Create session folder for image storage
-        session_folder, _ = create_session_folder(
+        print(f"\n📁 Creating session folder...")
+        session_folder, session_id = create_session_folder(
             request.subject, settings.storage_path
         )
+        print(f"✅ Session folder created: {session_folder}")
+        print(f"   Session ID: {session_id}")
 
         # Generate images for all steps
+        print(f"\n🖼️ Generating images for {len(steps)} steps...")
+        print("=" * 60)
         tutorial_steps = []
         previous_image_path = None
 
         for i, step_description in enumerate(steps, start=1):
+            print(f"\n📋 Processing Step {i}/{len(steps)}")
+            print(f"   English: {step_description}")
+            print(f"   German: {steps_german[i-1]}")
             # Generate image for this step
             image_path, base64_image, _ = image_service.generate_step_image(
                 step_description=step_description,
@@ -91,6 +104,11 @@ async def generate_tutorial(request: FullTutorialRequest):
 
             # Update for next iteration
             previous_image_path = image_path
+
+        print(f"\n🎉 Tutorial generation completed!")
+        print(f"   Total steps: {len(tutorial_steps)}")
+        print(f"   Session ID: {session_id}")
+        print("=" * 60)
 
         return FullTutorialResponse(
             success="true",
