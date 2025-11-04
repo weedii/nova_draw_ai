@@ -85,5 +85,25 @@
     "retry": "Wiederholen",
     "use_offline": "Offline verwenden",
     "no_steps_available": "Keine Schritte verfügbar",
-    "back_to_categories": "Zurück zu Kategorien"
+    "back_to_categories": "Zurück zu Kategorien",
+    
+    "upload_drawing": "Zeichnung hochladen",
+    "upload_subtitle": "Zeig uns dein tolles Kunstwerk!",
+    "upload_description": "Mach ein Foto oder lade deine Zeichnung hoch und lass unsere KI sie noch beeindruckender machen!",
+    "take_photo": "Foto aufnehmen",
+    "choose_from_gallery": "Aus Galerie wählen",
+    "upload_later": "Vielleicht später",
+    "ai_magic": "KI-Magie",
+    "ai_magic_subtitle": "Deine Zeichnung wird magisch!",
+    "processing_image": "Dein Kunstwerk wird mit KI bearbeitet...",
+    "this_may_take": "Das kann einen Moment dauern",
+    "enhanced_drawing": "Verbesserte Zeichnung",
+    "your_masterpiece": "Dein Meisterwerk!",
+    "ai_enhanced": "KI-verbesserte Version",
+    "original_vs_enhanced": "Original vs. Verbessert",
+    "save_drawing": "Zeichnung speichern",
+    "share_drawing": "Zeichnung teilen",
+    "draw_another": "Noch eine zeichnen",
+    "processing_failed": "Verarbeitung fehlgeschlagen",
+    "try_again": "Nochmal versuchen"
 }

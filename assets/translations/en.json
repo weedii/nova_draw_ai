@@ -165,5 +165,25 @@
     "retry": "Retry",
     "use_offline": "Use Offline",
     "no_steps_available": "No steps available",
-    "back_to_categories": "Back to Categories"
+    "back_to_categories": "Back to Categories",
+    
+    "upload_drawing": "Upload Your Drawing",
+    "upload_subtitle": "Show us your amazing artwork!",
+    "upload_description": "Take a photo or upload your drawing and let our AI make it even more stunning!",
+    "take_photo": "Take Photo",
+    "choose_from_gallery": "Choose from Gallery",
+    "upload_later": "Maybe Later",
+    "ai_magic": "AI Magic",
+    "ai_magic_subtitle": "Your drawing is getting magical!",
+    "processing_image": "Processing your artwork with AI...",
+    "this_may_take": "This may take a few moments",
+    "enhanced_drawing": "Enhanced Drawing",
+    "your_masterpiece": "Your Masterpiece!",
+    "ai_enhanced": "AI Enhanced Version",
+    "original_vs_enhanced": "Original vs Enhanced",
+    "save_drawing": "Save Drawing",
+    "share_drawing": "Share Drawing",
+    "draw_another": "Draw Another",
+    "processing_failed": "Processing Failed",
+    "try_again": "Try Again"
 }

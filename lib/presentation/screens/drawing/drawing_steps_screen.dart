@@ -100,7 +100,6 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
   }
 
   void _finishDrawing() {
-    // TODO: Navigate to completion screen or back to selection
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -132,18 +131,53 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
 
             const SizedBox(height: 20),
 
-            ElevatedButton(
-              onPressed: () {
-                context.push('/drawings/categories');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            // Upload Drawing Button (Primary action)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  context.push(
+                    '/drawings/${widget.categoryId}/${widget.drawingId}/upload',
+                  );
+                },
+                icon: const Icon(Icons.camera_alt, size: 20),
+                label: Text('upload_drawing'.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  elevation: 8,
+                  shadowColor: AppColors.primary.withValues(alpha: 0.3),
                 ),
               ),
-              child: const Text('Draw More!'),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Draw More Button (Secondary action)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  context.push('/drawings/categories');
+                },
+                icon: const Icon(Icons.palette, size: 20),
+                label: Text('draw_another'.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.white,
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary, width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
             ),
           ],
         ),

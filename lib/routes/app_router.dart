@@ -7,6 +7,8 @@ import '../presentation/screens/welcome_screen.dart';
 import '../presentation/screens/drawing/drawing_categories_screen.dart';
 import '../presentation/screens/drawing/drawings_screen.dart';
 import '../presentation/screens/drawing/drawing_steps_screen.dart';
+import '../presentation/screens/drawing/drawing_upload_screen.dart';
+import '../presentation/screens/drawing/drawing_edit_result_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: "/welcome",
@@ -59,6 +61,28 @@ final GoRouter appRouter = GoRouter(
         final categoryId = state.pathParameters['categoryId']!;
         final drawingId = state.pathParameters['drawingId']!;
         return DrawingStepsScreen(categoryId: categoryId, drawingId: drawingId);
+      },
+    ),
+    GoRoute(
+      path: "/drawings/:categoryId/:drawingId/upload",
+      builder: (BuildContext context, GoRouterState state) {
+        final categoryId = state.pathParameters['categoryId']!;
+        final drawingId = state.pathParameters['drawingId']!;
+        return DrawingUploadScreen(
+          categoryId: categoryId,
+          drawingId: drawingId,
+        );
+      },
+    ),
+    GoRoute(
+      path: "/drawings/:categoryId/:drawingId/edit-result",
+      builder: (BuildContext context, GoRouterState state) {
+        final categoryId = state.pathParameters['categoryId']!;
+        final drawingId = state.pathParameters['drawingId']!;
+        return DrawingEditResultScreen(
+          categoryId: categoryId,
+          drawingId: drawingId,
+        );
       },
     ),
   ],
