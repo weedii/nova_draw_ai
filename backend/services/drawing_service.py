@@ -123,7 +123,6 @@ class DrawingService:
         FORMAT: Return ONLY the steps, one per line. No numbers, no intro, no extra text.
         
         Subject: {subject}
-        Steps:
         """
 
         start_time = time.time()
