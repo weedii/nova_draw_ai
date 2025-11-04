@@ -104,21 +104,35 @@ class ImageService:
                     print(f"Image data type: {type(image_data)}")
                     print(f"Image data length: {len(image_data)}")
 
-                    # Check if it's base64 encoded (common with API responses)
+                    # Check if data is already binary (starts with PNG header) or needs base64 decoding
                     import base64
 
-                    try:
-                        # Try to decode as base64 first
-                        decoded_data = base64.b64decode(image_data)
-                        print(
-                            f"Successfully decoded base64, new length: {len(decoded_data)}"
-                        )
-                        print(f"First 20 bytes after decode: {decoded_data[:20]}")
-                        image_data = decoded_data
-                    except Exception as b64_error:
-                        print(f"Not base64 encoded: {b64_error}")
-                        # Use original data if base64 decode fails
+                    # Check if it's already binary PNG data (starts with PNG signature)
+                    if isinstance(image_data, bytes) and image_data.startswith(
+                        b"\x89PNG"
+                    ):
+                        print("Image data is already in binary PNG format")
+                        # Use data as-is
                         pass
+                    else:
+                        # Try base64 decoding if it's not already binary PNG
+                        try:
+                            decoded_data = base64.b64decode(image_data)
+                            print(
+                                f"Successfully decoded base64, new length: {len(decoded_data)}"
+                            )
+                            print(f"First 20 bytes after decode: {decoded_data[:20]}")
+
+                            # Verify the decoded data is valid PNG
+                            if decoded_data.startswith(b"\x89PNG"):
+                                image_data = decoded_data
+                                print("Base64 decoded data is valid PNG")
+                            else:
+                                print("Base64 decoded data is not PNG, using original")
+                        except Exception as b64_error:
+                            print(
+                                f"Base64 decode failed: {b64_error}, using original data"
+                            )
 
                     # Create BytesIO object and reset position to beginning
                     image_bytes = BytesIO(image_data)

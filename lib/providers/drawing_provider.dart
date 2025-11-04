@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../core/constants/drawing_data.dart';
-// import '../models/api_models.dart'; // Will be used when API is implemented
+import '../services/api_service.dart';
 
 enum DrawingStepsState { initial, loading, loaded, error }
 
@@ -67,14 +67,23 @@ class DrawingProvider extends ChangeNotifier {
   }
 
   // Select drawing
-  void selectDrawing(String categoryId, String drawingId) {
+  void selectDrawing(String categoryId, String drawingId) async {
     _selectedCategoryId = categoryId;
     _selectedDrawingId = drawingId;
     _currentStepIndex = 0;
 
-    // For now, load steps from static data
-    _loadStaticSteps(categoryId, drawingId);
-    notifyListeners();
+    // Get the drawing to find its subject for API call
+    final drawing = getDrawingById(categoryId, drawingId);
+    if (drawing != null) {
+      // Use the drawing's English name as the subject for API
+      final subject = drawing.nameEn;
+      await loadStepsFromApi(subject);
+    } else {
+      _stepsState = DrawingStepsState.error;
+      _error = 'Drawing not found';
+      _currentSteps = [];
+      notifyListeners();
+    }
   }
 
   // Load steps from static data (current implementation)
@@ -92,38 +101,39 @@ class DrawingProvider extends ChangeNotifier {
     }
   }
 
-  // Future: Load steps from API
+  // Load steps from API
   Future<void> loadStepsFromApi(String subject) async {
     _stepsState = DrawingStepsState.loading;
     _error = null;
     _currentSubject = subject;
+    _currentStepIndex = 0; // Reset step index
     notifyListeners();
 
     try {
-      // TODO: Implement API call
-      // final response = await ApiService.getDrawingSteps(subject);
-      // final apiResponse = ApiDrawingStepResponse.fromJson(response);
-      //
-      // if (apiResponse.success) {
-      //   _currentSteps = apiResponse.steps.map((apiStep) => DrawingStep(
-      //     stepEn: apiStep.stepEn,
-      //     stepDe: apiStep.stepDe,
-      //     stepImg: apiStep.stepImg,
-      //   )).toList();
-      //   _stepsState = DrawingStepsState.loaded;
-      // } else {
-      //   throw Exception('API returned success: false');
-      // }
+      // Make API call to generate tutorial
+      final apiResponse = await ApiService.generateTutorial(subject);
 
-      // For now, simulate API delay and use static data
-      await Future.delayed(const Duration(milliseconds: 500));
+      if (apiResponse.success) {
+        // Convert API steps to local DrawingStep format
+        _currentSteps = apiResponse.steps
+            .map(
+              (apiStep) => DrawingStep(
+                stepEn: apiStep.stepEn,
+                stepDe: apiStep.stepDe,
+                stepImg: apiStep.stepImg,
+              ),
+            )
+            .toList();
 
-      // Find the drawing in static data for simulation
-      if (_selectedCategoryId != null && _selectedDrawingId != null) {
-        _loadStaticSteps(_selectedCategoryId!, _selectedDrawingId!);
+        _stepsState = DrawingStepsState.loaded;
+        _error = null;
       } else {
-        throw Exception('No drawing selected');
+        throw Exception('API returned success: false');
       }
+    } on ApiException catch (e) {
+      _stepsState = DrawingStepsState.error;
+      _error = e.message;
+      _currentSteps = [];
     } catch (e) {
       _stepsState = DrawingStepsState.error;
       _error = 'Failed to load drawing steps: ${e.toString()}';
@@ -175,6 +185,21 @@ class DrawingProvider extends ChangeNotifier {
     _selectedDrawingId = null;
     _clearSteps();
     notifyListeners();
+  }
+
+  // Retry loading steps from API
+  Future<void> retryLoadSteps() async {
+    if (_currentSubject != null) {
+      await loadStepsFromApi(_currentSubject!);
+    }
+  }
+
+  // Use static data as fallback when API fails
+  void useStaticDataFallback() {
+    if (_selectedCategoryId != null && _selectedDrawingId != null) {
+      _loadStaticSteps(_selectedCategoryId!, _selectedDrawingId!);
+      notifyListeners();
+    }
   }
 
   // Get current step

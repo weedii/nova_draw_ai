@@ -155,5 +155,15 @@
     "add_robot_body": "Add Robot Body",
     "add_robot_body_desc": "Draw a rectangle body with arms and legs",
     "add_robot_details": "Add Robot Details",
-    "add_robot_details_desc": "Add buttons, lights, and robot features"
+    "add_robot_details_desc": "Add buttons, lights, and robot features",
+    "generating_tutorial": "Generating Tutorial",
+    "creating_drawing_steps": "Creating drawing steps with AI...",
+    "please_wait": "This may take 30-60 seconds",
+    "error_occurred": "Error Occurred",
+    "failed_to_generate": "Failed to Generate Tutorial",
+    "unknown_error": "Unknown error occurred",
+    "retry": "Retry",
+    "use_offline": "Use Offline",
+    "no_steps_available": "No steps available",
+    "back_to_categories": "Back to Categories"
 }

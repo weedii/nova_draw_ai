@@ -81,3 +81,6 @@ app.*.map.json
 
 # Environment variables file
 .env
+
+# Storage
+storage/

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -31,23 +32,17 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _sparkleFloat;
 
-  late List<DrawingStep> steps;
-  Drawing? drawing;
-
   @override
   void initState() {
     super.initState();
 
-    // Initialize provider state and get drawing item from data
+    // Initialize provider state and trigger API call
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DrawingProvider>().selectDrawing(
         widget.categoryId,
         widget.drawingId,
       );
     });
-
-    drawing = DrawingData.getDrawingById(widget.categoryId, widget.drawingId);
-    steps = drawing?.steps ?? [];
 
     // Initialize animations
     _fadeController = AppAnimations.createFadeController(vsync: this);
@@ -206,48 +201,63 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
       );
     }
 
-    // TODO: When API is ready, decode base64 image here
-    // For now, show placeholder
+    // Decode base64 image from API
     try {
-      // This will be implemented when we have actual base64 images from API
-      // final bytes = base64Decode(stepData.stepImg);
-      // return Image.memory(bytes, fit: BoxFit.contain);
-
+      final bytes = base64Decode(stepData.stepImg);
       return Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.success.withValues(alpha: 0.8),
-              AppColors.primary.withValues(alpha: 0.6),
-            ],
-          ),
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.image, size: 80, color: AppColors.white),
-            const SizedBox(height: 16),
-            Text(
-              '${'step'.tr()} ${stepIndex + 1}',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.white,
-                fontFamily: 'Comic Sans MS',
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Image will load from API 📱',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.white.withValues(alpha: 0.9),
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.memory(
+            bytes,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.error.withValues(alpha: 0.8),
+                      AppColors.accent.withValues(alpha: 0.6),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.broken_image,
+                      size: 80,
+                      color: AppColors.white,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Failed to load image',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       );
     } catch (e) {
@@ -283,11 +293,302 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
     }
   }
 
+  // Loading screen while API generates steps
+  Widget _buildLoadingScreen() {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: AppColors.primary,
+                        size: 24,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'generating_tutorial'.tr(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                          fontFamily: 'Comic Sans MS',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 48), // Balance the back button
+                  ],
+                ),
+              ),
+
+              // Loading content
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(
+                        color: AppColors.primary,
+                        strokeWidth: 3,
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'creating_drawing_steps'.tr(),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: AppColors.textDark.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'please_wait'.tr(),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textDark.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Error screen with retry option
+  Widget _buildErrorScreen(DrawingProvider provider) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: AppColors.primary,
+                        size: 24,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'error_occurred'.tr(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                          fontFamily: 'Comic Sans MS',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 48),
+                  ],
+                ),
+              ),
+
+              // Error content
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'failed_to_generate'.tr(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          provider.error ?? 'unknown_error'.tr(),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textDark.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Action buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            // Retry button
+                            ElevatedButton.icon(
+                              onPressed: () => provider.retryLoadSteps(),
+                              icon: const Icon(Icons.refresh),
+                              label: Text('retry'.tr()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+
+                            // Use static data button
+                            ElevatedButton.icon(
+                              onPressed: () => provider.useStaticDataFallback(),
+                              icon: const Icon(Icons.offline_bolt),
+                              label: Text('use_offline'.tr()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.white,
+                                foregroundColor: AppColors.primary,
+                                side: const BorderSide(
+                                  color: AppColors.primary,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Empty screen (shouldn't happen normally)
+  Widget _buildEmptyScreen() {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.help_outline,
+                  size: 64,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'no_steps_available'.tr(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Completion screen when all steps are done
+  Widget _buildCompletionScreen() {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.check_circle,
+                  size: 64,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'drawing_complete'.tr(),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () => context.push('/drawings/categories'),
+                  child: Text('back_to_categories'.tr()),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<DrawingProvider>(
       builder: (context, provider, child) {
+        // Handle different states
+        if (provider.stepsState == DrawingStepsState.loading) {
+          return _buildLoadingScreen();
+        }
+
+        if (provider.stepsState == DrawingStepsState.error) {
+          return _buildErrorScreen(provider);
+        }
+
+        if (provider.currentSteps.isEmpty) {
+          return _buildEmptyScreen();
+        }
+
         final currentStepIndex = provider.currentStepIndex;
+        final steps = provider.currentSteps;
+
+        if (currentStepIndex >= steps.length) {
+          return _buildCompletionScreen();
+        }
+
         final currentStepData = steps[currentStepIndex];
         final isGerman = context.locale.languageCode == 'de';
         final stepText = isGerman

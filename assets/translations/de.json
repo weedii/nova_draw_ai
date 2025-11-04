@@ -75,5 +75,15 @@
     "draw_oval_body": "Zeichne einen ovalen Körper",
     "draw_oval_body_desc": "Füge eine ovale Form für den Körper hinzu",
     "add_face_details": "Füge Gesichtsdetails hinzu",
-    "add_face_details_desc": "Zeichne Augen, Nase, Mund und Schnurrhaare"
+    "add_face_details_desc": "Zeichne Augen, Nase, Mund und Schnurrhaare",
+    "generating_tutorial": "Tutorial wird erstellt",
+    "creating_drawing_steps": "Zeichenschritte werden mit KI erstellt...",
+    "please_wait": "Das kann 30-60 Sekunden dauern",
+    "error_occurred": "Fehler aufgetreten",
+    "failed_to_generate": "Tutorial konnte nicht erstellt werden",
+    "unknown_error": "Unbekannter Fehler aufgetreten",
+    "retry": "Wiederholen",
+    "use_offline": "Offline verwenden",
+    "no_steps_available": "Keine Schritte verfügbar",
+    "back_to_categories": "Zurück zu Kategorien"
 }
