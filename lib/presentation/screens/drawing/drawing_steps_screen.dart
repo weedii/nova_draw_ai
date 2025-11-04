@@ -36,14 +36,6 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
   void initState() {
     super.initState();
 
-    // Initialize provider state and trigger API call
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DrawingProvider>().selectDrawing(
-        widget.categoryId,
-        widget.drawingId,
-      );
-    });
-
     // Initialize animations
     _fadeController = AppAnimations.createFadeController(vsync: this);
     _slideController = AnimationController(
