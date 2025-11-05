@@ -209,7 +209,7 @@ class _CustomLoadingWidgetState extends State<CustomLoadingWidget>
           right: 50,
           child: AppAnimatedFloat(
             animation: _sparkleFloat,
-            child: const Text('✨', style: TextStyle(fontSize: 35)),
+            child: const Text('✨✨', style: TextStyle(fontSize: 35)),
           ),
         ),
 
