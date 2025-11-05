@@ -12,7 +12,11 @@
     "share": "Teilen",
     "loading": "Lädt...",
     "error": "Fehler",
-    "success": "Erfolg"
+    "success": "Erfolg",
+    "please_wait": "Bitte warten...",
+    "processing": "Verarbeitung...",
+    "almost_done": "Fast fertig...",
+    "working_on_it": "Arbeiten daran..."
   },
   
   "welcome_screen": {
@@ -42,7 +46,10 @@
     "email_hint": "E-Mail eingeben",
     "password_hint": "Passwort eingeben",
     "name_hint": "Vollständigen Namen eingeben",
-    "confirm_password_hint": "Passwort bestätigen"
+    "confirm_password_hint": "Passwort bestätigen",
+    "signing_in": "Melde Sie an...",
+    "creating_account": "Konto wird erstellt...",
+    "sending_reset_link": "Reset-Link wird gesendet..."
   },
   
   "categories": {
@@ -94,7 +101,7 @@
     "great_job": "Großartige Arbeit!",
     "drawing_complete": "Du hast deine Zeichnung fertiggestellt!",
     "generating_tutorial": "Tutorial wird erstellt",
-    "creating_drawing_steps": "Zeichenschritte werden mit KI erstellt...",
+    "creating_drawing_steps": "Die Zeichenschritte werden erstellt",
     "please_wait": "Das kann 30-60 Sekunden dauern",
     "error_occurred": "Fehler aufgetreten",
     "failed_to_generate": "Tutorial konnte nicht erstellt werden",
@@ -206,7 +213,10 @@
     "upload_description": "Mach ein Foto oder lade deine Zeichnung hoch und lass unsere KI sie noch beeindruckender machen!",
     "take_photo": "Foto aufnehmen",
     "choose_from_gallery": "Aus Galerie wählen",
-    "upload_later": "Vielleicht später"
+    "upload_later": "Vielleicht später",
+    "taking_photo": "Foto wird aufgenommen...",
+    "selecting_image": "Bild wird ausgewählt...",
+    "preparing_upload": "Dein Kunstwerk wird vorbereitet..."
   },
   
   "ai_enhancement": {

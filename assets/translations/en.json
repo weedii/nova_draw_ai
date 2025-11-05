@@ -12,7 +12,11 @@
     "share": "Share",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "please_wait": "Please wait...",
+    "processing": "Processing...",
+    "almost_done": "Almost done...",
+    "working_on_it": "Working on it..."
   },
   
   "welcome_screen": {
@@ -42,7 +46,10 @@
     "email_hint": "Enter your email",
     "password_hint": "Enter your password",
     "name_hint": "Enter your full name",
-    "confirm_password_hint": "Confirm your password"
+    "confirm_password_hint": "Confirm your password",
+    "signing_in": "Signing you in...",
+    "creating_account": "Creating your account...",
+    "sending_reset_link": "Sending reset link..."
   },
   
   "categories": {
@@ -94,7 +101,7 @@
     "great_job": "Great Job!",
     "drawing_complete": "You've completed your drawing!",
     "generating_tutorial": "Generating Tutorial",
-    "creating_drawing_steps": "Creating drawing steps with AI...",
+    "creating_drawing_steps": "Creating drawing steps",
     "please_wait": "This may take 30-60 seconds",
     "error_occurred": "Error Occurred",
     "failed_to_generate": "Failed to Generate Tutorial",
@@ -206,7 +213,10 @@
     "upload_description": "Take a photo or upload your drawing and let our AI make it even more stunning!",
     "take_photo": "Take Photo",
     "choose_from_gallery": "Choose from Gallery",
-    "upload_later": "Maybe Later"
+    "upload_later": "Maybe Later",
+    "taking_photo": "Taking photo...",
+    "selecting_image": "Selecting image...",
+    "preparing_upload": "Preparing your artwork..."
   },
   
   "ai_enhancement": {
