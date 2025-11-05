@@ -7,6 +7,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
+import '../../widgets/custom_loading_widget.dart';
 
 class DrawingStepsScreen extends StatefulWidget {
   final String categoryId;
@@ -321,76 +322,11 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
 
   // Loading screen while API generates steps
   Widget _buildLoadingScreen() {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(24.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        color: AppColors.primary,
-                        size: 24,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'drawing_steps.generating_tutorial'.tr(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                          fontFamily: 'Comic Sans MS',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 48), // Balance the back button
-                  ],
-                ),
-              ),
-
-              // Loading content
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(
-                        color: AppColors.primary,
-                        strokeWidth: 3,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'drawing_steps.creating_drawing_steps'.tr(),
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: AppColors.textDark.withValues(alpha: 0.8),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'drawing_steps.please_wait'.tr(),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textDark.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return CustomLoadingWidget(
+      message: 'drawing_steps.generating_tutorial',
+      subtitle: 'drawing_steps.please_wait',
+      showBackButton: true,
+      onBackPressed: () => context.pop(),
     );
   }
 

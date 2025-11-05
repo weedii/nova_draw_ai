@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../../services/image_picker_service.dart';
 import '../../animations/app_animations.dart';
+import '../../widgets/custom_loading_widget.dart';
 
 class DrawingUploadScreen extends StatefulWidget {
   final String categoryId;
@@ -214,136 +215,151 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Column(
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    'upload.upload_drawing'.tr(),
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.primary,
-                                      fontFamily: 'Comic Sans MS',
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                AppAnimatedFloat(
-                                  animation: _sparkleFloat,
-                                  child: const Text(
-                                    '✨',
-                                    style: TextStyle(fontSize: 24),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'upload.upload_subtitle'.tr(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textDark.withValues(
-                                  alpha: 0.7,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 48), // Balance the back button
-                    ],
-                  ),
-                ),
-
-                // Main content
-                Expanded(
-                  child: ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: Padding(
+    return Stack(
+      children: [
+        Scaffold(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: AppColors.backgroundGradient,
+            ),
+            child: SafeArea(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  children: [
+                    // Header
+                    Container(
                       padding: const EdgeInsets.all(24.0),
-                      child: Column(
+                      child: Row(
                         children: [
-                          // Description
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
+                          IconButton(
+                            onPressed: () => context.pop(),
+                            icon: const Icon(
+                              Icons.arrow_back_ios,
+                              color: AppColors.primary,
+                              size: 24,
                             ),
+                          ),
+                          Expanded(
                             child: Column(
                               children: [
-                                const Icon(
-                                  Icons.auto_fix_high,
-                                  size: 60,
-                                  color: AppColors.accent,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        'upload.upload_drawing'.tr(),
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.primary,
+                                          fontFamily: 'Comic Sans MS',
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    AppAnimatedFloat(
+                                      animation: _sparkleFloat,
+                                      child: const Text(
+                                        '✨',
+                                        style: TextStyle(fontSize: 24),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 4),
                                 Text(
-                                  'upload.upload_description'.tr(),
-                                  textAlign: TextAlign.center,
+                                  'upload.upload_subtitle'.tr(),
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: AppColors.textDark.withValues(
-                                      alpha: 0.8,
+                                      alpha: 0.7,
                                     ),
-                                    height: 1.4,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-
-                          const SizedBox(height: 40),
-
-                          // Image preview or upload options
-                          Expanded(
-                            child: _pickedImage != null
-                                ? _buildImagePreview()
-                                : _buildUploadOptions(),
-                          ),
+                          const SizedBox(width: 48), // Balance the back button
                         ],
                       ),
                     ),
-                  ),
+
+                    // Main content
+                    Expanded(
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            children: [
+                              // Description
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.auto_fix_high,
+                                      size: 60,
+                                      color: AppColors.accent,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'upload.upload_description'.tr(),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: AppColors.textDark.withValues(
+                                          alpha: 0.8,
+                                        ),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 40),
+
+                              // Image preview or upload options
+                              Expanded(
+                                child: _pickedImage != null
+                                    ? _buildImagePreview()
+                                    : _buildUploadOptions(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+
+        // Full-screen loading overlay for image processing
+        if (_isLoading)
+          CustomLoadingWidget(
+            message: 'upload.preparing_upload',
+            subtitle: 'common.just_a_moment',
+          ),
+      ],
     );
   }
 

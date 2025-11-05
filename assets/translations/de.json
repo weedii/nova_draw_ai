@@ -16,7 +16,12 @@
     "please_wait": "Bitte warten...",
     "processing": "Verarbeitung...",
     "almost_done": "Fast fertig...",
-    "working_on_it": "Arbeiten daran..."
+    "working_on_it": "Arbeiten daran...",
+    "creating_magic": "Magie wird erstellt...",
+    "preparing_artwork": "Dein Kunstwerk wird vorbereitet...",
+    "hang_tight": "Halt durch, wir arbeiten an etwas Erstaunlichem!",
+    "just_a_moment": "Einen Moment...",
+    "getting_ready": "Alles wird vorbereitet..."
   },
   
   "welcome_screen": {

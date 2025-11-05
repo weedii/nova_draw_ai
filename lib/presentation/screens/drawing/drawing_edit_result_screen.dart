@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../animations/app_animations.dart';
+import '../../widgets/custom_loading_widget.dart';
 
 class DrawingEditResultScreen extends StatefulWidget {
   final String categoryId;
@@ -24,12 +25,9 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _sparkleController;
-  late AnimationController _pulseController;
-
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _sparkleFloat;
-  late Animation<double> _pulseAnimation;
 
   bool _isProcessing = true;
   bool _processingFailed = false;
@@ -49,10 +47,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
       vsync: this,
       duration: const Duration(seconds: 4),
     );
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
 
     _fadeAnimation = AppAnimations.createFadeAnimation(
       controller: _fadeController,
@@ -65,14 +59,10 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
       controller: _sparkleController,
       distance: 25.0,
     );
-    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
 
     // Start animations
     _fadeController.forward();
     _sparkleController.repeat();
-    _pulseController.repeat(reverse: true);
 
     // Simulate AI processing
     _simulateProcessing();
@@ -83,7 +73,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
     _fadeController.dispose();
     _slideController.dispose();
     _sparkleController.dispose();
-    _pulseController.dispose();
     super.dispose();
   }
 
@@ -237,57 +226,11 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
   }
 
   Widget _buildProcessingView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ScaleTransition(
-            scale: _pulseAnimation,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.primary.withValues(alpha: 0.8),
-                    AppColors.accent.withValues(alpha: 0.6),
-                  ],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.auto_fix_high,
-                size: 60,
-                color: AppColors.white,
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'ai_enhancement.processing_image'.tr(),
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'ai_enhancement.this_may_take'.tr(),
-            style: TextStyle(
-              fontSize: 16,
-              color: AppColors.textDark.withValues(alpha: 0.7),
-            ),
-          ),
-          const SizedBox(height: 32),
-          const CircularProgressIndicator(
-            color: AppColors.primary,
-            strokeWidth: 3,
-          ),
-        ],
-      ),
+    return CustomLoadingWidget(
+      message: 'ai_enhancement.processing_image',
+      subtitle: 'ai_enhancement.this_may_take',
+      showBackButton: true,
+      onBackPressed: () => context.pop(),
     );
   }
 
