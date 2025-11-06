@@ -507,9 +507,10 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
       ),
     );
 
-    // Navigate to the next screen
+    // Navigate to the next screen with the uploaded image
     context.push(
       '/drawings/${widget.categoryId}/${widget.drawingId}/edit-result',
+      extra: _pickedImage, // Pass the image file
     );
   }
 

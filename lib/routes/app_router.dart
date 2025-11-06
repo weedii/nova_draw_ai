@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nova_draw_ai/presentation/screens/auth/reset_password_screen.dart';
@@ -80,9 +81,11 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final categoryId = state.pathParameters['categoryId']!;
         final drawingId = state.pathParameters['drawingId']!;
+        final uploadedImage = state.extra as File?;
         return DrawingEditResultScreen(
           categoryId: categoryId,
           drawingId: drawingId,
+          uploadedImage: uploadedImage,
         );
       },
     ),
@@ -91,7 +94,12 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final categoryId = state.pathParameters['categoryId']!;
         final drawingId = state.pathParameters['drawingId']!;
-        return DrawingStoryScreen(categoryId: categoryId, drawingId: drawingId);
+        final uploadedImage = state.extra as File?;
+        return DrawingStoryScreen(
+          categoryId: categoryId,
+          drawingId: drawingId,
+          uploadedImage: uploadedImage,
+        );
       },
     ),
   ],

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +9,13 @@ import '../../widgets/custom_loading_widget.dart';
 class DrawingStoryScreen extends StatefulWidget {
   final String categoryId;
   final String drawingId;
+  final File? uploadedImage;
 
   const DrawingStoryScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,
+    this.uploadedImage,
   });
 
   @override
@@ -321,7 +324,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
           children: [
             // Drawing display
             Container(
-              height: 400,
+              height: 500,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.white,
@@ -496,29 +499,46 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         ),
       ),
 
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.auto_fix_high, size: 60, color: AppColors.primary),
-            const SizedBox(height: 12),
-            Text(
-              'story.enhanced_artwork'.tr(),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-                fontFamily: 'Comic Sans MS',
+      child: widget.uploadedImage != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.file(
+                widget.uploadedImage!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            )
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.auto_fix_high,
+                    size: 60,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'story.enhanced_artwork'.tr(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                      fontFamily: 'Comic Sans MS',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'story.your_masterpiece'.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'story.your_masterpiece'.tr(),
-              style: const TextStyle(fontSize: 14, color: AppColors.textDark),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

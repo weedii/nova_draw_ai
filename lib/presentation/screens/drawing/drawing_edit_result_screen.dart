@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +9,13 @@ import '../../widgets/custom_loading_widget.dart';
 class DrawingEditResultScreen extends StatefulWidget {
   final String categoryId;
   final String drawingId;
+  final File? uploadedImage;
 
   const DrawingEditResultScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,
+    this.uploadedImage,
   });
 
   @override
@@ -117,7 +120,10 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
   }
 
   void _createStory() {
-    context.push('/drawings/${widget.categoryId}/${widget.drawingId}/story');
+    context.push(
+      '/drawings/${widget.categoryId}/${widget.drawingId}/story',
+      extra: widget.uploadedImage,
+    );
   }
 
   void _drawAnother() {
@@ -126,6 +132,11 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Show full screen loading when processing
+    if (_isProcessing) {
+      return _buildProcessingView();
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
@@ -154,9 +165,7 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  _isProcessing
-                                      ? 'ai_enhancement.ai_magic'.tr()
-                                      : _processingFailed
+                                  _processingFailed
                                       ? 'ai_enhancement.processing_failed'.tr()
                                       : 'ai_enhancement.enhanced_drawing'.tr(),
                                   style: const TextStyle(
@@ -170,11 +179,7 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                                 AppAnimatedFloat(
                                   animation: _sparkleFloat,
                                   child: Text(
-                                    _isProcessing
-                                        ? '🪄'
-                                        : _processingFailed
-                                        ? '😔'
-                                        : '✨',
+                                    _processingFailed ? '😔' : '✨',
                                     style: const TextStyle(fontSize: 24),
                                   ),
                                 ),
@@ -182,9 +187,7 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              _isProcessing
-                                  ? 'ai_enhancement.ai_magic_subtitle'.tr()
-                                  : _processingFailed
+                              _processingFailed
                                   ? 'ai_enhancement.try_again'.tr()
                                   : 'ai_enhancement.your_masterpiece'.tr(),
                               style: TextStyle(
@@ -204,9 +207,7 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
 
                 // Main content
                 Expanded(
-                  child: _isProcessing
-                      ? _buildProcessingView()
-                      : _processingFailed
+                  child: _processingFailed
                       ? _buildErrorView()
                       : _buildResultView(),
                 ),
@@ -222,8 +223,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
     return CustomLoadingWidget(
       message: 'ai_enhancement.processing_image',
       subtitle: 'ai_enhancement.this_may_take',
-      showBackButton: true,
-      onBackPressed: () => context.pop(),
     );
   }
 
@@ -439,20 +438,30 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.image,
-                            size: 40,
-                            color: AppColors.primary,
+                    child: widget.uploadedImage != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              widget.uploadedImage!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.image,
+                                  size: 40,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(height: 8),
+                                Text('ai_enhancement.original'.tr()),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 8),
-                          Text('ai_enhancement.original'.tr()),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
               ],
@@ -524,28 +533,45 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
           ],
         ),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.auto_fix_high, size: 80, color: AppColors.primary),
-            const SizedBox(height: 16),
-            Text(
-              'ai_enhancement.enhanced_drawing_title'.tr(),
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+      child: widget.uploadedImage != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.file(
+                widget.uploadedImage!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            )
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.auto_fix_high,
+                    size: 80,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'ai_enhancement.enhanced_drawing_title'.tr(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'ai_enhancement.artwork_enhanced'.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'ai_enhancement.artwork_enhanced'.tr(),
-              style: const TextStyle(fontSize: 16, color: AppColors.textDark),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
