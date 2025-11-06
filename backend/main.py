@@ -111,7 +111,7 @@ async def health_check():
 
 
 # Generate tutorial from local database
-@app.post("/api/generate-tutorial-local", response_model=FullTutorialResponse)
+@app.post("/api/generate-tutorial", response_model=FullTutorialResponse)
 async def generate_tutorial_local(request: FullTutorialRequest):
     """
     Generate a drawing tutorial using the local database instead of AI.
