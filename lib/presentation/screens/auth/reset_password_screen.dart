@@ -155,7 +155,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                             const SizedBox(height: 24),
                             Text(
                               _emailSent
-                                  ? 'Email Sent!'
+                                  ? 'auth.email_sent'.tr()
                                   : 'auth.reset_password'.tr(),
                               style: TextStyle(
                                 fontSize: 32,
@@ -169,7 +169,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                             const SizedBox(height: 8),
                             Text(
                               _emailSent
-                                  ? 'We\'ve sent a password reset link to ${_emailController.text}'
+                                  ? '${'auth.reset_link_sent'.tr()} ${_emailController.text}'
                                   : 'auth.enter_email_reset'.tr(),
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -202,12 +202,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Please enter your email';
+                                      return 'auth.error_email_required'.tr();
                                     }
                                     if (!RegExp(
                                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                                     ).hasMatch(value)) {
-                                      return 'Please enter a valid email';
+                                      return 'auth.error_email_invalid'.tr();
                                     }
                                     return null;
                                   },
@@ -248,7 +248,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
-                                      'Check your email and click the link to reset your password.',
+                                      'auth.check_email'.tr(),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 16,
@@ -279,7 +279,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Remember your password?',
+                                'auth.remember_password'.tr(),
                                 style: TextStyle(
                                   color: AppColors.textDark.withValues(
                                     alpha: 0.7,

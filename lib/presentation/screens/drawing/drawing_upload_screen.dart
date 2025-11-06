@@ -67,7 +67,6 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
     // Start animations
     _fadeController.forward();
     _scaleController.forward();
-    _sparkleController.repeat();
   }
 
   @override
@@ -103,7 +102,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Photo taken successfully! 📸'),
+              content: Text('upload.photo_taken_success'.tr()),
               backgroundColor: AppColors.primary,
               duration: const Duration(seconds: 2),
             ),
@@ -118,7 +117,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Photo capture was canceled'),
+              content: Text('upload.photo_capture_canceled'.tr()),
               backgroundColor: AppColors.textDark.withValues(alpha: 0.7),
               duration: const Duration(seconds: 2),
             ),
@@ -134,7 +133,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('${'upload.error_prefix'.tr()} ${e.toString()}'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -168,7 +167,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Image selected successfully! 🖼️'),
+              content: Text('upload.image_selected_success'.tr()),
               backgroundColor: AppColors.primary,
               duration: const Duration(seconds: 2),
             ),
@@ -183,7 +182,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Image selection was canceled'),
+              content: Text('upload.image_selection_canceled'.tr()),
               backgroundColor: AppColors.textDark.withValues(alpha: 0.7),
               duration: const Duration(seconds: 2),
             ),
@@ -199,7 +198,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('${'upload.error_prefix'.tr()} ${e.toString()}'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -458,7 +457,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
                         });
                       },
                 icon: const Icon(Icons.refresh),
-                label: Text('Choose Different'),
+                label: Text('upload.choose_different'.tr()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.textDark.withValues(alpha: 0.7),
                   foregroundColor: AppColors.white,
@@ -477,7 +476,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
               child: ElevatedButton.icon(
                 onPressed: _isLoading ? null : _uploadImage,
                 icon: const Icon(Icons.cloud_upload),
-                label: Text('Upload'),
+                label: Text('upload.upload'.tr()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.white,
@@ -502,14 +501,16 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
     // For now, just show a success message and navigate
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Image uploaded successfully! 🎉'),
+        content: Text('upload.upload_success'.tr()),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 2),
       ),
     );
 
-    // Navigate to the next screen or back to categories
-    context.push('/drawings/categories');
+    // Navigate to the next screen
+    context.push(
+      '/drawings/${widget.categoryId}/${widget.drawingId}/edit-result',
+    );
   }
 
   Widget _buildUploadButton({

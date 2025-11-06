@@ -54,7 +54,21 @@
     "confirm_password_hint": "Passwort bestätigen",
     "signing_in": "Melde Sie an...",
     "creating_account": "Konto wird erstellt...",
-    "sending_reset_link": "Reset-Link wird gesendet..."
+    "sending_reset_link": "Reset-Link wird gesendet...",
+    "sign_in_successful": "Erfolgreich angemeldet!",
+    "account_created": "Konto erfolgreich erstellt!",
+    "email_sent": "E-Mail gesendet!",
+    "reset_link_sent": "Wir haben einen Link zum Zurücksetzen des Passworts gesendet an",
+    "check_email": "Überprüfen Sie Ihre E-Mail und klicken Sie auf den Link, um Ihr Passwort zurückzusetzen.",
+    "remember_password": "Passwort wieder eingefallen?",
+    "error_email_required": "Bitte E-Mail eingeben",
+    "error_email_invalid": "Bitte gültige E-Mail eingeben",
+    "error_password_required": "Bitte Passwort eingeben",
+    "error_password_length": "Passwort muss mindestens 6 Zeichen lang sein",
+    "error_name_required": "Bitte vollständigen Namen eingeben",
+    "error_name_length": "Name muss mindestens 2 Zeichen lang sein",
+    "error_confirm_password": "Bitte Passwort bestätigen",
+    "error_passwords_mismatch": "Passwörter stimmen nicht überein"
   },
   
   "categories": {
@@ -77,7 +91,8 @@
   "drawings": {
     "select_drawing": "Wähle eine Zeichnung",
     "choose_what_to_draw": "Wähle aus dieser Kategorie, was du zeichnen möchtest!",
-    "back_to_categories": "Zurück zu Kategorien"
+    "back_to_categories": "Zurück zu Kategorien",
+    "category_not_found": "Kategorie nicht gefunden"
   },
   
   "drawing_items": {
@@ -112,7 +127,11 @@
     "failed_to_generate": "Tutorial konnte nicht erstellt werden",
     "unknown_error": "Unbekannter Fehler aufgetreten",
     "use_offline": "Offline verwenden",
-    "no_steps_available": "Keine Schritte verfügbar"
+    "no_steps_available": "Keine Schritte verfügbar",
+    "use_imagination": "Nutze deine Fantasie! 🎨",
+    "failed_load_image": "Bild konnte nicht geladen werden",
+    "image_error": "Bildfehler",
+    "previous": "Zurück"
   },
   
   "step_instructions": {
@@ -221,13 +240,21 @@
     "upload_later": "Vielleicht später",
     "taking_photo": "Foto wird aufgenommen...",
     "selecting_image": "Bild wird ausgewählt...",
-    "preparing_upload": "Dein Kunstwerk wird vorbereitet..."
+    "preparing_upload": "Dein Kunstwerk wird vorbereitet...",
+    "photo_taken_success": "Foto erfolgreich aufgenommen! 📸",
+    "photo_capture_canceled": "Fotoaufnahme wurde abgebrochen",
+    "image_selected_success": "Bild erfolgreich ausgewählt! 🖼️",
+    "image_selection_canceled": "Bildauswahl wurde abgebrochen",
+    "error_prefix": "Fehler:",
+    "choose_different": "Anderes wählen",
+    "upload": "Hochladen",
+    "upload_success": "Bild erfolgreich hochgeladen! 🎉"
   },
   
   "ai_enhancement": {
     "ai_magic": "KI-Magie",
     "ai_magic_subtitle": "Deine Zeichnung wird magisch!",
-    "processing_image": "Dein Kunstwerk wird mit KI bearbeitet...",
+    "processing_image": "Mach etwas Zauberei mit deinem Kunstwerk...",
     "this_may_take": "Das kann einen Moment dauern",
     "enhanced_drawing": "Verbesserte Zeichnung",
     "your_masterpiece": "Dein Meisterwerk!",
@@ -237,6 +264,11 @@
     "share_drawing": "Zeichnung teilen",
     "draw_another": "Noch eine zeichnen",
     "processing_failed": "Verarbeitung fehlgeschlagen",
-    "try_again": "Nochmal versuchen"
+    "try_again": "Nochmal versuchen",
+    "error_enhancing": "Beim Verbessern deiner Zeichnung ist etwas schief gelaufen.",
+    "original": "Original",
+    "enhanced": "Verbessert ✨",
+    "enhanced_drawing_title": "Verbesserte Zeichnung ✨",
+    "artwork_enhanced": "Dein Kunstwerk wurde magisch verbessert!"
   }
 }

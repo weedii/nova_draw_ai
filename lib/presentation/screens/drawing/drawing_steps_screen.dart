@@ -217,7 +217,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'Use your imagination! 🎨',
+              'drawing_steps.use_imagination'.tr(),
               style: TextStyle(
                 fontSize: 16,
                 color: AppColors.white.withValues(alpha: 0.9),
@@ -273,7 +273,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Failed to load image',
+                      'drawing_steps.failed_load_image'.tr(),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -307,7 +307,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
             const Icon(Icons.error_outline, size: 80, color: AppColors.white),
             const SizedBox(height: 16),
             Text(
-              'Image Error',
+              'drawing_steps.image_error'.tr(),
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -734,7 +734,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                                     const Icon(Icons.arrow_back, size: 20),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Previous',
+                                      'drawing_steps.previous'.tr(),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,

@@ -76,10 +76,10 @@ class _DrawingsScreenState extends State<DrawingsScreen>
           decoration: const BoxDecoration(
             gradient: AppColors.backgroundGradient,
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'Category not found',
-              style: TextStyle(fontSize: 24, color: AppColors.textDark),
+              'drawings.category_not_found'.tr(),
+              style: const TextStyle(fontSize: 24, color: AppColors.textDark),
             ),
           ),
         ),

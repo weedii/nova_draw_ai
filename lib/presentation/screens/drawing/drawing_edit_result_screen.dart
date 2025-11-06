@@ -62,7 +62,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
 
     // Start animations
     _fadeController.forward();
-    _sparkleController.repeat();
 
     // Simulate AI processing
     _simulateProcessing();
@@ -253,7 +252,7 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Something went wrong while enhancing your drawing.',
+              'ai_enhancement.error_enhancing'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -426,7 +425,7 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   child: Text(
-                    'Original',
+                    'ai_enhancement.original'.tr(),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -446,13 +445,17 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.image, size: 40, color: AppColors.primary),
-                          SizedBox(height: 8),
-                          Text('Original Image'),
+                          const Icon(
+                            Icons.image,
+                            size: 40,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(height: 8),
+                          Text('ai_enhancement.original'.tr()),
                         ],
                       ),
                     ),
@@ -492,17 +495,17 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.auto_fix_high,
                             size: 40,
                             color: AppColors.primary,
                           ),
-                          SizedBox(height: 8),
-                          Text('Enhanced ✨'),
+                          const SizedBox(height: 8),
+                          Text('ai_enhancement.enhanced'.tr()),
                         ],
                       ),
                     ),
@@ -527,24 +530,24 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
           ],
         ),
       ),
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_fix_high, size: 80, color: AppColors.primary),
-            SizedBox(height: 16),
+            const Icon(Icons.auto_fix_high, size: 80, color: AppColors.primary),
+            const SizedBox(height: 16),
             Text(
-              'Enhanced Drawing ✨',
-              style: TextStyle(
+              'ai_enhancement.enhanced_drawing_title'.tr(),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primary,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Your artwork has been magically enhanced!',
-              style: TextStyle(fontSize: 16, color: AppColors.textDark),
+              'ai_enhancement.artwork_enhanced'.tr(),
+              style: const TextStyle(fontSize: 16, color: AppColors.textDark),
             ),
           ],
         ),

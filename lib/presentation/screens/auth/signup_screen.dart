@@ -65,7 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Account created successfully!'),
+            content: Text('auth.account_created'.tr()),
             backgroundColor: AppColors.success,
           ),
         );
@@ -176,10 +176,10 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your full name';
+                                    return 'auth.error_name_required'.tr();
                                   }
                                   if (value.length < 2) {
-                                    return 'Name must be at least 2 characters';
+                                    return 'auth.error_name_length'.tr();
                                   }
                                   return null;
                                 },
@@ -196,12 +196,12 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your email';
+                                    return 'auth.error_email_required'.tr();
                                   }
                                   if (!RegExp(
                                     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                                   ).hasMatch(value)) {
-                                    return 'Please enter a valid email';
+                                    return 'auth.error_email_invalid'.tr();
                                   }
                                   return null;
                                 },
@@ -218,10 +218,10 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your password';
+                                    return 'auth.error_password_required'.tr();
                                   }
                                   if (value.length < 6) {
-                                    return 'Password must be at least 6 characters';
+                                    return 'auth.error_password_length'.tr();
                                   }
                                   return null;
                                 },
@@ -238,10 +238,10 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please confirm your password';
+                                    return 'auth.error_confirm_password'.tr();
                                   }
                                   if (value != _passwordController.text) {
-                                    return 'Passwords do not match';
+                                    return 'auth.error_passwords_mismatch'.tr();
                                   }
                                   return null;
                                 },
