@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../animations/app_animations.dart';
@@ -35,6 +36,13 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   bool _storyGenerationFailed = false;
   String _generatedStory = '';
 
+  final FlutterTts _flutterTts = FlutterTts();
+  Map? _currentVoice;
+  bool _isSpeaking = false;
+  bool _isPaused = false;
+  List<Map> _availableVoices = [];
+  String _currentLanguage = 'en';
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +75,9 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
 
     // Simulate AI story generation
     _generateStory();
+
+    // Initialize TTS
+    initTTS();
   }
 
   @override
@@ -74,7 +85,104 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     _fadeController.dispose();
     _slideController.dispose();
     _sparkleController.dispose();
+    _flutterTts.stop();
     super.dispose();
+  }
+
+  void initTTS() async {
+    try {
+      // Get current app language
+      _currentLanguage = context.locale.languageCode;
+
+      // Set language based on app locale
+      String ttsLanguage = _currentLanguage == 'de' ? 'de-DE' : 'en-US';
+      await _flutterTts.setLanguage(ttsLanguage);
+
+      // Set speech rate (0.0 to 1.0)
+      await _flutterTts.setSpeechRate(0.5);
+
+      // Set volume (0.0 to 1.0)
+      await _flutterTts.setVolume(0.8);
+
+      // Set pitch (0.5 to 2.0)
+      await _flutterTts.setPitch(1.0);
+
+      // Set up completion handler
+      _flutterTts.setCompletionHandler(() {
+        if (mounted) {
+          setState(() {
+            _isSpeaking = false;
+            _isPaused = false;
+          });
+        }
+      });
+
+      // Set up error handler
+      _flutterTts.setErrorHandler((msg) {
+        if (mounted) {
+          setState(() {
+            _isSpeaking = false;
+            _isPaused = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('TTS Error: $msg'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      });
+
+      // Get available voices and set appropriate voice
+      _flutterTts.getVoices
+          .then((data) {
+            try {
+              _availableVoices = List<Map>.from(data);
+              _setVoiceForCurrentLanguage();
+            } catch (e) {
+              print('Error setting up TTS voices: $e');
+            }
+          })
+          .catchError((error) {
+            print('Error getting TTS voices: $error');
+          });
+    } catch (e) {
+      print('Error initializing TTS: $e');
+    }
+  }
+
+  void _setVoiceForCurrentLanguage() {
+    try {
+      List<Map> languageVoices;
+
+      if (_currentLanguage == 'de') {
+        // Filter for German voices
+        languageVoices = _availableVoices
+            .where((voice) => voice["locale"].toString().startsWith("de"))
+            .toList();
+      } else {
+        // Filter for English voices (default)
+        languageVoices = _availableVoices
+            .where((voice) => voice["locale"].toString().startsWith("en"))
+            .toList();
+      }
+
+      if (languageVoices.isNotEmpty) {
+        _currentVoice = languageVoices.first;
+        _flutterTts.setVoice({
+          "name": _currentVoice!["name"],
+          "locale": _currentVoice!["locale"],
+        });
+
+        print(
+          'TTS Voice set: ${_currentVoice!["name"]} (${_currentVoice!["locale"]})',
+        );
+      } else {
+        print('No voices found for language: $_currentLanguage');
+      }
+    } catch (e) {
+      print('Error setting voice for language $_currentLanguage: $e');
+    }
   }
 
   void _generateStory() async {
@@ -113,14 +221,82 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     _generateStory();
   }
 
-  void _readStoryAloud() {
-    // TODO: Implement text-to-speech functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('story.read_aloud_coming_soon'.tr()),
-        backgroundColor: AppColors.primary,
-      ),
-    );
+  void _readStoryAloud() async {
+    try {
+      // Check if language has changed and update TTS settings
+      String currentAppLanguage = context.locale.languageCode;
+      if (currentAppLanguage != _currentLanguage) {
+        _currentLanguage = currentAppLanguage;
+        await _updateTTSLanguage();
+      }
+
+      if (_isSpeaking) {
+        if (_isPaused) {
+          // Resume speaking
+          await _flutterTts.speak(_generatedStory);
+          setState(() {
+            _isPaused = false;
+          });
+        } else {
+          // Pause speaking
+          await _flutterTts.pause();
+          setState(() {
+            _isPaused = true;
+          });
+        }
+      } else {
+        // Start speaking
+        if (_generatedStory.isNotEmpty) {
+          setState(() {
+            _isSpeaking = true;
+            _isPaused = false;
+          });
+
+          await _flutterTts.speak(_generatedStory);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('story.no_story_to_read'.tr()),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Handle TTS errors gracefully
+      setState(() {
+        _isSpeaking = false;
+        _isPaused = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'TTS not available. Please restart the app and try again.',
+          ),
+          backgroundColor: AppColors.error,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      print('TTS Error: $e');
+    }
+  }
+
+  Future<void> _updateTTSLanguage() async {
+    try {
+      // Set language based on current app locale
+      String ttsLanguage = _currentLanguage == 'de' ? 'de-DE' : 'en-US';
+      await _flutterTts.setLanguage(ttsLanguage);
+
+      // Update voice for the new language
+      _setVoiceForCurrentLanguage();
+
+      print('TTS language updated to: $ttsLanguage');
+    } catch (e) {
+      print('Error updating TTS language: $e');
+    }
   }
 
   void _saveStory() {
@@ -411,10 +587,45 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: _readStoryAloud,
-                        icon: const Icon(Icons.volume_up),
-                        label: Text('story.read_aloud'.tr()),
+                        icon: Icon(
+                          _isSpeaking
+                              ? (_isPaused ? Icons.play_arrow : Icons.pause)
+                              : Icons.volume_up,
+                        ),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _isSpeaking
+                                  ? (_isPaused
+                                        ? 'story.resume'.tr()
+                                        : 'story.pause'.tr())
+                                  : 'story.read_aloud'.tr(),
+                            ),
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                _currentLanguage.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: _isSpeaking
+                              ? AppColors.textDark
+                              : AppColors.primary,
                           foregroundColor: AppColors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
