@@ -9,6 +9,7 @@ import '../presentation/screens/drawing/drawings_screen.dart';
 import '../presentation/screens/drawing/drawing_steps_screen.dart';
 import '../presentation/screens/drawing/drawing_upload_screen.dart';
 import '../presentation/screens/drawing/drawing_edit_result_screen.dart';
+import '../presentation/screens/drawing/drawing_story_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: "/welcome",
@@ -83,6 +84,14 @@ final GoRouter appRouter = GoRouter(
           categoryId: categoryId,
           drawingId: drawingId,
         );
+      },
+    ),
+    GoRoute(
+      path: "/drawings/:categoryId/:drawingId/story",
+      builder: (BuildContext context, GoRouterState state) {
+        final categoryId = state.pathParameters['categoryId']!;
+        final drawingId = state.pathParameters['drawingId']!;
+        return DrawingStoryScreen(categoryId: categoryId, drawingId: drawingId);
       },
     ),
   ],

@@ -116,14 +116,8 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
     );
   }
 
-  void _shareDrawing() {
-    // TODO: Implement share functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Share functionality will be implemented soon! 📤'),
-        backgroundColor: AppColors.primary,
-      ),
-    );
+  void _createStory() {
+    context.push('/drawings/${widget.categoryId}/${widget.drawingId}/story');
   }
 
   void _drawAnother() {
@@ -372,9 +366,9 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                       const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: _shareDrawing,
-                          icon: const Icon(Icons.share),
-                          label: Text('ai_enhancement.share_drawing'.tr()),
+                          onPressed: _createStory,
+                          icon: const Icon(Icons.auto_stories),
+                          label: Text('ai_enhancement.create_story'.tr()),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.accent,
                             foregroundColor: AppColors.white,

@@ -262,6 +262,7 @@
     "original_vs_enhanced": "Original vs. Verbessert",
     "save_drawing": "Zeichnung speichern",
     "share_drawing": "Zeichnung teilen",
+    "create_story": "Geschichte erstellen",
     "draw_another": "Noch eine zeichnen",
     "processing_failed": "Verarbeitung fehlgeschlagen",
     "try_again": "Nochmal versuchen",
@@ -270,5 +271,27 @@
     "enhanced": "Verbessert ✨",
     "enhanced_drawing_title": "Verbesserte Zeichnung ✨",
     "artwork_enhanced": "Dein Kunstwerk wurde magisch verbessert!"
+  },
+
+  "story": {
+    "creating_story": "Geschichte wird erstellt",
+    "ai_creating_story": "Erstellt eine magische Geschichte über dein Kunstwerk!",
+    "story_failed": "Geschichte-Erstellung fehlgeschlagen",
+    "your_story": "Deine Geschichte",
+    "story_ready": "Deine magische Geschichte ist bereit!",
+    "generating_story": "Erstelle eine magische Geschichte über dein Kunstwerk...",
+    "this_may_take": "Das kann einen Moment dauern",
+    "try_again": "Nochmal versuchen",
+    "error_generating": "Beim Erstellen deiner Geschichte ist etwas schief gelaufen.",
+    "create_another": "Noch eine erstellen",
+    "your_story_title": "Deine magische Geschichte",
+    "enhanced_artwork": "Verbessertes Kunstwerk",
+    "your_masterpiece": "Dein Meisterwerk erzählt eine Geschichte!",
+    "read_aloud": "Vorlesen",
+    "save_story": "Geschichte speichern",
+    "share_story": "Geschichte teilen",
+    "read_aloud_coming_soon": "Vorlese-Funktion kommt bald! 🔊",
+    "save_coming_soon": "Geschichte speichern-Funktion kommt bald! 💾",
+    "share_coming_soon": "Geschichte teilen-Funktion kommt bald! 📤"
   }
 }

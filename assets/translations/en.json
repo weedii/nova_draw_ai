@@ -262,6 +262,7 @@
     "original_vs_enhanced": "Original vs Enhanced",
     "save_drawing": "Save Drawing",
     "share_drawing": "Share Drawing",
+    "create_story": "Create a Story",
     "draw_another": "Draw Another",
     "processing_failed": "Processing Failed",
     "try_again": "Try Again",
@@ -270,5 +271,27 @@
     "enhanced": "Enhanced ✨",
     "enhanced_drawing_title": "Enhanced Drawing ✨",
     "artwork_enhanced": "Your artwork has been magically enhanced!"
+  },
+
+  "story": {
+    "creating_story": "Creating Story",
+    "ai_creating_story": "Creating a magical story about your artwork!",
+    "story_failed": "Story Creation Failed",
+    "your_story": "Your Story",
+    "story_ready": "Your magical story is ready!",
+    "generating_story": "Creating a magical story about your artwork...",
+    "this_may_take": "This may take a few moments",
+    "try_again": "Try Again",
+    "error_generating": "Something went wrong while creating your story.",
+    "create_another": "Create Another",
+    "your_story_title": "Your Magical Story",
+    "enhanced_artwork": "Enhanced Artwork",
+    "your_masterpiece": "Your masterpiece tells a story!",
+    "read_aloud": "Read Aloud",
+    "save_story": "Save Story",
+    "share_story": "Share Story",
+    "read_aloud_coming_soon": "Read aloud functionality coming soon! 🔊",
+    "save_coming_soon": "Save story functionality coming soon! 💾",
+    "share_coming_soon": "Share story functionality coming soon! 📤"
   }
 }
