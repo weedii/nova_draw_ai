@@ -23,6 +23,15 @@
     "just_a_moment": "Einen Moment...",
     "getting_ready": "Alles wird vorbereitet..."
   },
+
+  "app_bar": {
+    "enhanced_drawing": "Verbessertes Bild",
+    "processing_failed": "Verarbeitung fehlgeschlagen",
+    "your_story": "Deine Geschichte",
+    "story_failed": "Geschichte fehlgeschlagen",
+    "error_occurred": "Fehler aufgetreten",
+    "drawing_steps": "Zeichenschritte"
+  },
   
   "welcome_screen": {
     "welcome": "Willkommen bei",

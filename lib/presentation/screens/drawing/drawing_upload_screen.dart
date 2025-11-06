@@ -6,6 +6,7 @@ import '../../../core/constants/colors.dart';
 import '../../../services/image_picker_service.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class DrawingUploadScreen extends StatefulWidget {
   final String categoryId;
@@ -25,11 +26,9 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _scaleController;
-  late AnimationController _sparkleController;
 
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _sparkleFloat;
 
   // Image picker service instance
   final ImagePickerService _imagePickerService = ImagePickerService();
@@ -48,20 +47,12 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _sparkleController = AppAnimations.createFloatController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    );
 
     _fadeAnimation = AppAnimations.createFadeAnimation(
       controller: _fadeController,
     );
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
-    );
-    _sparkleFloat = AppAnimations.createFloatAnimation(
-      controller: _sparkleController,
-      distance: 15.0,
     );
 
     // Start animations
@@ -73,7 +64,6 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
   void dispose() {
     _fadeController.dispose();
     _scaleController.dispose();
-    _sparkleController.dispose();
     super.dispose();
   }
 
@@ -227,62 +217,11 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
                 child: Column(
                   children: [
                     // Header
-                    Container(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => context.pop(),
-                            icon: const Icon(
-                              Icons.arrow_back_ios,
-                              color: AppColors.primary,
-                              size: 24,
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        'upload.upload_drawing'.tr(),
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.primary,
-                                          fontFamily: 'Comic Sans MS',
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    AppAnimatedFloat(
-                                      animation: _sparkleFloat,
-                                      child: const Text(
-                                        '✨',
-                                        style: TextStyle(fontSize: 24),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'upload.upload_subtitle'.tr(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: AppColors.textDark.withValues(
-                                      alpha: 0.7,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 48), // Balance the back button
-                        ],
-                      ),
+                    CustomAppBar(
+                      title: 'upload.upload_drawing',
+                      subtitle: 'upload.upload_subtitle',
+                      emoji: '✨',
+                      showAnimation: true,
                     ),
 
                     // Main content

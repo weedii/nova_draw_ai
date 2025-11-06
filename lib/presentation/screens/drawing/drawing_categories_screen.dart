@@ -6,6 +6,8 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../widgets/floating_language_selector.dart';
 
 class DrawingCategoriesScreen extends StatefulWidget {
   const DrawingCategoriesScreen({super.key});
@@ -64,95 +66,62 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
         final categories = drawingProvider.categories;
 
         return Scaffold(
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: AppColors.backgroundGradient,
-            ),
-            child: SafeArea(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  children: [
-                    // Header with decorative elements
-                    Container(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Stack(
-                        children: [
-                          // Decorative sparkles
-                          Positioned(
-                            top: 5,
-                            right: 0,
-                            child: const Text(
-                              '🎨',
-                              style: TextStyle(fontSize: 30),
-                            ),
-                          ),
-
-                          // Main title
-                          Center(
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 20),
-                                Text(
-                                  'categories.choose_drawing'.tr(),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                    fontFamily: 'Comic Sans MS',
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'categories.select_category'.tr(),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: AppColors.textDark.withValues(
-                                      alpha: 0.7,
-                                    ),
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Categories Grid
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                mainAxisExtent: 200,
-                                crossAxisCount: 2,
-                                childAspectRatio: 1.0,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                              ),
-                          itemCount: categories.length,
-                          itemBuilder: (context, index) {
-                            final category = categories[index];
-                            return _CategoryCard(
-                              category: category,
-                              onTap: () => _onCategorySelected(category),
-                              delay: Duration(milliseconds: 100 * index),
-                            );
-                          },
+          body: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: AppColors.backgroundGradient,
+                ),
+                child: SafeArea(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        // Header
+                        CustomAppBar(
+                          title: 'categories.choose_drawing',
+                          subtitle: 'categories.select_category',
+                          emoji: '🎨',
+                          showBackButton: false,
+                          showAnimation: true,
                         ),
-                      ),
-                    ),
 
-                    const SizedBox(height: 24),
-                  ],
+                        // Categories Grid
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    mainAxisExtent: 200,
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 1.0,
+                                    crossAxisSpacing: 16,
+                                    mainAxisSpacing: 16,
+                                  ),
+                              itemCount: categories.length,
+                              itemBuilder: (context, index) {
+                                final category = categories[index];
+                                return _CategoryCard(
+                                  category: category,
+                                  onTap: () => _onCategorySelected(category),
+                                  delay: Duration(milliseconds: 100 * index),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+              
+              // Floating Language Selector
+              const FloatingLanguageSelector(),
+            ],
           ),
         );
       },

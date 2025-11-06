@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class DrawingStoryScreen extends StatefulWidget {
   final String categoryId;
@@ -27,10 +28,8 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  late AnimationController _sparkleController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _sparkleFloat;
 
   bool _isGeneratingStory = true;
   bool _storyGenerationFailed = false;
@@ -53,10 +52,6 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _sparkleController = AppAnimations.createFloatController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    );
 
     _fadeAnimation = AppAnimations.createFadeAnimation(
       controller: _fadeController,
@@ -65,10 +60,6 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         Tween<Offset>(begin: const Offset(0.0, 1.0), end: Offset.zero).animate(
           CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
         );
-    _sparkleFloat = AppAnimations.createFloatAnimation(
-      controller: _sparkleController,
-      distance: 25.0,
-    );
 
     // Start animations
     _fadeController.forward();
@@ -84,7 +75,6 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
-    _sparkleController.dispose();
     _flutterTts.stop();
     super.dispose();
   }
@@ -339,64 +329,15 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
             child: Column(
               children: [
                 // Header
-                Container(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  _storyGenerationFailed
-                                      ? 'story.story_failed'.tr()
-                                      : 'story.your_story'.tr(),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                    fontFamily: 'Comic Sans MS',
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                AppAnimatedFloat(
-                                  animation: _sparkleFloat,
-                                  child: Text(
-                                    _storyGenerationFailed ? '😔' : '✨',
-                                    style: const TextStyle(fontSize: 24),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              textAlign: TextAlign.center,
-                              _storyGenerationFailed
-                                  ? 'story.try_again'.tr()
-                                  : 'story.story_ready'.tr(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textDark.withValues(
-                                  alpha: 0.7,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
+                CustomAppBar(
+                  title: _storyGenerationFailed
+                      ? 'app_bar.story_failed'
+                      : 'app_bar.your_story',
+                  subtitle: _storyGenerationFailed
+                      ? 'story.try_again'
+                      : 'story.story_ready',
+                  emoji: _storyGenerationFailed ? '😔' : '✨',
+                  showAnimation: !_storyGenerationFailed,
                 ),
 
                 // Main content

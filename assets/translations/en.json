@@ -24,6 +24,15 @@
     "getting_ready": "Getting everything ready..."
   },
   
+  "app_bar": {
+    "enhanced_drawing": "Enhanced Drawing",
+    "processing_failed": "Processing Failed",
+    "your_story": "Your Story",
+    "story_failed": "Story Failed",
+    "error_occurred": "Error Occurred",
+    "drawing_steps": "Drawing Steps"
+  },
+  
   "welcome_screen": {
     "welcome": "Welcome to",
     "app_description": "Draw, create, and watch your art come to life with magic!",

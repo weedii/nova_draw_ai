@@ -8,6 +8,7 @@ import '../../../core/constants/drawing_data.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class DrawingStepsScreen extends StatefulWidget {
   final String categoryId;
@@ -27,11 +28,9 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  late AnimationController _sparkleController;
 
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _sparkleFloat;
 
   @override
   void initState() {
@@ -43,10 +42,6 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _sparkleController = AppAnimations.createFloatController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    );
 
     _fadeAnimation = AppAnimations.createFadeAnimation(
       controller: _fadeController,
@@ -55,10 +50,6 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
         Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
           CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
         );
-    _sparkleFloat = AppAnimations.createFloatAnimation(
-      controller: _sparkleController,
-      distance: 20.0,
-    );
 
     _fadeController.forward();
     _slideController.forward();
@@ -68,7 +59,6 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
-    _sparkleController.dispose();
     super.dispose();
   }
 
@@ -339,33 +329,10 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
           child: Column(
             children: [
               // Header
-              Container(
-                padding: const EdgeInsets.all(24.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        color: AppColors.primary,
-                        size: 24,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'drawing_steps.error_occurred'.tr(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                          fontFamily: 'Comic Sans MS',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
+              CustomAppBar(
+                title: 'app_bar.error_occurred',
+                emoji: '😔',
+                showAnimation: false,
               ),
 
               // Error content
@@ -568,56 +535,12 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                 child: Column(
                   children: [
                     // Header
-                    Container(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Row(
-                        children: [
-                          // Back button
-                          IconButton(
-                            onPressed: () => context.pop(),
-                            icon: const Icon(
-                              Icons.arrow_back_ios,
-                              color: AppColors.primary,
-                              size: 24,
-                            ),
-                          ),
-
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Text(
-                                  'drawing_steps.drawing_steps'.tr(),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                    fontFamily: 'Comic Sans MS',
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${'common.step'.tr()} ${currentStepIndex + 1} of ${steps.length}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: AppColors.textDark.withValues(
-                                      alpha: 0.7,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Decorative sparkle
-                          AppAnimatedFloat(
-                            animation: _sparkleFloat,
-                            child: const Text(
-                              '✨',
-                              style: TextStyle(fontSize: 30),
-                            ),
-                          ),
-                        ],
-                      ),
+                    CustomAppBar(
+                      title: 'app_bar.drawing_steps',
+                      subtitle:
+                          '${'common.step'.tr()} ${currentStepIndex + 1} of ${steps.length}',
+                      emoji: '✨',
+                      showAnimation: true,
                     ),
 
                     // Progress indicator

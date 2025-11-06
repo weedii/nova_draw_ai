@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class DrawingEditResultScreen extends StatefulWidget {
   final String categoryId;
@@ -27,10 +28,8 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  late AnimationController _sparkleController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _sparkleFloat;
 
   bool _isProcessing = true;
   bool _processingFailed = false;
@@ -46,10 +45,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _sparkleController = AppAnimations.createFloatController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    );
 
     _fadeAnimation = AppAnimations.createFadeAnimation(
       controller: _fadeController,
@@ -58,10 +53,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
         Tween<Offset>(begin: const Offset(0.0, 1.0), end: Offset.zero).animate(
           CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
         );
-    _sparkleFloat = AppAnimations.createFloatAnimation(
-      controller: _sparkleController,
-      distance: 25.0,
-    );
 
     // Start animations
     _fadeController.forward();
@@ -74,7 +65,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
-    _sparkleController.dispose();
     super.dispose();
   }
 
@@ -146,63 +136,15 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
             child: Column(
               children: [
                 // Header
-                Container(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  _processingFailed
-                                      ? 'ai_enhancement.processing_failed'.tr()
-                                      : 'ai_enhancement.enhanced_drawing'.tr(),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                    fontFamily: 'Comic Sans MS',
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                AppAnimatedFloat(
-                                  animation: _sparkleFloat,
-                                  child: Text(
-                                    _processingFailed ? '😔' : '✨',
-                                    style: const TextStyle(fontSize: 24),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _processingFailed
-                                  ? 'ai_enhancement.try_again'.tr()
-                                  : 'ai_enhancement.your_masterpiece'.tr(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textDark.withValues(
-                                  alpha: 0.7,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
+                CustomAppBar(
+                  title: _processingFailed
+                      ? 'app_bar.processing_failed'
+                      : 'app_bar.enhanced_drawing',
+                  subtitle: _processingFailed
+                      ? 'ai_enhancement.try_again'
+                      : 'ai_enhancement.artwork_enhanced',
+                  emoji: _processingFailed ? '😔' : '✨',
+                  showAnimation: !_processingFailed,
                 ),
 
                 // Main content
