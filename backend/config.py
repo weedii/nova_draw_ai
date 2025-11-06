@@ -6,9 +6,9 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
-    # API Keys
-    openai_api_key: str
-    google_api_key: str
+    # API Keys (optional - not needed for local database)
+    openai_api_key: str = ""
+    google_api_key: str = ""
 
     # Server Configuration
     host: str = "0.0.0.0"

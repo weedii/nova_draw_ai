@@ -11,9 +11,12 @@ from models import (
     TutorialStep,
     TutorialMetadata,
 )
-from services.drawing_service import DrawingService
-from services.image_service import ImageService
-from utils import create_session_folder
+
+# from services.drawing_service import DrawingService
+# from services.image_service import ImageService
+from services.local_db_service import LocalDatabaseService
+
+# from utils import create_session_folder
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -34,8 +37,7 @@ app.add_middleware(
 
 
 # Initialize services
-drawing_service = DrawingService()
-image_service = ImageService()
+local_db_service = LocalDatabaseService()
 
 
 # Health check routes
@@ -52,58 +54,109 @@ async def health_check():
 
 
 # Generate complete tutorial
-@app.post("/api/generate-tutorial", response_model=FullTutorialResponse)
-async def generate_tutorial(request: FullTutorialRequest):
+# AI-powered tutorial generation (commented out - using local database instead)
+# @app.post("/api/generate-tutorial", response_model=FullTutorialResponse)
+# async def generate_tutorial(request: FullTutorialRequest):
+#     """
+#     Generate a complete drawing tutorial with steps in English & German plus base64 images.
+#     """
+#     try:
+#         # Generate drawing steps in both languages
+#         steps, steps_german, _ = drawing_service.generate_steps(request.subject)
+
+#         # Create session folder for image storage
+#         session_folder, _ = create_session_folder(
+#             request.subject, settings.storage_path
+#         )
+
+#         # Generate images for all steps
+#         tutorial_steps = []
+#         previous_image_path = None
+
+#         for i, step_description in enumerate(steps, start=1):
+#             # Generate image for this step
+#             image_path, base64_image, _ = image_service.generate_step_image(
+#                 step_description=step_description,
+#                 subject=request.subject,
+#                 step_number=i,
+#                 session_folder=session_folder,
+#                 previous_image_path=previous_image_path,
+#             )
+
+#             # Create tutorial step
+#             tutorial_steps.append(
+#                 TutorialStep(
+#                     step_en=step_description,
+#                     step_de=steps_german[i - 1],
+#                     step_img=base64_image,
+#                 )
+#             )
+
+#             # Update for next iteration
+#             previous_image_path = image_path
+
+#         return FullTutorialResponse(
+#             success="true",
+#             metadata=TutorialMetadata(
+#                 subject=request.subject,
+#                 total_steps=len(tutorial_steps),
+#             ),
+#             steps=tutorial_steps,
+#         )
+
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=500, detail=f"Failed to generate tutorial: {str(e)}"
+#         )
+
+
+# Generate tutorial from local database
+@app.post("/api/generate-tutorial-local", response_model=FullTutorialResponse)
+async def generate_tutorial_local(request: FullTutorialRequest):
     """
-    Generate a complete drawing tutorial with steps in English & German plus base64 images.
+    Generate a drawing tutorial using the local database instead of AI.
+    Returns the same format as the AI-generated tutorials.
     """
     try:
-        # Generate drawing steps in both languages
-        steps, steps_german, _ = drawing_service.generate_steps(request.subject)
-
-        # Create session folder for image storage
-        session_folder, _ = create_session_folder(
-            request.subject, settings.storage_path
+        # Get tutorial data from local database
+        tutorial_data = local_db_service.get_tutorial_with_base64_images(
+            request.subject
         )
 
-        # Generate images for all steps
-        tutorial_steps = []
-        previous_image_path = None
-
-        for i, step_description in enumerate(steps, start=1):
-            # Generate image for this step
-            image_path, base64_image, _ = image_service.generate_step_image(
-                step_description=step_description,
-                subject=request.subject,
-                step_number=i,
-                session_folder=session_folder,
-                previous_image_path=previous_image_path,
+        if not tutorial_data:
+            # If subject not found, provide helpful error with available subjects
+            available_subjects = local_db_service.list_all_subjects()
+            raise HTTPException(
+                status_code=404,
+                detail=f"Subject '{request.subject}' not found in database. Available subjects: {', '.join(available_subjects[:10])}{'...' if len(available_subjects) > 10 else ''}",
             )
 
-            # Create tutorial step
+        # Convert to the expected response format
+        tutorial_steps = []
+        for step_data in tutorial_data["steps"]:
             tutorial_steps.append(
                 TutorialStep(
-                    step_en=step_description,
-                    step_de=steps_german[i - 1],
-                    step_img=base64_image,
+                    step_en=step_data["step_en"],
+                    step_de=step_data["step_de"],
+                    step_img=step_data["step_img"],
                 )
             )
-
-            # Update for next iteration
-            previous_image_path = image_path
 
         return FullTutorialResponse(
             success="true",
             metadata=TutorialMetadata(
-                subject=request.subject,
-                total_steps=len(tutorial_steps),
+                subject=tutorial_data["subject"],
+                total_steps=tutorial_data["total_steps"],
             ),
             steps=tutorial_steps,
         )
 
+    except HTTPException:
+        # Re-raise HTTP exceptions (like 404)
+        raise
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to generate tutorial: {str(e)}"
+            status_code=500, detail=f"Failed to load tutorial from database: {str(e)}"
         )
 
 
