@@ -97,11 +97,13 @@ final GoRouter appRouter = GoRouter(
         final drawingId = state.pathParameters['drawingId']!;
         final extra = state.extra as Map<String, dynamic>?;
         final uploadedImage = extra?['uploadedImage'] as File?;
+        final editedImageBytes = extra?['editedImageBytes'];
         final selectedEditOption = extra?['selectedEditOption'];
         return DrawingFinalResultScreen(
           categoryId: categoryId,
           drawingId: drawingId,
           uploadedImage: uploadedImage,
+          editedImageBytes: editedImageBytes,
           selectedEditOption: selectedEditOption,
         );
       },

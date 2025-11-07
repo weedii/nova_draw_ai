@@ -7,6 +7,8 @@ class EditOption {
   final String titleDe;
   final String descriptionEn;
   final String descriptionDe;
+  final String promptEn; // Detailed AI prompt in English
+  final String promptDe; // Detailed AI prompt in German
   final String emoji;
   final Color color;
 
@@ -16,6 +18,8 @@ class EditOption {
     required this.titleDe,
     required this.descriptionEn,
     required this.descriptionDe,
+    required this.promptEn,
+    required this.promptDe,
     required this.emoji,
     required this.color,
   });
@@ -119,6 +123,10 @@ class DrawingData {
               titleDe: 'Zum Leben erwecken',
               descriptionEn: 'Add movement and energy to your dog!',
               descriptionDe: 'Füge Bewegung und Energie zu deinem Hund hinzu!',
+              promptEn:
+                  'Transform this child\'s dog drawing into a lively, energetic cartoon dog with bright eyes, a wagging tail, and playful expression. Add vibrant colors, smooth lines, and make it look animated and full of life. Keep the original drawing style recognizable but enhance it to look more dynamic and cheerful.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Hundes in einen lebendigen, energiegeladenen Cartoon-Hund mit strahlenden Augen, wedelndem Schwanz und verspieltem Ausdruck. Füge lebendige Farben, glatte Linien hinzu und lass ihn animiert und voller Leben aussehen. Behalte den ursprünglichen Zeichenstil erkennbar bei, aber verbessere ihn, um dynamischer und fröhlicher auszusehen.',
               emoji: '⚡',
               color: AppColors.accent,
             ),
@@ -128,6 +136,10 @@ class DrawingData {
               titleDe: 'Bunt machen',
               descriptionEn: 'Add beautiful colors and patterns!',
               descriptionDe: 'Füge schöne Farben und Muster hinzu!',
+              promptEn:
+                  'Add beautiful, vibrant colors to this child\'s dog drawing. Use a rainbow of bright, cheerful colors like orange, yellow, pink, blue, and purple. Add fun patterns like spots, stripes, or swirls to make it look magical and colorful. Keep the drawing style child-friendly and maintain the original shapes.',
+              promptDe:
+                  'Füge dieser Kinderzeichnung eines Hundes schöne, lebendige Farben hinzu. Verwende eine Regenbogenpalette aus hellen, fröhlichen Farben wie Orange, Gelb, Rosa, Blau und Lila. Füge lustige Muster wie Punkte, Streifen oder Wirbel hinzu, um es magisch und farbenfroh aussehen zu lassen. Behalte den kinderfreundlichen Zeichenstil bei und erhalte die ursprünglichen Formen.',
               emoji: '🌈',
               color: AppColors.primary,
             ),
@@ -136,7 +148,12 @@ class DrawingData {
               titleEn: 'Add Accessories',
               titleDe: 'Accessoires hinzufügen',
               descriptionEn: 'Give your dog a collar, hat, or toy!',
-              descriptionDe: 'Gib deinem Hund ein Halsband, Hut oder Spielzeug!',
+              descriptionDe:
+                  'Gib deinem Hund ein Halsband, Hut oder Spielzeug!',
+              promptEn:
+                  'Add fun accessories to this child\'s dog drawing. Include items like a colorful collar with a tag, a cute hat or bow, a ball or toy nearby, and maybe a bone. Make the accessories bright, cheerful, and child-friendly. Keep the original drawing recognizable while making it more detailed and fun.',
+              promptDe:
+                  'Füge dieser Kinderzeichnung eines Hundes lustige Accessoires hinzu. Füge Elemente wie ein buntes Halsband mit Marke, einen süßen Hut oder eine Schleife, einen Ball oder ein Spielzeug in der Nähe und vielleicht einen Knochen hinzu. Mache die Accessoires hell, fröhlich und kinderfreundlich. Behalte die ursprüngliche Zeichnung erkennbar bei, während du sie detaillierter und lustiger machst.',
               emoji: '🎾',
               color: AppColors.secondary,
             ),
@@ -146,6 +163,10 @@ class DrawingData {
               titleDe: 'Cartoon-Stil',
               descriptionEn: 'Transform into a cute cartoon character!',
               descriptionDe: 'Verwandle in einen süßen Cartoon-Charakter!',
+              promptEn:
+                  'Transform this child\'s dog drawing into a professional cartoon character style. Make it look like a character from a children\'s animated show with big expressive eyes, smooth rounded shapes, bold outlines, and vibrant colors. Add shading and highlights to give it depth while keeping it cute and child-friendly.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Hundes in einen professionellen Cartoon-Charakter-Stil. Lass ihn wie eine Figur aus einer Kinderanimationsserie aussehen mit großen ausdrucksstarken Augen, glatten abgerundeten Formen, kräftigen Umrissen und lebendigen Farben. Füge Schattierungen und Highlights hinzu, um ihm Tiefe zu verleihen, während du ihn süß und kinderfreundlich hältst.',
               emoji: '🎨',
               color: AppColors.success,
             ),
@@ -185,6 +206,10 @@ class DrawingData {
               titleDe: 'Flauschig machen',
               descriptionEn: 'Add soft, fluffy fur texture!',
               descriptionDe: 'Füge weiche, flauschige Fell-Textur hinzu!',
+              promptEn:
+                  'Transform this child\'s cat drawing into a fluffy, soft-looking cat with detailed fur texture. Add soft, fuzzy edges and make the fur look thick and cuddly. Use light and shadow to create depth in the fur. Keep it cute and child-friendly with warm colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Katze in eine flauschige, weich aussehende Katze mit detaillierter Fell-Textur. Füge weiche, flauschige Kanten hinzu und lass das Fell dick und kuschelig aussehen. Verwende Licht und Schatten, um Tiefe im Fell zu erzeugen. Halte es süß und kinderfreundlich mit warmen Farben.',
               emoji: '🐾',
               color: AppColors.accent,
             ),
@@ -194,6 +219,10 @@ class DrawingData {
               titleDe: 'Magische Augen',
               descriptionEn: 'Give your cat sparkling magical eyes!',
               descriptionDe: 'Gib deiner Katze funkelnde magische Augen!',
+              promptEn:
+                  'Enhance this child\'s cat drawing by giving it large, sparkling, magical eyes that shine and glow. Add star sparkles, light reflections, and a magical glow around the eyes. Make the eyes expressive and enchanting with bright colors like blue, purple, or green. Keep the rest of the drawing recognizable.',
+              promptDe:
+                  'Verbessere diese Kinderzeichnung einer Katze, indem du ihr große, funkelnde, magische Augen gibst, die leuchten und glühen. Füge Sternen-Glitzer, Lichtreflexionen und ein magisches Leuchten um die Augen hinzu. Mache die Augen ausdrucksstark und bezaubernd mit hellen Farben wie Blau, Lila oder Grün. Halte den Rest der Zeichnung erkennbar.',
               emoji: '✨',
               color: AppColors.primary,
             ),
@@ -203,6 +232,10 @@ class DrawingData {
               titleDe: 'Regenbogen-Katze',
               descriptionEn: 'Transform into a colorful rainbow cat!',
               descriptionDe: 'Verwandle in eine bunte Regenbogen-Katze!',
+              promptEn:
+                  'Transform this child\'s cat drawing into a magical rainbow cat with vibrant rainbow colors flowing through its fur. Use red, orange, yellow, green, blue, and purple in beautiful gradients. Add sparkles and a magical, dreamy atmosphere. Make it look fantastical while keeping the original cat shape.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Katze in eine magische Regenbogen-Katze mit lebendigen Regenbogenfarben, die durch ihr Fell fließen. Verwende Rot, Orange, Gelb, Grün, Blau und Lila in schönen Verläufen. Füge Glitzer und eine magische, verträumte Atmosphäre hinzu. Lass es fantastisch aussehen, während du die ursprüngliche Katzenform beibehältst.',
               emoji: '🌈',
               color: AppColors.success,
             ),
@@ -211,7 +244,12 @@ class DrawingData {
               titleEn: 'Royal Cat',
               titleDe: 'Königliche Katze',
               descriptionEn: 'Add a crown and royal accessories!',
-              descriptionDe: 'Füge eine Krone und königliche Accessoires hinzu!',
+              descriptionDe:
+                  'Füge eine Krone und königliche Accessoires hinzu!',
+              promptEn:
+                  'Transform this child\'s cat drawing into a royal, majestic cat. Add a golden crown on its head, a royal cape or collar with jewels, and maybe a throne or royal cushion. Use rich colors like gold, purple, and red. Make the cat look elegant and regal while keeping it cute and child-friendly.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Katze in eine königliche, majestätische Katze. Füge eine goldene Krone auf ihrem Kopf, einen königlichen Umhang oder Kragen mit Juwelen und vielleicht einen Thron oder ein königliches Kissen hinzu. Verwende reiche Farben wie Gold, Lila und Rot. Lass die Katze elegant und königlich aussehen, während du sie süß und kinderfreundlich hältst.',
               emoji: '👑',
               color: AppColors.secondary,
             ),
@@ -246,6 +284,10 @@ class DrawingData {
               titleDe: 'Unterwasser-Szene',
               descriptionEn: 'Add bubbles, coral, and sea plants!',
               descriptionDe: 'Füge Blasen, Korallen und Seepflanzen hinzu!',
+              promptEn:
+                  'Enhance this child\'s fish drawing by adding a beautiful underwater scene around it. Include colorful bubbles floating up, coral reefs, seaweed, sea plants, and maybe small fish friends. Use blue and green tones for the water. Make it look like a vibrant ocean environment while keeping the original fish as the main focus.',
+              promptDe:
+                  'Verbessere diese Kinderzeichnung eines Fisches, indem du eine schöne Unterwasserszene darum herum hinzufügst. Füge bunte Blasen hinzu, die nach oben schweben, Korallenriffe, Seetang, Seepflanzen und vielleicht kleine Fischfreunde. Verwende Blau- und Grüntöne für das Wasser. Lass es wie eine lebendige Ozeanumgebung aussehen, während du den ursprünglichen Fisch als Hauptfokus beibehältst.',
               emoji: '🫧',
               color: AppColors.primary,
             ),
@@ -255,6 +297,10 @@ class DrawingData {
               titleDe: 'Tropische Farben',
               descriptionEn: 'Make it a colorful tropical fish!',
               descriptionDe: 'Mach es zu einem bunten tropischen Fisch!',
+              promptEn:
+                  'Transform this child\'s fish drawing into a vibrant tropical fish with bright, exotic colors. Use orange, yellow, blue, pink, and turquoise. Add beautiful patterns like stripes, spots, or scales. Make it look like a fish from a tropical coral reef with vivid, eye-catching colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Fisches in einen lebendigen tropischen Fisch mit hellen, exotischen Farben. Verwende Orange, Gelb, Blau, Rosa und Türkis. Füge schöne Muster wie Streifen, Punkte oder Schuppen hinzu. Lass ihn wie einen Fisch aus einem tropischen Korallenriff mit lebendigen, auffälligen Farben aussehen.',
               emoji: '🌺',
               color: AppColors.accent,
             ),
@@ -264,6 +310,10 @@ class DrawingData {
               titleDe: 'Leuchtender Fisch',
               descriptionEn: 'Add magical glowing effects!',
               descriptionDe: 'Füge magische Leuchteffekte hinzu!',
+              promptEn:
+                  'Transform this child\'s fish drawing into a magical glowing fish that emits light. Add bioluminescent effects with glowing edges, sparkles, and light rays. Use neon colors like electric blue, bright green, or glowing purple. Make it look like a deep-sea creature that glows in the dark.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Fisches in einen magischen leuchtenden Fisch, der Licht ausstrahlt. Füge biolumineszente Effekte mit leuchtenden Kanten, Glitzer und Lichtstrahlen hinzu. Verwende Neonfarben wie elektrisches Blau, helles Grün oder leuchtendes Lila. Lass ihn wie eine Tiefseekreatur aussehen, die im Dunkeln leuchtet.',
               emoji: '🌟',
               color: AppColors.success,
             ),
@@ -303,6 +353,10 @@ class DrawingData {
               titleDe: 'Zirkus-Elefant',
               descriptionEn: 'Add a colorful circus costume and hat!',
               descriptionDe: 'Füge ein buntes Zirkuskostüm und Hut hinzu!',
+              promptEn:
+                  'Transform this child\'s elephant drawing into a circus elephant performer. Add a decorative circus hat or headpiece, a colorful blanket or costume with patterns and tassels, and maybe a circus ball or platform. Use bright circus colors like red, yellow, and blue. Make it look festive and fun.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Elefanten in einen Zirkus-Elefanten-Darsteller. Füge einen dekorativen Zirkushut oder Kopfschmuck, eine bunte Decke oder ein Kostüm mit Mustern und Quasten und vielleicht einen Zirkusball oder eine Plattform hinzu. Verwende helle Zirkusfarben wie Rot, Gelb und Blau. Lass es festlich und lustig aussehen.',
               emoji: '🎪',
               color: AppColors.secondary,
             ),
@@ -312,6 +366,10 @@ class DrawingData {
               titleDe: 'Baby-Elefant',
               descriptionEn: 'Make it smaller and super cute!',
               descriptionDe: 'Mach ihn kleiner und super süß!',
+              promptEn:
+                  'Transform this child\'s elephant drawing into an adorable baby elephant. Make it look smaller and cuter with big innocent eyes, chubby body, shorter legs, and a playful expression. Add soft, gentle colors and maybe a small toy or blanket. Make it look extra cuddly and sweet.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Elefanten in einen bezaubernden Baby-Elefanten. Lass ihn kleiner und süßer aussehen mit großen unschuldigen Augen, molligem Körper, kürzeren Beinen und einem verspielten Ausdruck. Füge weiche, sanfte Farben und vielleicht ein kleines Spielzeug oder eine Decke hinzu. Lass ihn extra kuschelig und süß aussehen.',
               emoji: '🍼',
               color: AppColors.accent,
             ),
@@ -321,6 +379,10 @@ class DrawingData {
               titleDe: 'Safari-Abenteuer',
               descriptionEn: 'Add African savanna background!',
               descriptionDe: 'Füge afrikanischen Savannenhintergrund hinzu!',
+              promptEn:
+                  'Enhance this child\'s elephant drawing by adding an African savanna background. Include acacia trees, golden grass, a sunset sky with warm orange and yellow colors, and maybe other safari animals in the distance. Make the elephant look majestic in its natural habitat.',
+              promptDe:
+                  'Verbessere diese Kinderzeichnung eines Elefanten, indem du einen afrikanischen Savannenhintergrund hinzufügst. Füge Akazienbäume, goldenes Gras, einen Sonnenuntergangshimmel mit warmen Orange- und Gelbtönen und vielleicht andere Safari-Tiere in der Ferne hinzu. Lass den Elefanten majestätisch in seinem natürlichen Lebensraum aussehen.',
               emoji: '🌍',
               color: AppColors.success,
             ),
@@ -368,7 +430,12 @@ class DrawingData {
               titleEn: 'Dream House',
               titleDe: 'Traumhaus',
               descriptionEn: 'Add a garden, chimney smoke, and decorations!',
-              descriptionDe: 'Füge einen Garten, Kaminrauch und Dekoration hinzu!',
+              descriptionDe:
+                  'Füge einen Garten, Kaminrauch und Dekoration hinzu!',
+              promptEn:
+                  'Transform this child\'s house drawing into a dream house. Add a beautiful garden with flowers and trees, smoke coming from the chimney, curtains in the windows, a path to the door, a fence, and decorative details. Use warm, inviting colors and make it look cozy and welcoming.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Hauses in ein Traumhaus. Füge einen schönen Garten mit Blumen und Bäumen, Rauch aus dem Kamin, Vorhänge in den Fenstern, einen Weg zur Tür, einen Zaun und dekorative Details hinzu. Verwende warme, einladende Farben und lass es gemütlich und einladend aussehen.',
               emoji: '🏡',
               color: AppColors.success,
             ),
@@ -378,6 +445,10 @@ class DrawingData {
               titleDe: 'Zu einem Schloss machen',
               descriptionEn: 'Transform into a magical castle!',
               descriptionDe: 'Verwandle in ein magisches Schloss!',
+              promptEn:
+                  'Transform this child\'s house drawing into a magical fairy tale castle. Add towers with pointed roofs, flags on top, stone walls, a drawbridge, and maybe a moat. Use fantasy colors like purple, blue, and gold. Add sparkles and magical elements to make it look enchanted.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Hauses in ein magisches Märchenschloss. Füge Türme mit spitzen Dächern, Flaggen oben, Steinmauern, eine Zugbrücke und vielleicht einen Wassergraben hinzu. Verwende Fantasy-Farben wie Lila, Blau und Gold. Füge Glitzer und magische Elemente hinzu, um es verzaubert aussehen zu lassen.',
               emoji: '🏰',
               color: AppColors.primary,
             ),
@@ -387,6 +458,10 @@ class DrawingData {
               titleDe: 'Gemütliches Häuschen',
               descriptionEn: 'Make it a warm, cozy cottage!',
               descriptionDe: 'Mach es zu einem warmen, gemütlichen Häuschen!',
+              promptEn:
+                  'Transform this child\'s house drawing into a warm, cozy cottage. Add a thatched or wooden roof, glowing windows with warm light inside, a small garden with flowers, a wooden door, and maybe a cat or dog nearby. Use warm earth tones and make it look inviting and homey.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Hauses in ein warmes, gemütliches Häuschen. Füge ein Stroh- oder Holzdach, leuchtende Fenster mit warmem Licht drinnen, einen kleinen Garten mit Blumen, eine Holztür und vielleicht eine Katze oder einen Hund in der Nähe hinzu. Verwende warme Erdtöne und lass es einladend und heimelig aussehen.',
               emoji: '🕯️',
               color: AppColors.accent,
             ),

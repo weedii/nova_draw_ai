@@ -1,10 +1,10 @@
+import 'dart:io';
 import '../../models/api_models.dart';
 import 'base_api_service.dart';
 import 'api_exceptions.dart';
 
 /// API service specifically for drawing tutorial operations
 class DrawingApiService {
-  
   /// Generate a complete drawing tutorial from the backend API
   ///
   /// [subject] - What to draw (e.g., "cat", "dog", "butterfly")
@@ -42,7 +42,7 @@ class DrawingApiService {
     return await BaseApiService.handleApiCall<List<String>>(() async {
       final response = await BaseApiService.get('/api/drawing-categories');
       final jsonData = BaseApiService.handleResponse(response);
-      
+
       return List<String>.from(jsonData['categories'] ?? []);
     });
   }
@@ -59,9 +59,11 @@ class DrawingApiService {
         throw ApiException('Category cannot be empty');
       }
 
-      final response = await BaseApiService.get('/api/drawing-suggestions?category=${Uri.encodeComponent(category)}');
+      final response = await BaseApiService.get(
+        '/api/drawing-suggestions?category=${Uri.encodeComponent(category)}',
+      );
       final jsonData = BaseApiService.handleResponse(response);
-      
+
       return List<String>.from(jsonData['suggestions'] ?? []);
     });
   }
@@ -114,11 +116,64 @@ class DrawingApiService {
         throw ApiException('User ID cannot be empty');
       }
 
-      final response = await BaseApiService.get('/api/user-progress?user_id=${Uri.encodeComponent(userId)}');
+      final response = await BaseApiService.get(
+        '/api/user-progress?user_id=${Uri.encodeComponent(userId)}',
+      );
       final jsonData = BaseApiService.handleResponse(response);
-      
+
       final progressData = jsonData['progress'] as Map<String, dynamic>? ?? {};
       return progressData.map((key, value) => MapEntry(key, value as int));
+    });
+  }
+
+  /// Edit an uploaded image with AI using a text prompt
+  ///
+  /// [imageFile] - The image file to edit
+  /// [prompt] - The editing instruction (e.g., "make it alive", "make it colorful")
+  ///
+  /// Returns [ApiImageEditResponse] with the edited image as base64
+  /// Throws [ApiException] on error
+  static Future<ApiImageEditResponse> editImage({
+    required File imageFile,
+    required String prompt,
+  }) async {
+    return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
+      print('🎨 Starting image edit request');
+      print('📁 Image file: ${imageFile.path}');
+      print('💬 Option: $prompt');
+
+      // Validate input
+      if (!imageFile.existsSync()) {
+        print('❌ Image file does not exist!');
+        throw ApiException('Image file does not exist');
+      }
+
+      if (prompt.trim().isEmpty) {
+        print('❌ Option is empty!');
+        throw ApiException('Option cannot be empty');
+      }
+
+      print('✅ Validation passed, making API request...');
+
+      // Make multipart API request
+      final response = await BaseApiService.postMultipart(
+        '/api/edit-image',
+        file: imageFile,
+        fileFieldName: 'file',
+        fields: {'prompt': prompt.trim()},
+      );
+
+      print('🎉 API request completed');
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+      final result = ApiImageEditResponse.fromJson(jsonData);
+
+      print(
+        '✅ Image edited successfully! Processing time: ${result.processingTime}s',
+      );
+
+      return result;
     });
   }
 }

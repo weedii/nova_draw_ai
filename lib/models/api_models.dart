@@ -69,3 +69,35 @@ class ApiDrawingStep {
     return {'step_en': stepEn, 'step_de': stepDe, 'step_img': stepImg};
   }
 }
+
+class ApiImageEditResponse {
+  final bool success;
+  final String prompt;
+  final String resultImage; // base64 encoded edited image
+  final double processingTime;
+
+  const ApiImageEditResponse({
+    required this.success,
+    required this.prompt,
+    required this.resultImage,
+    required this.processingTime,
+  });
+
+  factory ApiImageEditResponse.fromJson(Map<String, dynamic> json) {
+    return ApiImageEditResponse(
+      success: json['success'] == 'true' || json['success'] == true,
+      prompt: json['prompt'] ?? '',
+      resultImage: json['result_image'] ?? '',
+      processingTime: (json['processing_time'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success.toString(),
+      'prompt': prompt,
+      'result_image': resultImage,
+      'processing_time': processingTime,
+    };
+  }
+}

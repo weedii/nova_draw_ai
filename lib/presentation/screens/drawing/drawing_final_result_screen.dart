@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ class DrawingFinalResultScreen extends StatefulWidget {
   final String categoryId;
   final String drawingId;
   final File? uploadedImage;
+  final Uint8List? editedImageBytes;
   final EditOption? selectedEditOption;
 
   const DrawingFinalResultScreen({
@@ -18,6 +20,7 @@ class DrawingFinalResultScreen extends StatefulWidget {
     required this.categoryId,
     required this.drawingId,
     this.uploadedImage,
+    this.editedImageBytes,
     this.selectedEditOption,
   });
 
@@ -275,13 +278,13 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: widget.uploadedImage != null
+                    child: widget.editedImageBytes != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Stack(
                               children: [
-                                Image.file(
-                                  widget.uploadedImage!,
+                                Image.memory(
+                                  widget.editedImageBytes!,
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: double.infinity,
@@ -348,29 +351,23 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
     }
 
     // Single image view (enhanced or original)
-    return widget.uploadedImage != null
+    return widget.uploadedImage != null || widget.editedImageBytes != null
         ? Stack(
             children: [
-              Image.file(
-                widget.uploadedImage!,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              ),
-              // Show edit effect if option was applied
-              if (widget.selectedEditOption != null)
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      colors: [
-                        widget.selectedEditOption!.color.withValues(
-                          alpha: 0.15,
-                        ),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
+              // Show edited image if available, otherwise show original
+              if (widget.editedImageBytes != null)
+                Image.memory(
+                  widget.editedImageBytes!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                )
+              else if (widget.uploadedImage != null)
+                Image.file(
+                  widget.uploadedImage!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
                 ),
 
               // Edit option indicator

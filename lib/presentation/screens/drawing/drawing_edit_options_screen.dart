@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
+import '../../../services/actions/drawing_api_service.dart';
+import '../../../services/actions/api_exceptions.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -89,24 +92,66 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   }
 
   void _applyEditOption() async {
-    if (_selectedEditOption == null) return;
+    if (_selectedEditOption == null || widget.uploadedImage == null) return;
 
     setState(() {
       _isApplyingEdit = true;
     });
 
-    // Simulate edit processing
-    await Future.delayed(const Duration(seconds: 3));
+    try {
+      // Get the detailed AI prompt from the selected edit option
+      final prompt = _selectedEditOption!.promptEn;
 
-    if (mounted) {
-      // Navigate to the final result screen
-      context.pushReplacement(
-        '/drawings/${widget.categoryId}/${widget.drawingId}/result',
-        extra: {
-          'uploadedImage': widget.uploadedImage,
-          'selectedEditOption': _selectedEditOption,
-        },
+      // Call the API to edit the image
+      final response = await DrawingApiService.editImage(
+        imageFile: widget.uploadedImage!,
+        prompt: prompt,
       );
+
+      if (mounted && response.success) {
+        // Decode base64 image to bytes
+        final imageBytes = base64Decode(response.resultImage);
+
+        // Navigate to the final result screen with the edited image
+        context.pushReplacement(
+          '/drawings/${widget.categoryId}/${widget.drawingId}/result',
+          extra: {
+            'uploadedImage': widget.uploadedImage,
+            'editedImageBytes': imageBytes,
+            'selectedEditOption': _selectedEditOption,
+          },
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _isApplyingEdit = false;
+        });
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to edit image: ${e.message}'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isApplyingEdit = false;
+        });
+
+        // Show generic error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An unexpected error occurred: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     }
   }
 
