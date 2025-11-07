@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import time
@@ -10,11 +10,14 @@ from models import (
     FullTutorialResponse,
     TutorialStep,
     TutorialMetadata,
+    ImageProcessRequest,
+    ImageProcessResponse,
 )
 
 # from services.drawing_service import DrawingService
 # from services.image_service import ImageService
 from services.local_db_service import LocalDatabaseService
+from services.image_processing_service import ImageProcessingService
 
 # from utils import create_session_folder
 
@@ -38,6 +41,14 @@ app.add_middleware(
 
 # Initialize services
 local_db_service = LocalDatabaseService()
+
+# Initialize image processing service (only if Google API key is available)
+image_processing_service = None
+if settings.google_api_key:
+    try:
+        image_processing_service = ImageProcessingService()
+    except Exception as e:
+        print(f"Warning: Could not initialize image processing service: {e}")
 
 
 # Health check routes
@@ -157,6 +168,67 @@ async def generate_tutorial_local(request: FullTutorialRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to load tutorial from database: {str(e)}"
+        )
+
+
+# Process uploaded image with AI
+@app.post("/api/process-image", response_model=ImageProcessResponse)
+async def process_image(
+    file: UploadFile = File(..., description="Image file to process"),
+    prompt: str = Form(
+        ..., description="Processing instruction (e.g., 'make it alive')"
+    ),
+):
+    """
+    Process an uploaded image with AI using a text prompt.
+    Supports prompts like 'make it alive', 'make it colorful', etc.
+    """
+    try:
+        # Check if image processing service is available
+        if not image_processing_service:
+            raise HTTPException(
+                status_code=503,
+                detail="Image processing service not available. Please configure Google API key.",
+            )
+
+        # Validate file type
+        if not file.content_type or not file.content_type.startswith("image/"):
+            raise HTTPException(
+                status_code=400, detail="File must be an image (JPEG, PNG, etc.)"
+            )
+
+        # Read image data
+        image_data = await file.read()
+
+        # Validate image
+        if not image_processing_service.validate_image(image_data):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid image or image too large (max 2048x2048)",
+            )
+
+        # Get image info for logging
+        image_info = image_processing_service.get_image_info(image_data)
+        print(f"Processing image: {image_info}")
+
+        # Process the image
+        result_base64, processing_time = image_processing_service.process_image(
+            image_data, prompt
+        )
+
+        return ImageProcessResponse(
+            success="true",
+            prompt=prompt,
+            result_image=result_base64,
+            processing_time=processing_time,
+        )
+
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to process image: {str(e)}"
         )
 
 
