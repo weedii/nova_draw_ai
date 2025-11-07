@@ -24,6 +24,15 @@
     "getting_ready": "Getting everything ready..."
   },
   
+  "app_bar": {
+    "enhanced_drawing": "Enhanced Drawing",
+    "processing_failed": "Processing Failed",
+    "your_story": "Your Story",
+    "story_failed": "Story Failed",
+    "error_occurred": "Error Occurred",
+    "drawing_steps": "Drawing Steps"
+  },
+  
   "welcome_screen": {
     "welcome": "Welcome to",
     "app_description": "Draw, create, and watch your art come to life with magic!",
@@ -54,7 +63,21 @@
     "confirm_password_hint": "Confirm your password",
     "signing_in": "Signing you in...",
     "creating_account": "Creating your account...",
-    "sending_reset_link": "Sending reset link..."
+    "sending_reset_link": "Sending reset link...",
+    "sign_in_successful": "Sign in successful!",
+    "account_created": "Account created successfully!",
+    "email_sent": "Email Sent!",
+    "reset_link_sent": "We've sent a password reset link to",
+    "check_email": "Check your email and click the link to reset your password.",
+    "remember_password": "Remember your password?",
+    "error_email_required": "Please enter your email",
+    "error_email_invalid": "Please enter a valid email",
+    "error_password_required": "Please enter your password",
+    "error_password_length": "Password must be at least 6 characters",
+    "error_name_required": "Please enter your full name",
+    "error_name_length": "Name must be at least 2 characters",
+    "error_confirm_password": "Please confirm your password",
+    "error_passwords_mismatch": "Passwords do not match"
   },
   
   "categories": {
@@ -77,7 +100,8 @@
   "drawings": {
     "select_drawing": "Select a Drawing",
     "choose_what_to_draw": "Choose what you want to draw from this category!",
-    "back_to_categories": "Back to Categories"
+    "back_to_categories": "Back to Categories",
+    "category_not_found": "Category not found"
   },
   
   "drawing_items": {
@@ -112,7 +136,11 @@
     "failed_to_generate": "Failed to Generate Tutorial",
     "unknown_error": "Unknown error occurred",
     "use_offline": "Use Offline",
-    "no_steps_available": "No steps available"
+    "no_steps_available": "No steps available",
+    "use_imagination": "Use your imagination! 🎨",
+    "failed_load_image": "Failed to load image",
+    "image_error": "Image Error",
+    "previous": "Previous"
   },
   
   "step_instructions": {
@@ -221,13 +249,21 @@
     "upload_later": "Maybe Later",
     "taking_photo": "Taking photo...",
     "selecting_image": "Selecting image...",
-    "preparing_upload": "Preparing your artwork..."
+    "preparing_upload": "Preparing your artwork...",
+    "photo_taken_success": "Photo taken successfully! 📸",
+    "photo_capture_canceled": "Photo capture was canceled",
+    "image_selected_success": "Image selected successfully! 🖼️",
+    "image_selection_canceled": "Image selection was canceled",
+    "error_prefix": "Error:",
+    "choose_different": "Choose Different",
+    "upload": "Upload",
+    "upload_success": "Image uploaded successfully! 🎉"
   },
   
   "ai_enhancement": {
     "ai_magic": "AI Magic",
     "ai_magic_subtitle": "Your drawing is getting magical!",
-    "processing_image": "Processing your artwork with AI...",
+    "processing_image": "Doing some magic on your artwork...",
     "this_may_take": "This may take a few moments",
     "enhanced_drawing": "Enhanced Drawing",
     "your_masterpiece": "Your Masterpiece!",
@@ -235,8 +271,56 @@
     "original_vs_enhanced": "Original vs Enhanced",
     "save_drawing": "Save Drawing",
     "share_drawing": "Share Drawing",
+    "create_story": "Create a Story",
     "draw_another": "Draw Another",
     "processing_failed": "Processing Failed",
-    "try_again": "Try Again"
+    "try_again": "Try Again",
+    "error_enhancing": "Something went wrong while enhancing your drawing.",
+    "original": "Original",
+    "enhanced": "Enhanced ✨",
+    "enhanced_drawing_title": "Enhanced Drawing ✨",
+    "artwork_enhanced": "Your artwork has been magically enhanced!"
+  },
+
+  "story": {
+    "creating_story": "Creating Story",
+    "ai_creating_story": "Creating a magical story about your artwork!",
+    "story_failed": "Story Creation Failed",
+    "your_story": "Your Story",
+    "story_ready": "Your magical story is ready!",
+    "generating_story": "Creating a magical story about your artwork...",
+    "this_may_take": "This may take a few moments",
+    "try_again": "Try Again",
+    "error_generating": "Something went wrong while creating your story.",
+    "create_another": "Create Another",
+    "your_story_title": "Your Magical Story",
+    "enhanced_artwork": "Enhanced Artwork",
+    "your_masterpiece": "Your masterpiece tells a story!",
+    "read_aloud": "Read Aloud",
+    "pause": "Pause",
+    "resume": "Resume",
+    "no_story_to_read": "No story available to read",
+    "save_story": "Save Story",
+    "share_story": "Share Story",
+    "read_aloud_coming_soon": "Read aloud functionality coming soon! 🔊",
+    "save_coming_soon": "Save story functionality coming soon! 💾",
+    "share_coming_soon": "Share story functionality coming soon! 📤"
+  },
+
+  "edit_options": {
+    "choose_edit_option": "Choose How to Edit",
+    "select_option_subtitle": "Pick an amazing way to transform your drawing!",
+    "apply_edit": "Apply Edit",
+    "processing_edit": "Processing your edit...",
+    "edit_applied": "Edit applied successfully!",
+    "no_options_available": "No editing options available for this drawing",
+    "keep_original": "Keep Original",
+    "your_drawing": "Your Drawing"
+  },
+
+  "final_result": {
+    "your_amazing_drawing": "Your Amazing Drawing!",
+    "great_job_drawing": "Great job! Your drawing looks fantastic!",
+    "save_functionality_coming": "Save functionality will be implemented soon! 💾"
   }
 }

@@ -63,7 +63,7 @@ class _SignInScreenState extends State<SignInScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Sign in successful!'),
+            content: Text('auth.sign_in_successful'.tr()),
             backgroundColor: AppColors.success,
           ),
         );
@@ -177,12 +177,12 @@ class _SignInScreenState extends State<SignInScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your email';
+                                    return 'auth.error_email_required'.tr();
                                   }
                                   if (!RegExp(
                                     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                                   ).hasMatch(value)) {
-                                    return 'Please enter a valid email';
+                                    return 'auth.error_email_invalid'.tr();
                                   }
                                   return null;
                                 },
@@ -199,10 +199,10 @@ class _SignInScreenState extends State<SignInScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your password';
+                                    return 'auth.error_password_required'.tr();
                                   }
                                   if (value.length < 6) {
-                                    return 'Password must be at least 6 characters';
+                                    return 'auth.error_password_length'.tr();
                                   }
                                   return null;
                                 },

@@ -6,6 +6,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class DrawingsScreen extends StatefulWidget {
   final String categoryId;
@@ -76,10 +77,10 @@ class _DrawingsScreenState extends State<DrawingsScreen>
           decoration: const BoxDecoration(
             gradient: AppColors.backgroundGradient,
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'Category not found',
-              style: TextStyle(fontSize: 24, color: AppColors.textDark),
+              'drawings.category_not_found'.tr(),
+              style: const TextStyle(fontSize: 24, color: AppColors.textDark),
             ),
           ),
         ),
@@ -95,91 +96,41 @@ class _DrawingsScreenState extends State<DrawingsScreen>
             child: Column(
               children: [
                 // Header
-                Container(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Stack(
-                    children: [
-                      // Back button
-                      Positioned(
-                        left: 0,
-                        top: 0,
-                        child: IconButton(
-                          onPressed: () => context.pop(),
-                          icon: const Icon(
-                            Icons.arrow_back_ios,
-                            color: AppColors.primary,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-
-                      // Decorative elements
-                      Positioned(
-                        top: 10,
-                        right: 20,
-                        child: Text(
-                          category!.icon,
-                          style: const TextStyle(fontSize: 40),
-                        ),
-                      ),
-
-                      // Main title
-                      Center(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            Text(
-                              'drawings.select_drawing'.tr(),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                                fontFamily: 'Comic Sans MS',
-                              ),
-                            ),
-
-                            const SizedBox(height: 8),
-
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: category!.color.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: category!.color.withValues(alpha: 0.3),
-                                ),
-                              ),
-                              child: Text(
-                                _getCategoryTitle(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: category!.color,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'drawings.choose_what_to_draw'.tr(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textDark.withValues(
-                                  alpha: 0.7,
-                                ),
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                CustomAppBar(
+                  title: 'drawings.select_drawing',
+                  subtitle: 'drawings.choose_what_to_draw',
+                  actionWidget: Text(
+                    category!.icon,
+                    style: const TextStyle(fontSize: 40),
                   ),
                 ),
+
+                // Category badge
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: category!.color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: category!.color.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    _getCategoryTitle(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: category!.color,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
 
                 // Drawing Items List
                 Expanded(

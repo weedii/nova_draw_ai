@@ -9,10 +9,7 @@ class AppAnimations {
     required TickerProvider vsync,
     Duration duration = const Duration(seconds: 10),
   }) {
-    return AnimationController(
-      duration: duration,
-      vsync: vsync,
-    )..repeat();
+    return AnimationController(duration: duration, vsync: vsync)..repeat();
   }
 
   /// Creates a rotation animation (0 to 2π radians)
@@ -25,22 +22,17 @@ class AppAnimations {
     return Tween<double>(
       begin: 0,
       end: clockwise ? 2 * 3.14159 : -2 * 3.14159,
-    ).animate(CurvedAnimation(
-      parent: controller,
-      curve: Curves.linear,
-    ));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.linear));
   }
 
   /// Creates a floating/bounce animation controller
-  /// [duration] - How long one bounce cycle takes
+  /// [duration] - How long one bounce cycle takes (one direction, total cycle is 2x duration)
   static AnimationController createFloatController({
     required TickerProvider vsync,
     Duration duration = const Duration(seconds: 3),
   }) {
-    return AnimationController(
-      duration: duration,
-      vsync: vsync,
-    )..repeat();
+    return AnimationController(duration: duration, vsync: vsync)
+      ..repeat(reverse: true); // Smoothly reverses instead of snapping back
   }
 
   /// Creates a vertical floating animation
@@ -53,22 +45,17 @@ class AppAnimations {
     return Tween<double>(
       begin: 0,
       end: -distance,
-    ).animate(CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
   }
 
   /// Creates a bounce animation controller (for mascot-like bouncing)
-  /// [duration] - How long one bounce cycle takes
+  /// [duration] - How long one bounce cycle takes (one direction, total cycle is 2x duration)
   static AnimationController createBounceController({
     required TickerProvider vsync,
     Duration duration = const Duration(seconds: 2),
   }) {
-    return AnimationController(
-      duration: duration,
-      vsync: vsync,
-    )..repeat();
+    return AnimationController(duration: duration, vsync: vsync)
+      ..repeat(reverse: true); // Smoothly reverses for natural bouncing
   }
 
   /// Creates a vertical bounce animation
@@ -81,10 +68,7 @@ class AppAnimations {
     return Tween<double>(
       begin: 0,
       end: -bounceHeight,
-    ).animate(CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
   }
 
   /// Creates a subtle rotation animation (for gentle swaying)
@@ -97,10 +81,7 @@ class AppAnimations {
     return Tween<double>(
       begin: -angle,
       end: angle,
-    ).animate(CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
   }
 
   /// Creates a fade-in animation controller
@@ -109,10 +90,7 @@ class AppAnimations {
     required TickerProvider vsync,
     Duration duration = const Duration(milliseconds: 500),
   }) {
-    return AnimationController(
-      duration: duration,
-      vsync: vsync,
-    );
+    return AnimationController(duration: duration, vsync: vsync);
   }
 
   /// Creates a fade animation (0 to 1 opacity)
@@ -123,10 +101,7 @@ class AppAnimations {
     return Tween<double>(
       begin: 0,
       end: 1,
-    ).animate(CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
   }
 
   /// Creates a scale animation controller
@@ -135,10 +110,7 @@ class AppAnimations {
     required TickerProvider vsync,
     Duration duration = const Duration(milliseconds: 100),
   }) {
-    return AnimationController(
-      duration: duration,
-      vsync: vsync,
-    );
+    return AnimationController(duration: duration, vsync: vsync);
   }
 
   /// Creates a scale animation
@@ -153,10 +125,7 @@ class AppAnimations {
     return Tween<double>(
       begin: fromScale,
       end: toScale,
-    ).animate(CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
   }
 }
 
@@ -176,10 +145,7 @@ class AppAnimatedRotation extends StatelessWidget {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
-        return Transform.rotate(
-          angle: animation.value,
-          child: this.child,
-        );
+        return Transform.rotate(angle: animation.value, child: this.child);
       },
     );
   }
@@ -224,7 +190,7 @@ class AppAnimatedBounce extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: swayAnimation != null 
+      animation: swayAnimation != null
           ? Listenable.merge([bounceAnimation, swayAnimation!])
           : bounceAnimation,
       builder: (context, child) {
@@ -232,14 +198,11 @@ class AppAnimatedBounce extends StatelessWidget {
           offset: Offset(0, bounceAnimation.value),
           child: this.child,
         );
-        
+
         if (swayAnimation != null) {
-          result = Transform.rotate(
-            angle: swayAnimation!.value,
-            child: result,
-          );
+          result = Transform.rotate(angle: swayAnimation!.value, child: result);
         }
-        
+
         return result;
       },
     );

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nova_draw_ai/presentation/screens/auth/reset_password_screen.dart';
@@ -8,7 +9,9 @@ import '../presentation/screens/drawing/drawing_categories_screen.dart';
 import '../presentation/screens/drawing/drawings_screen.dart';
 import '../presentation/screens/drawing/drawing_steps_screen.dart';
 import '../presentation/screens/drawing/drawing_upload_screen.dart';
-import '../presentation/screens/drawing/drawing_edit_result_screen.dart';
+import '../presentation/screens/drawing/drawing_edit_options_screen.dart';
+import '../presentation/screens/drawing/drawing_final_result_screen.dart';
+import '../presentation/screens/drawing/drawing_story_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: "/welcome",
@@ -75,13 +78,46 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: "/drawings/:categoryId/:drawingId/edit-result",
+      path: "/drawings/:categoryId/:drawingId/edit-options",
       builder: (BuildContext context, GoRouterState state) {
         final categoryId = state.pathParameters['categoryId']!;
         final drawingId = state.pathParameters['drawingId']!;
-        return DrawingEditResultScreen(
+        final uploadedImage = state.extra as File?;
+        return DrawingEditOptionsScreen(
           categoryId: categoryId,
           drawingId: drawingId,
+          uploadedImage: uploadedImage,
+        );
+      },
+    ),
+    GoRoute(
+      path: "/drawings/:categoryId/:drawingId/result",
+      builder: (BuildContext context, GoRouterState state) {
+        final categoryId = state.pathParameters['categoryId']!;
+        final drawingId = state.pathParameters['drawingId']!;
+        final extra = state.extra as Map<String, dynamic>?;
+        final uploadedImage = extra?['uploadedImage'] as File?;
+        final editedImageBytes = extra?['editedImageBytes'];
+        final selectedEditOption = extra?['selectedEditOption'];
+        return DrawingFinalResultScreen(
+          categoryId: categoryId,
+          drawingId: drawingId,
+          uploadedImage: uploadedImage,
+          editedImageBytes: editedImageBytes,
+          selectedEditOption: selectedEditOption,
+        );
+      },
+    ),
+    GoRoute(
+      path: "/drawings/:categoryId/:drawingId/story",
+      builder: (BuildContext context, GoRouterState state) {
+        final categoryId = state.pathParameters['categoryId']!;
+        final drawingId = state.pathParameters['drawingId']!;
+        final uploadedImage = state.extra as File?;
+        return DrawingStoryScreen(
+          categoryId: categoryId,
+          drawingId: drawingId,
+          uploadedImage: uploadedImage,
         );
       },
     ),
