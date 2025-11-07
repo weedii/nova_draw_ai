@@ -12,12 +12,15 @@ from models import (
     TutorialMetadata,
     ImageProcessRequest,
     ImageProcessResponse,
+    StoryRequest,
+    StoryResponse,
 )
 
 # from services.drawing_service import DrawingService
 # from services.image_service import ImageService
 from services.local_db_service import LocalDatabaseService
 from services.image_processing_service import ImageProcessingService
+from services.story_service import StoryService
 
 # from utils import create_session_folder
 
@@ -42,13 +45,25 @@ app.add_middleware(
 # Initialize services
 local_db_service = LocalDatabaseService()
 
-# Initialize image processing service (only if Google API key is available)
+# Initialize image processing service (requires both Google and OpenAI API keys)
 image_processing_service = None
-if settings.google_api_key:
+if settings.google_api_key and settings.openai_api_key:
     try:
         image_processing_service = ImageProcessingService()
     except Exception as e:
         print(f"Warning: Could not initialize image processing service: {e}")
+elif not settings.google_api_key:
+    print("Warning: Google API key not configured - image processing unavailable")
+elif not settings.openai_api_key:
+    print("Warning: OpenAI API key not configured - image processing unavailable")
+
+# Initialize story service (only if OpenAI API key is available)
+story_service = None
+if settings.openai_api_key:
+    try:
+        story_service = StoryService()
+    except Exception as e:
+        print(f"Warning: Could not initialize story service: {e}")
 
 
 # Health check routes
@@ -188,7 +203,7 @@ async def edit_image(
         if not image_processing_service:
             raise HTTPException(
                 status_code=503,
-                detail="Image processing service not available. Please configure Google API key.",
+                detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
             )
 
         # Validate file type
@@ -228,6 +243,47 @@ async def edit_image(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to edit image: {str(e)}")
+
+
+# Generate story from image
+@app.post("/api/create-story", response_model=StoryResponse)
+async def create_story(request: StoryRequest):
+    """
+    Generate a children's story (ages 4-7) from an uploaded image.
+    User just needs to provide the image - we handle the rest!
+    """
+    try:
+        # Check if story service is available
+        if not story_service:
+            raise HTTPException(
+                status_code=503,
+                detail="Story generation service not available. Please configure OpenAI API key.",
+            )
+
+        # Validate the base64 image
+        if not story_service.validate_image_base64(request.image):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid image data. Please provide a valid base64 encoded image.",
+            )
+
+        # Generate the story
+        title, story, generation_time = story_service.generate_story(request.image)
+
+        return StoryResponse(
+            success="true",
+            story=story,
+            title=title,
+            generation_time=generation_time,
+        )
+
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to generate story: {str(e)}"
+        )
 
 
 # Run the application

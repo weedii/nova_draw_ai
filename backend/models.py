@@ -57,3 +57,14 @@ class ImageProcessResponse(BaseModel):
     prompt: str
     result_image: str  # base64 encoded processed image
     processing_time: Optional[float] = None
+
+
+class StoryRequest(BaseModel):
+    image: str = Field(..., description="Base64 encoded image to create story from")
+
+
+class StoryResponse(BaseModel):
+    success: str  # "true" or "false" as string
+    story: str  # Generated story text
+    title: str  # Story title
+    generation_time: Optional[float] = None
