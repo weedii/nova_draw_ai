@@ -313,6 +313,14 @@
     "apply_edit": "Bearbeitung anwenden",
     "processing_edit": "Bearbeitung wird verarbeitet...",
     "edit_applied": "Bearbeitung erfolgreich angewendet!",
-    "no_options_available": "Keine Bearbeitungsoptionen für diese Zeichnung verfügbar"
+    "no_options_available": "Keine Bearbeitungsoptionen für diese Zeichnung verfügbar",
+    "keep_original": "Original behalten",
+    "your_drawing": "Deine Zeichnung"
+  },
+
+  "final_result": {
+    "your_amazing_drawing": "Deine fantastische Zeichnung!",
+    "great_job_drawing": "Großartige Arbeit! Deine Zeichnung sieht fantastisch aus!",
+    "save_functionality_coming": "Speicherfunktion wird bald implementiert! 💾"
   }
 }
