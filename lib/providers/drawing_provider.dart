@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../core/constants/drawing_data.dart';
-import '../services/api_service.dart';
+import '../services/actions/drawing_api_service.dart';
+import '../services/actions/api_exceptions.dart';
 
 enum DrawingStepsState { initial, loading, loaded, error }
 
@@ -111,7 +112,7 @@ class DrawingProvider extends ChangeNotifier {
 
     try {
       // Make API call to generate tutorial
-      final apiResponse = await ApiService.generateTutorial(subject);
+      final apiResponse = await DrawingApiService.generateTutorial(subject);
 
       if (apiResponse.success) {
         // Convert API steps to local DrawingStep format

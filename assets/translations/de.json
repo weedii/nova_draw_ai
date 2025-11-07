@@ -305,5 +305,14 @@
     "read_aloud_coming_soon": "Vorlese-Funktion kommt bald! 🔊",
     "save_coming_soon": "Geschichte speichern-Funktion kommt bald! 💾",
     "share_coming_soon": "Geschichte teilen-Funktion kommt bald! 📤"
+  },
+
+  "edit_options": {
+    "choose_edit_option": "Wähle Bearbeitungsart",
+    "select_option_subtitle": "Wähle eine tolle Art, deine Zeichnung zu verwandeln!",
+    "apply_edit": "Bearbeitung anwenden",
+    "processing_edit": "Bearbeitung wird verarbeitet...",
+    "edit_applied": "Bearbeitung erfolgreich angewendet!",
+    "no_options_available": "Keine Bearbeitungsoptionen für diese Zeichnung verfügbar"
   }
 }

@@ -305,5 +305,14 @@
     "read_aloud_coming_soon": "Read aloud functionality coming soon! 🔊",
     "save_coming_soon": "Save story functionality coming soon! 💾",
     "share_coming_soon": "Share story functionality coming soon! 📤"
+  },
+
+  "edit_options": {
+    "choose_edit_option": "Choose How to Edit",
+    "select_option_subtitle": "Pick an amazing way to transform your drawing!",
+    "apply_edit": "Apply Edit",
+    "processing_edit": "Processing your edit...",
+    "edit_applied": "Edit applied successfully!",
+    "no_options_available": "No editing options available for this drawing"
   }
 }

@@ -1,6 +1,26 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
+class EditOption {
+  final String id;
+  final String titleEn;
+  final String titleDe;
+  final String descriptionEn;
+  final String descriptionDe;
+  final String emoji;
+  final Color color;
+
+  const EditOption({
+    required this.id,
+    required this.titleEn,
+    required this.titleDe,
+    required this.descriptionEn,
+    required this.descriptionDe,
+    required this.emoji,
+    required this.color,
+  });
+}
+
 class DrawingStep {
   final String stepEn;
   final String stepDe;
@@ -19,6 +39,7 @@ class Drawing {
   final String nameDe;
   final String emoji;
   final List<DrawingStep> steps;
+  final List<EditOption> editOptions;
 
   const Drawing({
     required this.id,
@@ -26,6 +47,7 @@ class Drawing {
     required this.nameDe,
     required this.emoji,
     required this.steps,
+    this.editOptions = const [],
   });
 }
 
@@ -90,6 +112,44 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'make_alive',
+              titleEn: 'Make it Alive',
+              titleDe: 'Zum Leben erwecken',
+              descriptionEn: 'Add movement and energy to your dog!',
+              descriptionDe: 'Füge Bewegung und Energie zu deinem Hund hinzu!',
+              emoji: '⚡',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'add_colors',
+              titleEn: 'Make it Colorful',
+              titleDe: 'Bunt machen',
+              descriptionEn: 'Add beautiful colors and patterns!',
+              descriptionDe: 'Füge schöne Farben und Muster hinzu!',
+              emoji: '🌈',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'add_accessories',
+              titleEn: 'Add Accessories',
+              titleDe: 'Accessoires hinzufügen',
+              descriptionEn: 'Give your dog a collar, hat, or toy!',
+              descriptionDe: 'Gib deinem Hund ein Halsband, Hut oder Spielzeug!',
+              emoji: '🎾',
+              color: AppColors.secondary,
+            ),
+            EditOption(
+              id: 'cartoon_style',
+              titleEn: 'Cartoon Style',
+              titleDe: 'Cartoon-Stil',
+              descriptionEn: 'Transform into a cute cartoon character!',
+              descriptionDe: 'Verwandle in einen süßen Cartoon-Charakter!',
+              emoji: '🎨',
+              color: AppColors.success,
+            ),
+          ],
         ),
         Drawing(
           id: 'cat',
@@ -118,6 +178,44 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'fluffy_fur',
+              titleEn: 'Make it Fluffy',
+              titleDe: 'Flauschig machen',
+              descriptionEn: 'Add soft, fluffy fur texture!',
+              descriptionDe: 'Füge weiche, flauschige Fell-Textur hinzu!',
+              emoji: '🐾',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'magical_eyes',
+              titleEn: 'Magical Eyes',
+              titleDe: 'Magische Augen',
+              descriptionEn: 'Give your cat sparkling magical eyes!',
+              descriptionDe: 'Gib deiner Katze funkelnde magische Augen!',
+              emoji: '✨',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'rainbow_colors',
+              titleEn: 'Rainbow Cat',
+              titleDe: 'Regenbogen-Katze',
+              descriptionEn: 'Transform into a colorful rainbow cat!',
+              descriptionDe: 'Verwandle in eine bunte Regenbogen-Katze!',
+              emoji: '🌈',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'royal_cat',
+              titleEn: 'Royal Cat',
+              titleDe: 'Königliche Katze',
+              descriptionEn: 'Add a crown and royal accessories!',
+              descriptionDe: 'Füge eine Krone und königliche Accessoires hinzu!',
+              emoji: '👑',
+              color: AppColors.secondary,
+            ),
+          ],
         ),
         Drawing(
           id: 'fish',
@@ -139,6 +237,35 @@ class DrawingData {
               stepEn: 'Add side fins and a big round eye',
               stepDe: 'Füge Seitenflossen und ein großes rundes Auge hinzu',
               stepImg: '', // Will be populated from API
+            ),
+          ],
+          editOptions: [
+            EditOption(
+              id: 'underwater_scene',
+              titleEn: 'Underwater Scene',
+              titleDe: 'Unterwasser-Szene',
+              descriptionEn: 'Add bubbles, coral, and sea plants!',
+              descriptionDe: 'Füge Blasen, Korallen und Seepflanzen hinzu!',
+              emoji: '🫧',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'tropical_fish',
+              titleEn: 'Tropical Colors',
+              titleDe: 'Tropische Farben',
+              descriptionEn: 'Make it a colorful tropical fish!',
+              descriptionDe: 'Mach es zu einem bunten tropischen Fisch!',
+              emoji: '🌺',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'glowing_fish',
+              titleEn: 'Glowing Fish',
+              titleDe: 'Leuchtender Fisch',
+              descriptionEn: 'Add magical glowing effects!',
+              descriptionDe: 'Füge magische Leuchteffekte hinzu!',
+              emoji: '🌟',
+              color: AppColors.success,
             ),
           ],
         ),
@@ -167,6 +294,35 @@ class DrawingData {
               stepEn: 'Add four thick legs and big floppy ears',
               stepDe: 'Füge vier dicke Beine und große schlappende Ohren hinzu',
               stepImg: '', // Will be populated from API
+            ),
+          ],
+          editOptions: [
+            EditOption(
+              id: 'circus_elephant',
+              titleEn: 'Circus Elephant',
+              titleDe: 'Zirkus-Elefant',
+              descriptionEn: 'Add a colorful circus costume and hat!',
+              descriptionDe: 'Füge ein buntes Zirkuskostüm und Hut hinzu!',
+              emoji: '🎪',
+              color: AppColors.secondary,
+            ),
+            EditOption(
+              id: 'baby_elephant',
+              titleEn: 'Baby Elephant',
+              titleDe: 'Baby-Elefant',
+              descriptionEn: 'Make it smaller and super cute!',
+              descriptionDe: 'Mach ihn kleiner und super süß!',
+              emoji: '🍼',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'safari_scene',
+              titleEn: 'Safari Adventure',
+              titleDe: 'Safari-Abenteuer',
+              descriptionEn: 'Add African savanna background!',
+              descriptionDe: 'Füge afrikanischen Savannenhintergrund hinzu!',
+              emoji: '🌍',
+              color: AppColors.success,
             ),
           ],
         ),
@@ -206,6 +362,35 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'dream_house',
+              titleEn: 'Dream House',
+              titleDe: 'Traumhaus',
+              descriptionEn: 'Add a garden, chimney smoke, and decorations!',
+              descriptionDe: 'Füge einen Garten, Kaminrauch und Dekoration hinzu!',
+              emoji: '🏡',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'castle_house',
+              titleEn: 'Make it a Castle',
+              titleDe: 'Zu einem Schloss machen',
+              descriptionEn: 'Transform into a magical castle!',
+              descriptionDe: 'Verwandle in ein magisches Schloss!',
+              emoji: '🏰',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'cozy_cottage',
+              titleEn: 'Cozy Cottage',
+              titleDe: 'Gemütliches Häuschen',
+              descriptionEn: 'Make it a warm, cozy cottage!',
+              descriptionDe: 'Mach es zu einem warmen, gemütlichen Häuschen!',
+              emoji: '🕯️',
+              color: AppColors.accent,
+            ),
+          ],
         ),
         Drawing(
           id: 'ball',
@@ -225,6 +410,7 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [],
         ),
         Drawing(
           id: 'star',

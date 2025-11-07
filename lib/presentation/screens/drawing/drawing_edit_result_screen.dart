@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/constants/drawing_data.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -28,12 +29,14 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
   bool _isProcessing = true;
   bool _processingFailed = false;
   bool _showComparison = false;
+  bool _showEditOptions = false;
+  EditOption? _selectedEditOption;
+  List<EditOption> _availableEditOptions = [];
 
   @override
   void initState() {
@@ -46,9 +49,6 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
       vsync: this,
     );
 
-    _fadeAnimation = AppAnimations.createFadeAnimation(
-      controller: _fadeController,
-    );
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0.0, 1.0), end: Offset.zero).animate(
           CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
@@ -56,6 +56,9 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
 
     // Start animations
     _fadeController.forward();
+
+    // Load edit options for this drawing
+    _loadEditOptions();
 
     // Simulate AI processing
     _simulateProcessing();
@@ -68,6 +71,18 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
     super.dispose();
   }
 
+  void _loadEditOptions() {
+    final drawing = DrawingData.getDrawingById(
+      widget.categoryId,
+      widget.drawingId,
+    );
+    if (drawing != null) {
+      setState(() {
+        _availableEditOptions = drawing.editOptions;
+      });
+    }
+  }
+
   void _simulateProcessing() async {
     // TODO: Replace with actual AI processing
     await Future.delayed(const Duration(seconds: 4));
@@ -77,6 +92,9 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
         _isProcessing = false;
         // Simulate success/failure (80% success rate for demo)
         _processingFailed = DateTime.now().millisecond % 5 == 0;
+        // Show edit options after processing is complete
+        _showEditOptions =
+            !_processingFailed && _availableEditOptions.isNotEmpty;
       });
 
       if (!_processingFailed) {
@@ -120,6 +138,39 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
     context.push('/drawings/categories');
   }
 
+  void _selectEditOption(EditOption option) {
+    setState(() {
+      _selectedEditOption = option;
+    });
+    _applyEditOption(option);
+  }
+
+  void _applyEditOption(EditOption option) async {
+    // Show processing state
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('edit_options.processing_edit'.tr()),
+        backgroundColor: AppColors.primary,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    // Simulate edit processing
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('edit_options.edit_applied'.tr()),
+          backgroundColor: AppColors.success,
+        ),
+      );
+
+      // For now, just show the same image with a success message
+      // In the future, this would apply the actual AI edit
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Show full screen loading when processing
@@ -131,8 +182,8 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 // Header
@@ -148,11 +199,7 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                 ),
 
                 // Main content
-                Expanded(
-                  child: _processingFailed
-                      ? _buildErrorView()
-                      : _buildResultView(),
-                ),
+                _processingFailed ? _buildErrorView() : _buildResultView(),
               ],
             ),
           ),
@@ -247,25 +294,23 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
         child: Column(
           children: [
             // Enhanced image display
-            Expanded(
-              flex: 3,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: _buildImageDisplay(),
-                ),
+            Container(
+              width: double.infinity,
+              height: 500, // Fixed height for image
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: _buildImageDisplay(),
               ),
             ),
 
@@ -282,67 +327,12 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
 
             const SizedBox(height: 16),
 
-            // Action buttons
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _saveDrawing,
-                          icon: const Icon(Icons.download),
-                          label: Text('ai_enhancement.save_drawing'.tr()),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.success,
-                            foregroundColor: AppColors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _createStory,
-                          icon: const Icon(Icons.auto_stories),
-                          label: Text('ai_enhancement.create_story'.tr()),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.accent,
-                            foregroundColor: AppColors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _drawAnother,
-                      icon: const Icon(Icons.palette),
-                      label: Text('ai_enhancement.draw_another'.tr()),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 8,
-                        shadowColor: AppColors.primary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            // Edit options or action buttons
+            SizedBox(
+              height: _showEditOptions ? 400 : 200, // Fixed height for content
+              child: _showEditOptions
+                  ? _buildEditOptionsSection()
+                  : _buildActionButtons(),
             ),
           ],
         ),
@@ -514,6 +504,189 @@ class _DrawingEditResultScreenState extends State<DrawingEditResultScreen>
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildEditOptionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section title
+        Text(
+          'edit_options.choose_edit_option'.tr(),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'edit_options.select_option_subtitle'.tr(),
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textDark.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Edit options grid
+        Expanded(
+          child: _availableEditOptions.isEmpty
+              ? Center(
+                  child: Text(
+                    'edit_options.no_options_available'.tr(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.textDark.withValues(alpha: 0.6),
+                    ),
+                  ),
+                )
+              : GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1.2,
+                  ),
+                  itemCount: _availableEditOptions.length,
+                  itemBuilder: (context, index) {
+                    final option = _availableEditOptions[index];
+                    final isSelected = _selectedEditOption?.id == option.id;
+
+                    return _buildEditOptionCard(option, isSelected);
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditOptionCard(EditOption option, bool isSelected) {
+    return GestureDetector(
+      onTap: () => _selectEditOption(option),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? option.color.withValues(alpha: 0.1)
+              : AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? option.color : AppColors.border,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Emoji
+              Text(option.emoji, style: const TextStyle(fontSize: 32)),
+              const SizedBox(height: 8),
+
+              // Title
+              Text(
+                context.locale.languageCode == 'de'
+                    ? option.titleDe
+                    : option.titleEn,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? option.color : AppColors.textDark,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+
+              // Description
+              Text(
+                context.locale.languageCode == 'de'
+                    ? option.descriptionDe
+                    : option.descriptionEn,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textDark.withValues(alpha: 0.6),
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _saveDrawing,
+                icon: const Icon(Icons.download),
+                label: Text('ai_enhancement.save_drawing'.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _createStory,
+                icon: const Icon(Icons.auto_stories),
+                label: Text('ai_enhancement.create_story'.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _drawAnother,
+            icon: const Icon(Icons.palette),
+            label: Text('ai_enhancement.draw_another'.tr()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              elevation: 8,
+              shadowColor: AppColors.primary.withValues(alpha: 0.3),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
