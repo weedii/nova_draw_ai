@@ -113,11 +113,11 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final categoryId = state.pathParameters['categoryId']!;
         final drawingId = state.pathParameters['drawingId']!;
-        final uploadedImage = state.extra as File?;
+        final drawingImage = state.extra; // Can be File or Uint8List
         return DrawingStoryScreen(
           categoryId: categoryId,
           drawingId: drawingId,
-          uploadedImage: uploadedImage,
+          drawingImage: drawingImage,
         );
       },
     ),

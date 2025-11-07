@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -11,13 +12,13 @@ import '../../widgets/custom_app_bar.dart';
 class DrawingStoryScreen extends StatefulWidget {
   final String categoryId;
   final String drawingId;
-  final File? uploadedImage;
+  final dynamic drawingImage; // Can be File or Uint8List
 
   const DrawingStoryScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,
-    this.uploadedImage,
+    this.drawingImage,
   });
 
   @override
@@ -651,15 +652,22 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         ),
       ),
 
-      child: widget.uploadedImage != null
+      child: widget.drawingImage != null
           ? ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.file(
-                widget.uploadedImage!,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              ),
+              child: widget.drawingImage is Uint8List
+                  ? Image.memory(
+                      widget.drawingImage as Uint8List,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    )
+                  : Image.file(
+                      widget.drawingImage as File,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
             )
           : Center(
               child: Column(

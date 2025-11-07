@@ -325,6 +325,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   }
 
   Widget _buildEditOptionsGrid() {
+    const cardHeight = 140.0; // Fixed height for all cards
     return Wrap(
       spacing: 12, // Horizontal spacing between items
       runSpacing: 12, // Vertical spacing between rows
@@ -334,6 +335,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           width:
               (MediaQuery.of(context).size.width - 72) /
               2, // Half width minus padding and spacing
+          height: cardHeight, // Fixed height for consistency
           child: _buildEditOptionCard(option, isSelected),
         );
       }).toList(),
@@ -366,6 +368,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           padding: const EdgeInsets.all(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Emoji
               Text(option.emoji, style: const TextStyle(fontSize: 32)),

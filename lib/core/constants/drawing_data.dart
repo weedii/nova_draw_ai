@@ -485,7 +485,47 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
-          editOptions: [],
+          editOptions: [
+            EditOption(
+              id: 'sports_ball',
+              titleEn: 'Sports Style',
+              titleDe: 'Sport-Stil',
+              descriptionEn: 'Make it look like a real sports ball!',
+              descriptionDe: 'Lass es wie einen echten Sportball aussehen!',
+              promptEn:
+                  'Transform this child\'s ball drawing into a realistic sports ball. Add detailed patterns, textures, and shading to make it look like a professional soccer ball with black and white pentagons. Make it three-dimensional with highlights and shadows.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Balls in einen realistischen Sportball. Füge detaillierte Muster, Texturen und Schattierungen hinzu, um ihn wie einen professionellen Fußball mit schwarzen und weißen Fünfecken aussehen zu lassen. Mache ihn dreidimensional mit Highlights und Schatten.',
+              emoji: '⚽',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'rainbow_ball',
+              titleEn: 'Rainbow Ball',
+              titleDe: 'Regenbogen-Ball',
+              descriptionEn: 'Add colorful rainbow patterns!',
+              descriptionDe: 'Füge bunte Regenbogenmuster hinzu!',
+              promptEn:
+                  'Transform this child\'s ball drawing into a vibrant rainbow ball. Add colorful stripes or swirls using all rainbow colors: red, orange, yellow, green, blue, and purple. Make it bright, cheerful, and eye-catching with a glossy, shiny surface.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Balls in einen lebendigen Regenbogen-Ball. Füge bunte Streifen oder Wirbel mit allen Regenbogenfarben hinzu: Rot, Orange, Gelb, Grün, Blau und Lila. Mache ihn hell, fröhlich und auffällig mit einer glänzenden Oberfläche.',
+              emoji: '🌈',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'glowing_ball',
+              titleEn: 'Glowing Ball',
+              titleDe: 'Leuchtender Ball',
+              descriptionEn: 'Make it glow with magical light!',
+              descriptionDe: 'Lass ihn mit magischem Licht leuchten!',
+              promptEn:
+                  'Transform this child\'s ball drawing into a magical glowing ball. Add bright neon colors, light rays, sparkles, and a glowing aura around it. Make it look like it\'s emitting light with electric blue or bright green colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Balls in einen magischen leuchtenden Ball. Füge helle Neonfarben, Lichtstrahlen, Glitzer und eine leuchtende Aura darum herum hinzu. Lass ihn aussehen, als würde er Licht ausstrahlen mit elektrischem Blau oder hellem Grün.',
+              emoji: '✨',
+              color: AppColors.success,
+            ),
+          ],
         ),
         Drawing(
           id: 'star',
@@ -507,6 +547,60 @@ class DrawingData {
               stepEn: 'Add small sparkles around the star',
               stepDe: 'Füge kleine Funken um den Stern hinzu',
               stepImg: '', // Will be populated from API
+            ),
+          ],
+          editOptions: [
+            EditOption(
+              id: 'shooting_star',
+              titleEn: 'Shooting Star',
+              titleDe: 'Sternschnuppe',
+              descriptionEn: 'Add a magical tail and sparkles!',
+              descriptionDe: 'Füge einen magischen Schweif und Glitzer hinzu!',
+              promptEn:
+                  'Transform this child\'s star drawing into a beautiful shooting star. Add a long, flowing tail with sparkles and light trails. Use bright yellow and white colors with magical sparkles around it. Make it look like it\'s flying through the night sky.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Sterns in eine wunderschöne Sternschnuppe. Füge einen langen, fließenden Schweif mit Glitzer und Lichtspuren hinzu. Verwende helle Gelb- und Weißtöne mit magischem Glitzer darum herum. Lass ihn aussehen, als würde er durch den Nachthimmel fliegen.',
+              emoji: '🌠',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'golden_star',
+              titleEn: 'Golden Star',
+              titleDe: 'Goldener Stern',
+              descriptionEn: 'Make it shine like gold!',
+              descriptionDe: 'Lass ihn wie Gold glänzen!',
+              promptEn:
+                  'Transform this child\'s star drawing into a shiny golden star. Add metallic gold color with highlights and reflections. Make it look three-dimensional with shading and give it a luxurious, precious appearance like a gold medal or trophy.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Sterns in einen glänzenden goldenen Stern. Füge metallische Goldfarbe mit Highlights und Reflexionen hinzu. Mache ihn dreidimensional mit Schattierungen und gib ihm ein luxuriöses, kostbares Aussehen wie eine Goldmedaille oder Trophäe.',
+              emoji: '⭐',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'rainbow_star',
+              titleEn: 'Rainbow Star',
+              titleDe: 'Regenbogen-Stern',
+              descriptionEn: 'Add rainbow colors and magic!',
+              descriptionDe: 'Füge Regenbogenfarben und Magie hinzu!',
+              promptEn:
+                  'Transform this child\'s star drawing into a magical rainbow star. Fill it with gradient rainbow colors flowing through each point. Add sparkles, glitter, and a magical glow. Make it look fantastical and dreamy.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Sterns in einen magischen Regenbogen-Stern. Fülle ihn mit Regenbogenfarbverläufen, die durch jede Spitze fließen. Füge Glitzer, Funkeln und ein magisches Leuchten hinzu. Lass ihn fantastisch und verträumt aussehen.',
+              emoji: '🌈',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'twinkling_star',
+              titleEn: 'Twinkling Star',
+              titleDe: 'Funkelnder Stern',
+              descriptionEn: 'Make it twinkle and shine!',
+              descriptionDe: 'Lass ihn funkeln und leuchten!',
+              promptEn:
+                  'Transform this child\'s star drawing into a beautifully twinkling star. Add light sparkles, glowing effects, and make it look like it\'s shimmering in the night sky. Use bright white and yellow with star-burst effects around it.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Sterns in einen wunderschön funkelnden Stern. Füge Lichtfunken, Leuchteffekte hinzu und lass ihn aussehen, als würde er am Nachthimmel schimmern. Verwende helles Weiß und Gelb mit Sternexplosionseffekten drumherum.',
+              emoji: '✨',
+              color: AppColors.secondary,
             ),
           ],
         ),
@@ -545,6 +639,60 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'autumn_tree',
+              titleEn: 'Autumn Colors',
+              titleDe: 'Herbstfarben',
+              descriptionEn: 'Add beautiful fall colors!',
+              descriptionDe: 'Füge schöne Herbstfarben hinzu!',
+              promptEn:
+                  'Transform this child\'s tree drawing into a beautiful autumn tree. Add warm fall colors like orange, red, yellow, and brown to the leaves. Make some leaves falling down. Use rich, warm tones and create a cozy autumn atmosphere.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Baumes in einen wunderschönen Herbstbaum. Füge warme Herbstfarben wie Orange, Rot, Gelb und Braun zu den Blättern hinzu. Lass einige Blätter herunterfallen. Verwende satte, warme Töne und schaffe eine gemütliche Herbstatmosphäre.',
+              emoji: '🍂',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'cherry_blossom',
+              titleEn: 'Cherry Blossom',
+              titleDe: 'Kirschblüte',
+              descriptionEn: 'Transform into a pink flowering tree!',
+              descriptionDe: 'Verwandle in einen rosa blühenden Baum!',
+              promptEn:
+                  'Transform this child\'s tree drawing into a beautiful cherry blossom tree. Add delicate pink and white flowers covering the branches. Include some petals floating in the air. Make it look magical and springtime with soft, pastel colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Baumes in einen wunderschönen Kirschblütenbaum. Füge zarte rosa und weiße Blüten hinzu, die die Äste bedecken. Füge einige Blütenblätter hinzu, die in der Luft schweben. Lass ihn magisch und frühlingshaft aussehen mit weichen Pastellfarben.',
+              emoji: '🌸',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'magical_tree',
+              titleEn: 'Magical Tree',
+              titleDe: 'Magischer Baum',
+              descriptionEn: 'Add sparkles and fantasy elements!',
+              descriptionDe: 'Füge Glitzer und Fantasy-Elemente hinzu!',
+              promptEn:
+                  'Transform this child\'s tree drawing into a magical fantasy tree. Add glowing leaves with sparkles, maybe a fairy door at the base, mushrooms around it, and magical lights. Use vibrant colors with purple, blue, and green tones. Make it look enchanted.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Baumes in einen magischen Fantasy-Baum. Füge leuchtende Blätter mit Glitzer hinzu, vielleicht eine Feentür an der Basis, Pilze drumherum und magische Lichter. Verwende lebendige Farben mit Lila-, Blau- und Grüntönen. Lass ihn verzaubert aussehen.',
+              emoji: '✨',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'christmas_tree',
+              titleEn: 'Christmas Tree',
+              titleDe: 'Weihnachtsbaum',
+              descriptionEn: 'Decorate it for Christmas!',
+              descriptionDe: 'Dekoriere ihn für Weihnachten!',
+              promptEn:
+                  'Transform this child\'s tree drawing into a festive Christmas tree. Add colorful ornaments, lights, tinsel, a star on top, and presents underneath. Use red, green, gold, and silver colors. Make it look cheerful and festive.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Baumes in einen festlichen Weihnachtsbaum. Füge bunte Kugeln, Lichter, Lametta, einen Stern oben und Geschenke darunter hinzu. Verwende Rot, Grün, Gold und Silber. Lass ihn fröhlich und festlich aussehen.',
+              emoji: '🎄',
+              color: AppColors.secondary,
+            ),
+          ],
         ),
         Drawing(
           id: 'flower',
@@ -569,6 +717,61 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'rainbow_flower',
+              titleEn: 'Rainbow Flower',
+              titleDe: 'Regenbogen-Blume',
+              descriptionEn: 'Add rainbow colored petals!',
+              descriptionDe: 'Füge regenbogenfarbene Blütenblätter hinzu!',
+              promptEn:
+                  'Transform this child\'s flower drawing into a magical rainbow flower. Make each petal a different rainbow color: red, orange, yellow, green, blue, and purple. Add sparkles and make it look vibrant and cheerful.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Blume in eine magische Regenbogen-Blume. Mache jedes Blütenblatt in einer anderen Regenbogenfarbe: Rot, Orange, Gelb, Grün, Blau und Lila. Füge Glitzer hinzu und lass sie lebendig und fröhlich aussehen.',
+              emoji: '🌈',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'rose_flower',
+              titleEn: 'Beautiful Rose',
+              titleDe: 'Wunderschöne Rose',
+              descriptionEn: 'Transform into an elegant rose!',
+              descriptionDe: 'Verwandle in eine elegante Rose!',
+              promptEn:
+                  'Transform this child\'s flower drawing into a beautiful red rose. Add detailed layered petals, thorns on the stem, and rich red color. Make it look elegant and romantic with soft shading and highlights.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Blume in eine wunderschöne rote Rose. Füge detaillierte geschichtete Blütenblätter, Dornen am Stiel und satte rote Farbe hinzu. Lass sie elegant und romantisch aussehen mit weichen Schattierungen und Highlights.',
+              emoji: '🌹',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'sunflower',
+              titleEn: 'Bright Sunflower',
+              titleDe: 'Helle Sonnenblume',
+              descriptionEn: 'Make it a big, happy sunflower!',
+              descriptionDe:
+                  'Mach sie zu einer großen, fröhlichen Sonnenblume!',
+              promptEn:
+                  'Transform this child\'s flower drawing into a bright, cheerful sunflower. Add large yellow petals, a brown center with seeds, and make it big and bold. Use warm, sunny colors and make it look happy and inviting.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Blume in eine helle, fröhliche Sonnenblume. Füge große gelbe Blütenblätter, eine braune Mitte mit Samen hinzu und mache sie groß und kräftig. Verwende warme, sonnige Farben und lass sie glücklich und einladend aussehen.',
+              emoji: '🌻',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'tulip_flower',
+              titleEn: 'Pretty Tulip',
+              titleDe: 'Hübsche Tulpe',
+              descriptionEn: 'Transform into a colorful tulip!',
+              descriptionDe: 'Verwandle in eine bunte Tulpe!',
+              promptEn:
+                  'Transform this child\'s flower drawing into a beautiful tulip. Add a cup-shaped flower with smooth petals in bright colors like pink, red, or yellow. Make the stem straight and elegant with simple leaves.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Blume in eine wunderschöne Tulpe. Füge eine becherförmige Blüte mit glatten Blütenblättern in hellen Farben wie Rosa, Rot oder Gelb hinzu. Mache den Stiel gerade und elegant mit einfachen Blättern.',
+              emoji: '🌷',
+              color: AppColors.secondary,
+            ),
+          ],
         ),
         Drawing(
           id: 'sun',
@@ -585,6 +788,61 @@ class DrawingData {
               stepEn: 'Add lines coming out like sun rays',
               stepDe: 'Füge Linien hinzu, die wie Sonnenstrahlen aussehen',
               stepImg: '', // Will be populated from API
+            ),
+          ],
+          editOptions: [
+            EditOption(
+              id: 'happy_sun',
+              titleEn: 'Happy Sun Face',
+              titleDe: 'Fröhliches Sonnengesicht',
+              descriptionEn: 'Add a smiling face and personality!',
+              descriptionDe:
+                  'Füge ein lächelndes Gesicht und Persönlichkeit hinzu!',
+              promptEn:
+                  'Transform this child\'s sun drawing into a happy, smiling sun with a friendly face. Add big eyes, a warm smile, rosy cheeks, and make the rays look lively. Use bright yellow and orange colors to make it cheerful and welcoming.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Sonne in eine fröhliche, lächelnde Sonne mit einem freundlichen Gesicht. Füge große Augen, ein warmes Lächeln, rosige Wangen hinzu und lass die Strahlen lebendig aussehen. Verwende helle Gelb- und Orangetöne, um sie fröhlich und einladend zu machen.',
+              emoji: '😊',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'sunset_sun',
+              titleEn: 'Sunset Colors',
+              titleDe: 'Sonnenuntergangsfarben',
+              descriptionEn: 'Add beautiful sunset colors!',
+              descriptionDe: 'Füge wunderschöne Sonnenuntergangsfarben hinzu!',
+              promptEn:
+                  'Transform this child\'s sun drawing into a beautiful sunset sun. Use warm gradient colors: orange, pink, red, and purple. Add clouds around it and make it look like it\'s setting on the horizon with a dreamy, peaceful atmosphere.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Sonne in eine wunderschöne Sonnenuntergangssonne. Verwende warme Verlaufsfarben: Orange, Rosa, Rot und Lila. Füge Wolken drumherum hinzu und lass sie aussehen, als würde sie am Horizont untergehen mit einer verträumten, friedlichen Atmosphäre.',
+              emoji: '🌅',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'glowing_sun',
+              titleEn: 'Glowing Sun',
+              titleDe: 'Leuchtende Sonne',
+              descriptionEn: 'Make it glow with intense light!',
+              descriptionDe: 'Lass sie mit intensivem Licht leuchten!',
+              promptEn:
+                  'Transform this child\'s sun drawing into a brilliantly glowing sun. Add intense light rays, a bright glowing aura, lens flares, and sparkles. Use bright yellow and white with a powerful, radiant appearance.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Sonne in eine brillant leuchtende Sonne. Füge intensive Lichtstrahlen, eine hell leuchtende Aura, Lens Flares und Glitzer hinzu. Verwende helles Gelb und Weiß mit einem kraftvollen, strahlenden Aussehen.',
+              emoji: '✨',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'cool_sunglasses',
+              titleEn: 'Cool Sun with Sunglasses',
+              titleDe: 'Coole Sonne mit Sonnenbrille',
+              descriptionEn: 'Make it look cool with sunglasses!',
+              descriptionDe: 'Lass sie cool mit Sonnenbrille aussehen!',
+              promptEn:
+                  'Transform this child\'s sun drawing into a cool, fun sun wearing sunglasses. Add stylish sunglasses, a confident smile, and maybe a thumbs up. Make it look trendy and fun with bright colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Sonne in eine coole, lustige Sonne mit Sonnenbrille. Füge stylische Sonnenbrille, ein selbstbewusstes Lächeln und vielleicht einen Daumen hoch hinzu. Lass sie trendy und lustig aussehen mit hellen Farben.',
+              emoji: '😎',
+              color: AppColors.secondary,
             ),
           ],
         ),
@@ -623,6 +881,60 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'race_car',
+              titleEn: 'Race Car',
+              titleDe: 'Rennwagen',
+              descriptionEn: 'Transform into a fast race car!',
+              descriptionDe: 'Verwandle in einen schnellen Rennwagen!',
+              promptEn:
+                  'Transform this child\'s car drawing into a cool race car. Add racing stripes, a number on the side, spoiler, and racing decals. Use bright colors like red or blue with white stripes. Make it look fast and sporty.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Autos in einen coolen Rennwagen. Füge Rennstreifen, eine Nummer an der Seite, einen Spoiler und Rennaufkleber hinzu. Verwende helle Farben wie Rot oder Blau mit weißen Streifen. Lass ihn schnell und sportlich aussehen.',
+              emoji: '🏎️',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'police_car',
+              titleEn: 'Police Car',
+              titleDe: 'Polizeiauto',
+              descriptionEn: 'Make it a police car with lights!',
+              descriptionDe: 'Mach es zu einem Polizeiauto mit Lichtern!',
+              promptEn:
+                  'Transform this child\'s car drawing into a police car. Add blue and white colors, police lights on top, police badge or text on the side, and make it look official. Include flashing light effects.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Autos in ein Polizeiauto. Füge blaue und weiße Farben, Polizeilichter oben, ein Polizeiabzeichen oder Text an der Seite hinzu und lass es offiziell aussehen. Füge blinkende Lichteffekte hinzu.',
+              emoji: '🚓',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'rainbow_car',
+              titleEn: 'Rainbow Car',
+              titleDe: 'Regenbogen-Auto',
+              descriptionEn: 'Add colorful rainbow paint!',
+              descriptionDe: 'Füge bunte Regenbogenfarbe hinzu!',
+              promptEn:
+                  'Transform this child\'s car drawing into a vibrant rainbow car. Paint it with rainbow stripes or gradient colors using red, orange, yellow, green, blue, and purple. Add sparkles and make it look fun and magical.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Autos in ein lebendiges Regenbogen-Auto. Bemale es mit Regenbogenstreifen oder Verlaufsfarben mit Rot, Orange, Gelb, Grün, Blau und Lila. Füge Glitzer hinzu und lass es lustig und magisch aussehen.',
+              emoji: '🌈',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'fire_truck',
+              titleEn: 'Fire Truck',
+              titleDe: 'Feuerwehrauto',
+              descriptionEn: 'Transform into a fire truck!',
+              descriptionDe: 'Verwandle in ein Feuerwehrauto!',
+              promptEn:
+                  'Transform this child\'s car drawing into a fire truck. Add red color, a ladder on top, fire hose, emergency lights, and firefighter equipment. Make it look heroic and ready for action.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Autos in ein Feuerwehrauto. Füge rote Farbe, eine Leiter oben, einen Feuerwehrschlauch, Notlichter und Feuerwehrausrüstung hinzu. Lass es heldenhaft und einsatzbereit aussehen.',
+              emoji: '🚒',
+              color: AppColors.secondary,
+            ),
+          ],
         ),
         Drawing(
           id: 'airplane',
@@ -645,6 +957,60 @@ class DrawingData {
               stepDe:
                   'Füge das Heck und den Propeller hinzu, um das Flugzeug zu vervollständigen',
               stepImg: '', // Will be populated from API
+            ),
+          ],
+          editOptions: [
+            EditOption(
+              id: 'jet_plane',
+              titleEn: 'Fighter Jet',
+              titleDe: 'Kampfjet',
+              descriptionEn: 'Transform into a cool fighter jet!',
+              descriptionDe: 'Verwandle in einen coolen Kampfjet!',
+              promptEn:
+                  'Transform this child\'s airplane drawing into a sleek fighter jet. Make it more angular and aerodynamic with swept-back wings, military colors like gray or camouflage, and add jet engines. Make it look fast and powerful.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Flugzeugs in einen schlanken Kampfjet. Mache ihn eckiger und aerodynamischer mit zurückgeschwungenen Flügeln, Militärfarben wie Grau oder Tarnung und füge Düsentriebwerke hinzu. Lass ihn schnell und kraftvoll aussehen.',
+              emoji: '✈️',
+              color: AppColors.secondary,
+            ),
+            EditOption(
+              id: 'rainbow_plane',
+              titleEn: 'Rainbow Plane',
+              titleDe: 'Regenbogen-Flugzeug',
+              descriptionEn: 'Add rainbow colors and trails!',
+              descriptionDe: 'Füge Regenbogenfarben und Spuren hinzu!',
+              promptEn:
+                  'Transform this child\'s airplane drawing into a colorful rainbow plane. Paint it with bright rainbow colors and add colorful smoke trails behind it. Make it look cheerful and festive with vibrant colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Flugzeugs in ein buntes Regenbogen-Flugzeug. Bemale es mit hellen Regenbogenfarben und füge bunte Rauchspuren dahinter hinzu. Lass es fröhlich und festlich aussehen mit lebendigen Farben.',
+              emoji: '🌈',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'clouds_sky',
+              titleEn: 'Flying in Clouds',
+              titleDe: 'Fliegen in Wolken',
+              descriptionEn: 'Add clouds and sky background!',
+              descriptionDe: 'Füge Wolken und Himmelhintergrund hinzu!',
+              promptEn:
+                  'Enhance this child\'s airplane drawing by adding a beautiful sky background. Include fluffy white clouds, blue sky, maybe birds flying nearby, and sun rays. Make it look like it\'s peacefully flying through a beautiful day.',
+              promptDe:
+                  'Verbessere diese Kinderzeichnung eines Flugzeugs, indem du einen wunderschönen Himmelhintergrund hinzufügst. Füge flauschige weiße Wolken, blauen Himmel, vielleicht Vögel in der Nähe und Sonnenstrahlen hinzu. Lass es aussehen, als würde es friedlich durch einen schönen Tag fliegen.',
+              emoji: '☁️',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'space_rocket',
+              titleEn: 'Space Rocket',
+              titleDe: 'Weltraumrakete',
+              descriptionEn: 'Transform into a space rocket!',
+              descriptionDe: 'Verwandle in eine Weltraumrakete!',
+              promptEn:
+                  'Transform this child\'s airplane drawing into a space rocket. Add a pointed nose cone, rocket boosters with flames, space colors like silver and blue, and stars in the background. Make it look like it\'s heading to space.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Flugzeugs in eine Weltraumrakete. Füge eine spitze Nasenspitze, Raketentriebwerke mit Flammen, Weltraumfarben wie Silber und Blau und Sterne im Hintergrund hinzu. Lass es aussehen, als würde es ins All fliegen.',
+              emoji: '🚀',
+              color: AppColors.success,
             ),
           ],
         ),
@@ -678,6 +1044,60 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'golden_apple',
+              titleEn: 'Golden Apple',
+              titleDe: 'Goldener Apfel',
+              descriptionEn: 'Make it shine like gold!',
+              descriptionDe: 'Lass ihn wie Gold glänzen!',
+              promptEn:
+                  'Transform this child\'s apple drawing into a magical golden apple. Add metallic gold color with shiny highlights and reflections. Make it look precious and special, like a fairy tale golden apple with sparkles around it.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Apfels in einen magischen goldenen Apfel. Füge metallische Goldfarbe mit glänzenden Highlights und Reflexionen hinzu. Lass ihn kostbar und besonders aussehen, wie ein Märchen-Goldapfel mit Glitzer drumherum.',
+              emoji: '✨',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'candy_apple',
+              titleEn: 'Candy Apple',
+              titleDe: 'Kandierter Apfel',
+              descriptionEn: 'Transform into a sweet candy apple!',
+              descriptionDe: 'Verwandle in einen süßen kandierten Apfel!',
+              promptEn:
+                  'Transform this child\'s apple drawing into a delicious candy apple. Add a shiny red candy coating, a wooden stick, and maybe some sprinkles or decorations. Make it look glossy, sweet, and tempting.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Apfels in einen leckeren kandierten Apfel. Füge eine glänzende rote Zuckerglasur, einen Holzstab und vielleicht einige Streusel oder Dekorationen hinzu. Lass ihn glänzend, süß und verlockend aussehen.',
+              emoji: '🍎',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'rainbow_apple',
+              titleEn: 'Rainbow Apple',
+              titleDe: 'Regenbogen-Apfel',
+              descriptionEn: 'Add magical rainbow colors!',
+              descriptionDe: 'Füge magische Regenbogenfarben hinzu!',
+              promptEn:
+                  'Transform this child\'s apple drawing into a magical rainbow apple. Use gradient rainbow colors flowing across the apple surface. Add sparkles and a magical glow to make it look fantastical and enchanted.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Apfels in einen magischen Regenbogen-Apfel. Verwende Regenbogenfarbverläufe, die über die Apfeloberfläche fließen. Füge Glitzer und ein magisches Leuchten hinzu, um ihn fantastisch und verzaubert aussehen zu lassen.',
+              emoji: '🌈',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'green_apple',
+              titleEn: 'Fresh Green Apple',
+              titleDe: 'Frischer Grüner Apfel',
+              descriptionEn: 'Make it a crisp green apple!',
+              descriptionDe: 'Mach ihn zu einem knackigen grünen Apfel!',
+              promptEn:
+                  'Transform this child\'s apple drawing into a fresh, crisp green apple. Add bright green color with highlights to make it look juicy and fresh. Include water droplets to make it look refreshing and delicious.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Apfels in einen frischen, knackigen grünen Apfel. Füge helle grüne Farbe mit Highlights hinzu, um ihn saftig und frisch aussehen zu lassen. Füge Wassertropfen hinzu, um ihn erfrischend und lecker aussehen zu lassen.',
+              emoji: '🍏',
+              color: AppColors.secondary,
+            ),
+          ],
         ),
         Drawing(
           id: 'pizza',
@@ -699,6 +1119,60 @@ class DrawingData {
               stepEn: 'Make the crust look thick and tasty',
               stepDe: 'Lass die Kruste dick und lecker aussehen',
               stepImg: '', // Will be populated from API
+            ),
+          ],
+          editOptions: [
+            EditOption(
+              id: 'deluxe_pizza',
+              titleEn: 'Deluxe Pizza',
+              titleDe: 'Deluxe-Pizza',
+              descriptionEn: 'Add lots of delicious toppings!',
+              descriptionDe: 'Füge viele leckere Beläge hinzu!',
+              promptEn:
+                  'Transform this child\'s pizza drawing into a delicious deluxe pizza. Add lots of colorful toppings: pepperoni, mushrooms, peppers, olives, cheese stretching, and make it look mouth-watering. Use rich, appetizing colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Pizza in eine leckere Deluxe-Pizza. Füge viele bunte Beläge hinzu: Pepperoni, Pilze, Paprika, Oliven, dehnenden Käse und lass sie appetitlich aussehen. Verwende satte, appetitanregende Farben.',
+              emoji: '🍕',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'rainbow_pizza',
+              titleEn: 'Rainbow Pizza',
+              titleDe: 'Regenbogen-Pizza',
+              descriptionEn: 'Make it colorful and fun!',
+              descriptionDe: 'Mach sie bunt und lustig!',
+              promptEn:
+                  'Transform this child\'s pizza drawing into a fun rainbow pizza. Add colorful toppings in rainbow colors: red tomatoes, orange cheese, yellow peppers, green olives, blue... make it creative and colorful. Make it look playful and magical.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Pizza in eine lustige Regenbogen-Pizza. Füge bunte Beläge in Regenbogenfarben hinzu: rote Tomaten, oranger Käse, gelbe Paprika, grüne Oliven... mach es kreativ und bunt. Lass sie verspielt und magisch aussehen.',
+              emoji: '🌈',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'hot_spicy_pizza',
+              titleEn: 'Hot & Spicy Pizza',
+              titleDe: 'Scharfe Pizza',
+              descriptionEn: 'Add spicy peppers and flames!',
+              descriptionDe: 'Füge scharfe Paprika und Flammen hinzu!',
+              promptEn:
+                  'Transform this child\'s pizza drawing into a hot and spicy pizza. Add red hot peppers, flames around it, and make it look fiery. Use red, orange, and yellow colors to show it\'s super spicy and hot.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Pizza in eine heiße und scharfe Pizza. Füge rote scharfe Paprika, Flammen drumherum hinzu und lass sie feurig aussehen. Verwende Rot, Orange und Gelb, um zu zeigen, dass sie super scharf und heiß ist.',
+              emoji: '🌶️',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'cheese_lover_pizza',
+              titleEn: 'Cheese Lover Pizza',
+              titleDe: 'Käse-Liebhaber-Pizza',
+              descriptionEn: 'Add extra melted cheese!',
+              descriptionDe: 'Füge extra geschmolzenen Käse hinzu!',
+              promptEn:
+                  'Transform this child\'s pizza drawing into a cheese lover\'s dream pizza. Add lots of melted, stretchy cheese dripping down. Make it look extra cheesy and delicious with golden yellow cheese everywhere.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Pizza in eine Traumpizza für Käseliebhaber. Füge viel geschmolzenen, dehnbaren Käse hinzu, der heruntertropft. Lass sie extra käsig und lecker aussehen mit goldenem gelbem Käse überall.',
+              emoji: '🧀',
+              color: AppColors.secondary,
             ),
           ],
         ),
@@ -742,6 +1216,60 @@ class DrawingData {
               stepImg: '', // Will be populated from API
             ),
           ],
+          editOptions: [
+            EditOption(
+              id: 'fairy_princess',
+              titleEn: 'Fairy Princess',
+              titleDe: 'Feen-Prinzessin',
+              descriptionEn: 'Add fairy wings and magic!',
+              descriptionDe: 'Füge Feenflügel und Magie hinzu!',
+              promptEn:
+                  'Transform this child\'s princess drawing into a magical fairy princess. Add beautiful fairy wings, a magic wand with sparkles, glitter around her, and make her dress look more ethereal. Use pastel colors and add magical elements.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Prinzessin in eine magische Feen-Prinzessin. Füge wunderschöne Feenflügel, einen Zauberstab mit Glitzer, Funkeln um sie herum hinzu und lass ihr Kleid ätherischer aussehen. Verwende Pastellfarben und füge magische Elemente hinzu.',
+              emoji: '🧚',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'ice_princess',
+              titleEn: 'Ice Princess',
+              titleDe: 'Eis-Prinzessin',
+              descriptionEn: 'Transform into an ice queen!',
+              descriptionDe: 'Verwandle in eine Eiskönigin!',
+              promptEn:
+                  'Transform this child\'s princess drawing into a beautiful ice princess. Add an icy blue dress with snowflake patterns, ice crystals, a sparkling ice crown, and snowflakes around her. Use blue, white, and silver colors.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Prinzessin in eine wunderschöne Eis-Prinzessin. Füge ein eisiges blaues Kleid mit Schneeflockenmustern, Eiskristalle, eine funkelnde Eiskrone und Schneeflocken um sie herum hinzu. Verwende Blau, Weiß und Silber.',
+              emoji: '❄️',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'warrior_princess',
+              titleEn: 'Warrior Princess',
+              titleDe: 'Krieger-Prinzessin',
+              descriptionEn: 'Make her brave and strong!',
+              descriptionDe: 'Mach sie mutig und stark!',
+              promptEn:
+                  'Transform this child\'s princess drawing into a brave warrior princess. Add armor pieces, a sword or shield, a cape, and make her look strong and heroic. Keep the crown but make her look ready for adventure.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Prinzessin in eine mutige Krieger-Prinzessin. Füge Rüstungsteile, ein Schwert oder Schild, einen Umhang hinzu und lass sie stark und heldenhaft aussehen. Behalte die Krone, aber lass sie abenteuerbereit aussehen.',
+              emoji: '⚔️',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'rainbow_princess',
+              titleEn: 'Rainbow Princess',
+              titleDe: 'Regenbogen-Prinzessin',
+              descriptionEn: 'Add rainbow colors everywhere!',
+              descriptionDe: 'Füge überall Regenbogenfarben hinzu!',
+              promptEn:
+                  'Transform this child\'s princess drawing into a magical rainbow princess. Make her dress flow with rainbow colors, add a rainbow crown, colorful hair, and sparkles everywhere. Use all rainbow colors to make her look magical and joyful.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung einer Prinzessin in eine magische Regenbogen-Prinzessin. Lass ihr Kleid in Regenbogenfarben fließen, füge eine Regenbogenkrone, buntes Haar und Glitzer überall hinzu. Verwende alle Regenbogenfarben, um sie magisch und fröhlich aussehen zu lassen.',
+              emoji: '🌈',
+              color: AppColors.secondary,
+            ),
+          ],
         ),
         Drawing(
           id: 'robot',
@@ -764,6 +1292,60 @@ class DrawingData {
               stepEn: 'Add buttons, lights, and robot features',
               stepDe: 'Füge Knöpfe, Lichter und Robotermerkmale hinzu',
               stepImg: '', // Will be populated from API
+            ),
+          ],
+          editOptions: [
+            EditOption(
+              id: 'colorful_robot',
+              titleEn: 'Colorful Robot',
+              titleDe: 'Bunter Roboter',
+              descriptionEn: 'Add bright colors and patterns!',
+              descriptionDe: 'Füge helle Farben und Muster hinzu!',
+              promptEn:
+                  'Transform this child\'s robot drawing into a colorful, fun robot. Add bright colors like red, blue, yellow, and green. Include colorful buttons, lights, and patterns. Make it look friendly and cheerful.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Roboters in einen bunten, lustigen Roboter. Füge helle Farben wie Rot, Blau, Gelb und Grün hinzu. Füge bunte Knöpfe, Lichter und Muster hinzu. Lass ihn freundlich und fröhlich aussehen.',
+              emoji: '🎨',
+              color: AppColors.primary,
+            ),
+            EditOption(
+              id: 'space_robot',
+              titleEn: 'Space Robot',
+              titleDe: 'Weltraum-Roboter',
+              descriptionEn: 'Make it a space explorer!',
+              descriptionDe: 'Mach ihn zu einem Weltraumforscher!',
+              promptEn:
+                  'Transform this child\'s robot drawing into a space exploration robot. Add space suit elements, antenna, rocket boosters, and stars around it. Use silver, blue, and white colors. Make it look like it\'s ready for space adventures.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Roboters in einen Weltraum-Erkundungsroboter. Füge Raumanzug-Elemente, Antenne, Raketentriebwerke und Sterne drumherum hinzu. Verwende Silber, Blau und Weiß. Lass ihn aussehen, als wäre er bereit für Weltraumabenteuer.',
+              emoji: '🚀',
+              color: AppColors.accent,
+            ),
+            EditOption(
+              id: 'friendly_robot',
+              titleEn: 'Friendly Robot',
+              titleDe: 'Freundlicher Roboter',
+              descriptionEn: 'Give it a happy, friendly face!',
+              descriptionDe: 'Gib ihm ein glückliches, freundliches Gesicht!',
+              promptEn:
+                  'Transform this child\'s robot drawing into a super friendly robot. Add a big smile, kind eyes, heart symbols, and make it look warm and welcoming. Use soft colors and make it look like a helpful friend.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Roboters in einen super freundlichen Roboter. Füge ein großes Lächeln, freundliche Augen, Herzsymbole hinzu und lass ihn warm und einladend aussehen. Verwende weiche Farben und lass ihn wie einen hilfreichen Freund aussehen.',
+              emoji: '😊',
+              color: AppColors.success,
+            ),
+            EditOption(
+              id: 'superhero_robot',
+              titleEn: 'Superhero Robot',
+              titleDe: 'Superhelden-Roboter',
+              descriptionEn: 'Make it a superhero!',
+              descriptionDe: 'Mach ihn zu einem Superhelden!',
+              promptEn:
+                  'Transform this child\'s robot drawing into a superhero robot. Add a cape, superhero emblem on the chest, powerful pose, and maybe energy effects. Use bold colors like red, blue, and gold. Make it look heroic and strong.',
+              promptDe:
+                  'Verwandle diese Kinderzeichnung eines Roboters in einen Superhelden-Roboter. Füge einen Umhang, ein Superhelden-Emblem auf der Brust, eine kraftvolle Pose und vielleicht Energieeffekte hinzu. Verwende kräftige Farben wie Rot, Blau und Gold. Lass ihn heldenhaft und stark aussehen.',
+              emoji: '🦸',
+              color: AppColors.secondary,
             ),
           ],
         ),

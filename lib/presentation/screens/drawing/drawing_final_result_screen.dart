@@ -85,9 +85,12 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   }
 
   void _createStory() {
+    // Pass edited image if available, otherwise pass uploaded image
+    final imageToPass = widget.editedImageBytes ?? widget.uploadedImage;
+    
     context.push(
       '/drawings/${widget.categoryId}/${widget.drawingId}/story',
-      extra: widget.uploadedImage,
+      extra: imageToPass,
     );
   }
 
