@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import '../../models/api_models.dart';
 import 'base_api_service.dart';
 import 'api_exceptions.dart';
@@ -172,6 +174,51 @@ class DrawingApiService {
       print(
         '✅ Image edited successfully! Processing time: ${result.processingTime}s',
       );
+
+      return result;
+    });
+  }
+
+  /// Create a story from an image
+  /// Takes either a File or Uint8List and generates a children's story
+  static Future<ApiStoryResponse> createStory({
+    required dynamic imageData, // Can be File or Uint8List
+  }) async {
+    return await BaseApiService.handleApiCall<ApiStoryResponse>(() async {
+      print('📖 Starting story creation...');
+
+      // Convert image to base64
+      String base64Image;
+      if (imageData is File) {
+        print('📁 Converting File to base64...');
+        final bytes = await imageData.readAsBytes();
+        base64Image = base64Encode(bytes);
+      } else if (imageData is Uint8List) {
+        print('📦 Converting Uint8List to base64...');
+        base64Image = base64Encode(imageData);
+      } else {
+        throw Exception('Invalid image data type. Must be File or Uint8List');
+      }
+
+      print('📤 Sending story creation request...');
+      print('   Image size: ${base64Image.length} characters');
+
+      final response = await BaseApiService.post(
+        '/api/create-story',
+        body: {
+          'image': base64Image,
+        },
+      );
+
+      final jsonData = BaseApiService.handleResponse(response);
+      final result = ApiStoryResponse.fromJson(jsonData);
+
+      print('✅ Story created successfully!');
+      print('   Title: ${result.title}');
+      print('   Story length: ${result.story.length} characters');
+      if (result.generationTime != null) {
+        print('   Generation time: ${result.generationTime}s');
+      }
 
       return result;
     });

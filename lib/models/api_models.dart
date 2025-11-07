@@ -101,3 +101,38 @@ class ApiImageEditResponse {
     };
   }
 }
+
+/// API response model for story generation
+class ApiStoryResponse {
+  final String success;
+  final String story;
+  final String title;
+  final double? generationTime;
+
+  ApiStoryResponse({
+    required this.success,
+    required this.story,
+    required this.title,
+    this.generationTime,
+  });
+
+  factory ApiStoryResponse.fromJson(Map<String, dynamic> json) {
+    return ApiStoryResponse(
+      success: json['success'] as String,
+      story: json['story'] as String,
+      title: json['title'] as String,
+      generationTime: json['generation_time'] != null
+          ? (json['generation_time'] as num).toDouble()
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'story': story,
+      'title': title,
+      'generation_time': generationTime,
+    };
+  }
+}

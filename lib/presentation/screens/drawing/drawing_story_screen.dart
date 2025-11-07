@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../../services/actions/drawing_api_service.dart';
+import '../../../services/actions/api_exceptions.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -35,11 +37,11 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   bool _isGeneratingStory = true;
   bool _storyGenerationFailed = false;
   String _generatedStory = '';
+  String _storyTitle = '';
 
   final FlutterTts _flutterTts = FlutterTts();
   Map? _currentVoice;
   bool _isSpeaking = false;
-  bool _isPaused = false;
   List<Map> _availableVoices = [];
   String _currentLanguage = 'en';
 
@@ -98,12 +100,22 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       // Set pitch (0.5 to 2.0)
       await _flutterTts.setPitch(1.0);
 
-      // Set up completion handler
+      // Set up completion handler - called when TTS finishes speaking
       _flutterTts.setCompletionHandler(() {
+        print('✅ TTS completed speaking - resetting state');
         if (mounted) {
           setState(() {
             _isSpeaking = false;
-            _isPaused = false;
+          });
+        }
+      });
+
+      // Set up cancel handler - called when TTS is stopped
+      _flutterTts.setCancelHandler(() {
+        print('🛑 TTS cancelled - resetting state');
+        if (mounted) {
+          setState(() {
+            _isSpeaking = false;
           });
         }
       });
@@ -113,7 +125,6 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         if (mounted) {
           setState(() {
             _isSpeaking = false;
-            _isPaused = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -177,30 +188,50 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   }
 
   void _generateStory() async {
-    // TODO: Replace with actual AI story generation
-    await Future.delayed(const Duration(seconds: 5));
+    // Check if we have an image to generate story from
+    if (widget.drawingImage == null) {
+      if (mounted) {
+        setState(() {
+          _isGeneratingStory = false;
+          _storyGenerationFailed = true;
+        });
+      }
+      return;
+    }
 
-    if (mounted) {
-      setState(() {
-        _isGeneratingStory = false;
-        // Simulate success/failure (90% success rate for demo)
-        _storyGenerationFailed = DateTime.now().millisecond % 10 == 0;
+    try {
+      // Call the API to generate story
+      final response = await DrawingApiService.createStory(
+        imageData: widget.drawingImage,
+      );
 
-        if (!_storyGenerationFailed) {
-          // Sample generated story - this would come from AI
-          _generatedStory = _getSampleStory();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _isGeneratingStory = false;
+          _storyGenerationFailed = false;
+          _generatedStory = response.story;
+          _storyTitle = response.title;
+        });
 
-      if (!_storyGenerationFailed) {
         _slideController.forward();
       }
+    } on ApiException catch (e) {
+      print('❌ Story generation failed: ${e.message}');
+      if (mounted) {
+        setState(() {
+          _isGeneratingStory = false;
+          _storyGenerationFailed = true;
+        });
+      }
+    } catch (e) {
+      print('❌ Unexpected error during story generation: $e');
+      if (mounted) {
+        setState(() {
+          _isGeneratingStory = false;
+          _storyGenerationFailed = true;
+        });
+      }
     }
-  }
-
-  String _getSampleStory() {
-    // This would be replaced with actual AI-generated content
-    return "Once upon a time, in a magical land filled with colors and wonder, there lived a special creation that came to life through the power of imagination. This beautiful artwork tells the story of creativity and joy, where every line and color has its own magical purpose. The artist's vision transformed simple shapes into something extraordinary, creating a masterpiece that brings smiles to everyone who sees it. This drawing represents the endless possibilities that exist when we let our creativity flow freely!";
   }
 
   void _retryStoryGeneration() {
@@ -222,27 +253,19 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       }
 
       if (_isSpeaking) {
-        if (_isPaused) {
-          // Resume speaking
-          await _flutterTts.speak(_generatedStory);
-          setState(() {
-            _isPaused = false;
-          });
-        } else {
-          // Pause speaking
-          await _flutterTts.pause();
-          setState(() {
-            _isPaused = true;
-          });
-        }
+        // Currently speaking - user wants to stop
+        print('🛑 Stopping TTS...');
+        await _flutterTts.stop();
+        setState(() {
+          _isSpeaking = false;
+        });
       } else {
-        // Start speaking
+        // Start speaking from the beginning
         if (_generatedStory.isNotEmpty) {
+          print('🔊 Starting TTS...');
           setState(() {
             _isSpeaking = true;
-            _isPaused = false;
           });
-
           await _flutterTts.speak(_generatedStory);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -256,9 +279,9 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       }
     } catch (e) {
       // Handle TTS errors gracefully
+      print('❌ TTS Error: $e');
       setState(() {
         _isSpeaking = false;
-        _isPaused = false;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -288,26 +311,6 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     } catch (e) {
       print('Error updating TTS language: $e');
     }
-  }
-
-  void _saveStory() {
-    // TODO: Implement save story functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('story.save_coming_soon'.tr()),
-        backgroundColor: AppColors.success,
-      ),
-    );
-  }
-
-  void _shareStory() {
-    // TODO: Implement share story functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('story.share_coming_soon'.tr()),
-        backgroundColor: AppColors.accent,
-      ),
-    );
   }
 
   void _createAnotherStory() {
@@ -490,13 +493,17 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
                         size: 24,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'story.your_story_title'.tr(),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                          fontFamily: 'Comic Sans MS',
+                      Expanded(
+                        child: Text(
+                          _storyTitle.isNotEmpty
+                              ? _storyTitle
+                              : 'story.your_story_title'.tr(),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                            fontFamily: 'Comic Sans MS',
+                          ),
                         ),
                       ),
                     ],
@@ -522,114 +529,64 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
             const SizedBox(height: 24),
 
             // Action buttons
-            Column(
+            Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _readStoryAloud,
-                        icon: Icon(
-                          _isSpeaking
-                              ? (_isPaused ? Icons.play_arrow : Icons.pause)
-                              : Icons.volume_up,
-                        ),
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _isSpeaking
-                                  ? (_isPaused
-                                        ? 'story.resume'.tr()
-                                        : 'story.pause'.tr())
-                                  : 'story.read_aloud'.tr(),
-                            ),
-                            const SizedBox(width: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                _currentLanguage.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isSpeaking
-                              ? AppColors.textDark
-                              : AppColors.primary,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _readStoryAloud,
+                    icon: Icon(_isSpeaking ? Icons.stop : Icons.volume_up),
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(_isSpeaking ? 'Stop' : 'story.read_aloud'.tr()),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _saveStory,
-                        icon: const Icon(Icons.bookmark),
-                        label: Text('story.save_story'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.success,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            _currentLanguage.toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isSpeaking
+                          ? AppColors.accent
+                          : AppColors.primary,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _shareStory,
-                        icon: const Icon(Icons.share),
-                        label: Text('story.share_story'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _createAnotherStory,
+                    icon: const Icon(Icons.palette),
+                    label: Text('story.create_another'.tr()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.white,
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _createAnotherStory,
-                        icon: const Icon(Icons.palette),
-                        label: Text('story.create_another'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.white,
-                          foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
