@@ -171,16 +171,16 @@ async def generate_tutorial_local(request: FullTutorialRequest):
         )
 
 
-# Process uploaded image with AI
-@app.post("/api/process-image", response_model=ImageProcessResponse)
-async def process_image(
+# Edit uploaded image with AI
+@app.post("/api/edit-image", response_model=ImageProcessResponse)
+async def edit_image(
     file: UploadFile = File(..., description="Image file to process"),
     prompt: str = Form(
         ..., description="Processing instruction (e.g., 'make it alive')"
     ),
 ):
     """
-    Process an uploaded image with AI using a text prompt.
+    Edit an uploaded image with AI using a text prompt.
     Supports prompts like 'make it alive', 'make it colorful', etc.
     """
     try:
@@ -227,9 +227,7 @@ async def process_image(
         # Re-raise HTTP exceptions
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to process image: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to edit image: {str(e)}")
 
 
 # Run the application
