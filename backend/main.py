@@ -250,7 +250,7 @@ async def edit_image(
 async def create_story(request: StoryRequest):
     """
     Generate a children's story (ages 4-7) from an uploaded image.
-    User just needs to provide the image - we handle the rest!
+    Supports English ('en') and German ('de') story generation.
     """
     try:
         # Check if story service is available
@@ -267,8 +267,17 @@ async def create_story(request: StoryRequest):
                 detail="Invalid image data. Please provide a valid base64 encoded image.",
             )
 
-        # Generate the story
-        title, story, generation_time = story_service.generate_story(request.image)
+        # Validate language parameter
+        if request.language not in ["en", "de"]:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid language. Please provide 'en' or 'de'.",
+            )
+
+        # Generate the story with the specified language
+        title, story, generation_time = story_service.generate_story(
+            request.image, request.language
+        )
 
         return StoryResponse(
             success="true",
