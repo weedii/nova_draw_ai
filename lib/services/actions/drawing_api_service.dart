@@ -181,11 +181,14 @@ class DrawingApiService {
 
   /// Create a story from an image
   /// Takes either a File or Uint8List and generates a children's story
+  /// Language parameter: 'en' for English or 'de' for German
   static Future<ApiStoryResponse> createStory({
     required dynamic imageData, // Can be File or Uint8List
+    required String language, // 'en' or 'de'
   }) async {
     return await BaseApiService.handleApiCall<ApiStoryResponse>(() async {
       print('📖 Starting story creation...');
+      print('   Language: $language');
 
       // Convert image to base64
       String base64Image;
@@ -205,9 +208,7 @@ class DrawingApiService {
 
       final response = await BaseApiService.post(
         '/api/create-story',
-        body: {
-          'image': base64Image,
-        },
+        body: {'image': base64Image, 'language': language},
       );
 
       final jsonData = BaseApiService.handleResponse(response);

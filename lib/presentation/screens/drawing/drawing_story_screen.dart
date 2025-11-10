@@ -155,22 +155,36 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
 
   void _setVoiceForCurrentLanguage() {
     try {
-      List<Map> languageVoices;
+      Map? selectedVoice;
 
       if (_currentLanguage == 'de') {
-        // Filter for German voices
-        languageVoices = _availableVoices
-            .where((voice) => voice["locale"].toString().startsWith("de"))
-            .toList();
+        // Use German voice: de-DE-language (de-DE)
+        selectedVoice = _availableVoices.firstWhere(
+          (voice) =>
+              voice["name"] == "de-DE-language" &&
+              voice["locale"].toString() == "de-DE",
+          orElse: () =>
+              _availableVoices
+                  .where((voice) => voice["locale"].toString().startsWith("de"))
+                  .firstOrNull ??
+              {},
+        );
       } else {
-        // Filter for English voices (default)
-        languageVoices = _availableVoices
-            .where((voice) => voice["locale"].toString().startsWith("en"))
-            .toList();
+        // Use English voice: en-us-x-tpc-local (en-US)
+        selectedVoice = _availableVoices.firstWhere(
+          (voice) =>
+              voice["name"] == "en-us-x-tpc-local" &&
+              voice["locale"].toString() == "en-US",
+          orElse: () =>
+              _availableVoices
+                  .where((voice) => voice["locale"].toString().startsWith("en"))
+                  .firstOrNull ??
+              {},
+        );
       }
 
-      if (languageVoices.isNotEmpty) {
-        _currentVoice = languageVoices.first;
+      if (selectedVoice.isNotEmpty) {
+        _currentVoice = selectedVoice;
         _flutterTts.setVoice({
           "name": _currentVoice!["name"],
           "locale": _currentVoice!["locale"],
@@ -200,9 +214,13 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     }
 
     try {
-      // Call the API to generate story
+      // Get current app language
+      String currentLanguage = context.locale.languageCode;
+      
+      // Call the API to generate story with the current language
       final response = await DrawingApiService.createStory(
         imageData: widget.drawingImage,
+        language: currentLanguage,
       );
 
       if (mounted) {
