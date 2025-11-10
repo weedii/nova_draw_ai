@@ -51,38 +51,56 @@ class ImageProcessingService:
 
         try:
             enhancement_prompt = f"""
-            You are creating image editing prompts for a children's app designed for kids aged 4-8 years old. Convert simple user requests into detailed, kid-friendly prompts that will create magical, fun, and age-appropriate image transformations.
+            You are an EXPERT creative director for a magical children's art app (ages 4-8). Your job is to transform simple requests into INCREDIBLY DETAILED, VIVID, and IMAGINATIVE prompts that will blow kids' minds with amazing visual transformations!
 
-            The child wants to: "{user_prompt}"
+            The child's request: "{user_prompt}"
 
-            Convert this into a detailed prompt for an AI image editor that creates SAFE, FUN, and KID-FRIENDLY results. Include:
-            - Bright, cheerful colors and effects
-            - Magical, whimsical elements that kids love
-            - Safe, positive transformations only
-            - Fun visual effects like sparkles, rainbows, cute elements
-            - Age-appropriate enhancements
+            CREATE AN ULTRA-DETAILED, CREATIVE PROMPT that will produce STUNNING, MAGICAL results!
 
-            SAFETY RULES - NEVER include:
-            - Scary, dark, or frightening elements
-            - Violence, weapons, or dangerous items
-            - Adult themes or inappropriate content
-            - Realistic gore, blood, or disturbing imagery
-            - Anything that might upset or frighten young children
+            🎨 CREATIVE ENHANCEMENT RULES:
+            
+            1. BE WILDLY IMAGINATIVE & SPECIFIC:
+               - Don't just say "add sparkles" - describe "thousands of tiny rainbow sparkles that swirl and dance around like fireflies, leaving trails of glittering stardust"
+               - Don't just say "bright colors" - specify "vibrant neon pink, electric blue, sunshine yellow, and lime green that glow and pulse with energy"
+               - Add unexpected, delightful details that surprise and amaze
+               - Think like a Pixar or Disney artist - every detail matters!
+            
+            2. LAYER MULTIPLE EFFECTS:
+               - Combine 4-6 different visual elements
+               - Add depth: foreground effects, mid-ground transformations, background magic
+               - Include lighting effects (glows, shimmers, rays of light)
+               - Add motion suggestions (swirling, floating, dancing, sparkling)
+               - Include atmospheric effects (magical mist, glowing particles, energy waves)
+            
+            3. USE POWERFUL, DESCRIPTIVE LANGUAGE:
+               - Instead of "nice" use: dazzling, mesmerizing, enchanting, breathtaking
+               - Instead of "pretty" use: stunning, gorgeous, spectacular, magnificent
+               - Instead of "colorful" use: vibrant, luminous, radiant, iridescent
+               - Paint a picture with words!
+            
+            4. MAKE IT FEEL ALIVE & DYNAMIC:
+               - Suggest movement and energy
+               - Add emotional elements (joyful, playful, friendly, excited)
+               - Create a sense of magic happening right now
+               - Make it feel interactive and responsive
+            
+            5. ALWAYS KEEP IT KID-SAFE:
+               - Only happy, positive, uplifting content
+               - Friendly, cute, and welcoming vibes
+               - No scary, dark, or frightening elements
+               - Cartoon/animated style, never realistic in a scary way
+            
+            📚 ULTRA-CREATIVE EXAMPLES:
+            
+            "make it alive" → "Transform this into a LIVING, BREATHING character with enormous sparkling eyes that gleam with curiosity and joy, with bright highlights and twinkling star reflections dancing inside them. Add a huge delighted smile showing pure happiness, rosy pink cheeks that glow warmly, and expressive eyebrows that show emotion. Surround it with swirling magical energy - ribbons of shimmering turquoise and golden light that spiral around like living aurora borealis. Add floating heart-shaped sparkles, tiny glowing orbs of rainbow light that orbit around it, and a subtle aura of radiant energy. Make the colors more vibrant and saturated - like they're glowing from within. Add gentle motion blur to suggest it's alive and moving, with strands of hair or edges that seem to flutter in a magical breeze. Include particle effects of stardust that trail behind any movement, creating a sense of magic and life force. The overall effect should be like a beloved Pixar character coming to life before your eyes!"
+            
+            "make it colorful" → "EXPLODE this image with an INSANE rainbow of colors! Transform it into a psychedelic wonderland where every pixel bursts with vibrant, saturated hues. Start with a gradient background that transitions through all rainbow colors - hot pink melting into electric purple, flowing into sky blue, merging with lime green, blazing into sunshine yellow, and burning into fiery orange. Overlay the main subject with iridescent color shifts that shimmer and change like oil on water or butterfly wings. Add floating, translucent butterflies in neon colors that seem to glow from within. Scatter thousands of tiny colorful sparkles - each one a different color of the rainbow, twinkling and pulsing with light. Paint rainbow beams shooting out from behind the subject like cosmic rays. Include colorful paint splashes and drips that look like liquid light. Add holographic effects that shimmer with rainbow reflections. Make flowers burst into bloom with petals of every color imaginable. Include glowing particles of colored light floating through the air like fireflies. Add chromatic aberration effects around edges for that dreamy, magical look. The result should look like a rainbow exploded in the most beautiful way possible - like stepping into a magical world made entirely of living color!"
+            
+            "make it magical" → "Transform this into a PURE MAGICAL MASTERPIECE straight from an enchanted fairy tale! Surround everything with swirling galaxies of glittering fairy dust - gold, silver, and rainbow particles that spiral and dance like they have a mind of their own. Add multiple layers of sparkle effects: tiny pinpoint stars that twinkle, larger glowing star bursts, and trails of shimmering stardust. Create a magical atmosphere with a soft, dreamy glow - like everything is illuminated by moonlight and starlight combined. Float dozens of translucent, glowing bubbles that reflect rainbow colors and drift lazily through the scene. Add magical runes or sparkle symbols that gently orbit around the subject. Include a majestic crown made of pure light, adorned with glowing gemstones in rainbow colors. Summon friendly, ethereal unicorns made of stardust and light that prance gracefully in the background, leaving rainbow trails. Add mystical butterflies with wings that seem made of pure magic, glowing and transparent. Create a magical portal or gateway made of swirling energy behind the subject. Include floating crystals that emit colorful light beams. Add aurora borealis waves flowing through the sky in pinks, greens, and blues. Make some elements levitate with magical energy lifting them up. Include mystical flowers that bloom with inner light. The entire scene should feel like it exists in a realm where magic is real and everything is possible!"
 
-            FOCUS ON - ALWAYS include:
-            - Bright, happy colors
-            - Cute, friendly characters or elements
-            - Magical effects like sparkles, glitter, rainbows
-            - Cartoon-style, child-friendly aesthetics
-            - Positive, uplifting transformations
-            - Fun, playful visual elements
+            💡 YOUR TURN: Now transform "{user_prompt}" into an INCREDIBLY DETAILED, WILDLY CREATIVE prompt that will create absolutely STUNNING results! Use at least 150-250 words. Be specific, be imaginative, be AMAZING!
 
-            Examples for kids:
-            - "make it alive" → "Transform this image to make it come ALIVE with big, friendly sparkling eyes full of joy, a happy smile, cute rosy cheeks, gentle movement effects like flowing hair or swaying in a happy breeze, bright cheerful colors, magical sparkles around it, and a warm, welcoming expression that makes it look like a friendly cartoon character"
-            - "make it colorful" → "Transform this image into a rainbow wonderland with bright happy colors like pink, blue, yellow, and green, add rainbow gradients, colorful butterflies or flowers, sparkling glitter effects, cheerful sunshine rays, and make everything look like a magical fairy tale with vibrant, kid-friendly cartoon colors"
-            - "make it magical" → "Add magical fairy tale elements like sparkling fairy dust, rainbow colors, cute stars and hearts floating around, gentle glowing effects, magical wands or crowns, friendly unicorns or butterflies, and make it look like something from a happy children's storybook"
-
-            Return ONLY the enhanced kid-friendly prompt, no explanations or extra text.
+            Return ONLY your enhanced creative prompt - no labels, no explanations, just pure creative magic!
             """
 
             logger.info(f"📤 Sending enhancement request to {self.openai_model}")
@@ -90,8 +108,8 @@ class ImageProcessingService:
             response = self.openai_client.chat.completions.create(
                 model=self.openai_model,
                 messages=[{"role": "user", "content": enhancement_prompt}],
-                max_tokens=300,
-                temperature=0.7,  # Creative but controlled
+                max_tokens=500,  # More tokens for detailed creative descriptions
+                temperature=0.9,  # Higher creativity for more imaginative results
             )
 
             enhancement_time = time.time() - enhancement_start
@@ -168,20 +186,44 @@ class ImageProcessingService:
             # Step 2: Create the final prompt for Gemini using the enhanced version
             logger.info("🎯 Step 2: Preparing final prompt for Gemini...")
             full_prompt = f"""
-            You are a professional AI image editor and digital artist.
+            You are a MASTER digital artist and visual effects wizard working for a premium children's creativity app. Your transformations must be SPECTACULAR, MAGICAL, and absolutely BREATHTAKING!
             
-            Transform the uploaded image with these detailed instructions:
+            🎨 TRANSFORMATION MISSION:
             {enhanced_prompt}
             
-            Additional guidelines:
-            - Make significant and obvious visual changes
-            - Maintain the core subject while transforming it dramatically
-            - Use professional image editing techniques
-            - Make the result visually stunning and impactful
-            - Return ONLY the processed image, no text or watermarks
-            - Apply all the specified effects and enhancements
+            🚀 EXECUTION GUIDELINES:
             
-            Transform the image now according to these detailed instructions.
+            1. MAKE IT BOLD & DRAMATIC:
+               - Create changes that are IMMEDIATELY OBVIOUS and WOW-WORTHY
+               - Don't be subtle - kids love BIG, IMPRESSIVE transformations
+               - Push the visual effects to the MAX while staying beautiful
+               - Make it look like professional movie-quality VFX
+            
+            2. PRESERVE THE CORE:
+               - Keep the main subject recognizable
+               - Transform it dramatically but don't lose its identity
+               - Enhance what's there, don't replace it completely
+            
+            3. VISUAL EXCELLENCE:
+               - Use cinema-quality rendering and effects
+               - Make colors vibrant, saturated, and eye-catching
+               - Add depth with layers, lighting, and atmospheric effects
+               - Create a polished, professional final result
+               - Ensure everything is sharp, clear, and high-quality
+            
+            4. MAGICAL ATMOSPHERE:
+               - Add that "Disney/Pixar magic" feeling
+               - Make it feel alive and full of wonder
+               - Create a sense of movement and energy
+               - Infuse every pixel with creativity and joy
+            
+            5. TECHNICAL PERFECTION:
+               - Return ONLY the transformed image
+               - No text, watermarks, signatures, or labels
+               - Maintain proper resolution and quality
+               - Ensure smooth blending of all effects
+            
+            🌟 CREATE PURE MAGIC! Transform this image into something INCREDIBLE that will make kids gasp with delight!
             """
 
             # Prepare content for Gemini

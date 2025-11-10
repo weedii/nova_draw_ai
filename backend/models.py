@@ -44,11 +44,23 @@ class ErrorResponse(BaseModel):
 
 
 class ImageProcessRequest(BaseModel):
-    prompt: str = Field(
-        ...,
+    prompt: Optional[str] = Field(
+        None,
         min_length=1,
         max_length=500,
-        description="Text prompt for image processing (e.g., 'make it alive')",
+        description="Custom text prompt for image processing (e.g., 'make it alive')",
+    )
+    effect: Optional[str] = Field(
+        None,
+        description="Preset effect name (e.g., 'unicorn_magic', 'rainbow_blast'). If provided, this takes precedence over custom prompt.",
+    )
+    intensity: Optional[str] = Field(
+        "medium",
+        description="Effect intensity level: 'subtle', 'medium', or 'extreme'",
+    )
+    language: str = Field(
+        "en",
+        description="Language for effect descriptions: 'en' or 'de'",
     )
 
 
@@ -57,10 +69,30 @@ class ImageProcessResponse(BaseModel):
     prompt: str
     result_image: str  # base64 encoded processed image
     processing_time: Optional[float] = None
+    effect_used: Optional[str] = None  # The effect that was applied
+
+
+class EffectInfo(BaseModel):
+    id: str  # Effect identifier (e.g., "unicorn_magic")
+    name_en: str  # English name
+    name_de: str  # German name
+    description_en: str  # English description
+    description_de: str  # German description
+    category: str  # Category (e.g., "magical", "artistic", "nature")
+    emoji: str  # Fun emoji to represent the effect
+
+
+class EffectsListResponse(BaseModel):
+    success: str
+    effects: List[EffectInfo]
+    total: int
 
 
 class StoryRequest(BaseModel):
     image: str = Field(..., description="Base64 encoded image to create story from")
+    language: str = Field(
+        ..., description="Language for story generation: 'en' or 'de'"
+    )
 
 
 class StoryResponse(BaseModel):
