@@ -5,6 +5,7 @@ import 'package:nova_draw_ai/presentation/screens/auth/reset_password_screen.dar
 import 'package:nova_draw_ai/presentation/screens/auth/signin_screen.dart';
 import 'package:nova_draw_ai/presentation/screens/auth/signup_screen.dart';
 import '../presentation/screens/welcome_screen.dart';
+import '../presentation/screens/settings_screen.dart';
 import '../presentation/screens/drawing/drawing_categories_screen.dart';
 import '../presentation/screens/drawing/drawings_screen.dart';
 import '../presentation/screens/drawing/drawing_steps_screen.dart';
@@ -41,6 +42,14 @@ final GoRouter appRouter = GoRouter(
       path: "/resetpassword",
       builder: (BuildContext context, GoRouterState state) {
         return const ResetPasswordScreen();
+      },
+    ),
+
+    // Settings Route
+    GoRoute(
+      path: "/settings",
+      builder: (BuildContext context, GoRouterState state) {
+        return const SettingsScreen();
       },
     ),
 

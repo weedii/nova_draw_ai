@@ -7,7 +7,6 @@ import '../../../core/constants/drawing_data.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_app_bar.dart';
-import '../../widgets/floating_language_selector.dart';
 
 class DrawingCategoriesScreen extends StatefulWidget {
   const DrawingCategoriesScreen({super.key});
@@ -84,12 +83,15 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                           emoji: '🎨',
                           showBackButton: false,
                           showAnimation: true,
+                          showSettingsButton: true,
                         ),
 
                         // Categories Grid
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                            ),
                             child: GridView.builder(
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
@@ -118,9 +120,6 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                   ),
                 ),
               ),
-              
-              // Floating Language Selector
-              const FloatingLanguageSelector(),
             ],
           ),
         );

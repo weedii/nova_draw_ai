@@ -322,5 +322,18 @@
     "your_amazing_drawing": "Deine fantastische Zeichnung!",
     "great_job_drawing": "Großartige Arbeit! Deine Zeichnung sieht fantastisch aus!",
     "save_functionality_coming": "Speicherfunktion wird bald implementiert! 💾"
+  },
+
+  "settings": {
+    "settings": "Einstellungen",
+    "app_settings": "App-Einstellungen",
+    "language": "Sprache",
+    "select_language": "Wähle deine bevorzugte Sprache",
+    "english": "English",
+    "german": "Deutsch",
+    "language_changed": "Sprache erfolgreich geändert!",
+    "about": "Über",
+    "version": "Version",
+    "app_description": "NovaDraw AI - Zeichne, erschaffe und erwecke deine Kunst mit Magie zum Leben!"
   }
 }

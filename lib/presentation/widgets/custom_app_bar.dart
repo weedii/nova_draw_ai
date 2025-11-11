@@ -13,6 +13,7 @@ class CustomAppBar extends StatefulWidget {
   final Widget? actionWidget;
   final bool showAnimation;
   final bool centerTitle;
+  final bool showSettingsButton;
   const CustomAppBar({
     super.key,
     required this.title,
@@ -23,6 +24,7 @@ class CustomAppBar extends StatefulWidget {
     this.actionWidget,
     this.showAnimation = true,
     this.centerTitle = true,
+    this.showSettingsButton = false,
   });
 
   @override
@@ -45,7 +47,7 @@ class _CustomAppBarState extends State<CustomAppBar>
       );
       _sparkleFloat = AppAnimations.createFloatAnimation(
         controller: _sparkleController,
-        distance: 25.0,
+        distance: 10.0,
       );
       _sparkleController.repeat(reverse: true);
     }
@@ -65,32 +67,117 @@ class _CustomAppBarState extends State<CustomAppBar>
     context.locale;
 
     return Container(
-      padding: const EdgeInsets.all(24.0),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Column(
         children: [
-          // Back button
-          if (widget.showBackButton)
-            IconButton(
-              onPressed: widget.onBackPressed ?? () => context.pop(),
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: AppColors.primary,
-                size: 24,
-              ),
-            ),
+          // Top row: Back button, Settings button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Back button
+              if (widget.showBackButton)
+                IconButton(
+                  onPressed: widget.onBackPressed ?? () => context.pop(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                )
+              else
+                const SizedBox(width: 40),
 
-          // Title section
-          Expanded(
-            child: widget.centerTitle
-                ? Column(
+              // Settings button
+              if (widget.showSettingsButton)
+                IconButton(
+                  onPressed: () => context.push('/settings'),
+                  icon: Icon(
+                    Icons.settings_outlined,
+                    color: AppColors.textDark.withValues(alpha: 0.8),
+                    size: 35,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                )
+              else if (widget.actionWidget != null)
+                widget.actionWidget!
+              else
+                const SizedBox(width: 40),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // Title and subtitle section
+          if (widget.centerTitle)
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        widget.title.tr(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                          fontFamily: 'Comic Sans MS',
+                        ),
+                      ),
+                    ),
+
+                    if (widget.emoji != null) ...[
+                      const SizedBox(width: 8),
+                      widget.showAnimation
+                          ? AppAnimatedFloat(
+                              animation: _sparkleFloat,
+                              child: Text(
+                                widget.emoji!,
+                                style: const TextStyle(fontSize: 24),
+                              ),
+                            )
+                          : Text(
+                              widget.emoji!,
+                              style: const TextStyle(fontSize: 24),
+                            ),
+                    ],
+                  ],
+                ),
+                if (widget.subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.subtitle!.tr(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textDark.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Flexible(
                             child: Text(
                               widget.title.tr(),
-                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -120,77 +207,17 @@ class _CustomAppBarState extends State<CustomAppBar>
                         const SizedBox(height: 4),
                         Text(
                           widget.subtitle!.tr(),
-                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: AppColors.textDark.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
                     ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    widget.title.tr(),
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.primary,
-                                      fontFamily: 'Comic Sans MS',
-                                    ),
-                                  ),
-                                ),
-                                if (widget.emoji != null) ...[
-                                  const SizedBox(width: 8),
-                                  widget.showAnimation
-                                      ? AppAnimatedFloat(
-                                          animation: _sparkleFloat,
-                                          child: Text(
-                                            widget.emoji!,
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                            ),
-                                          ),
-                                        )
-                                      : Text(
-                                          widget.emoji!,
-                                          style: const TextStyle(fontSize: 24),
-                                        ),
-                                ],
-                              ],
-                            ),
-                            if (widget.subtitle != null) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.subtitle!.tr(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: AppColors.textDark.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
-          ),
-
-          // Action widget or spacer
-          if (widget.actionWidget != null)
-            widget.actionWidget!
-          else if (widget.showBackButton)
-            const SizedBox(width: 48), // Balance the back button
+                ),
+              ],
+            ),
         ],
       ),
     );

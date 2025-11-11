@@ -322,5 +322,18 @@
     "your_amazing_drawing": "Your Amazing Drawing!",
     "great_job_drawing": "Great job! Your drawing looks fantastic!",
     "save_functionality_coming": "Save functionality will be implemented soon! 💾"
+  },
+
+  "settings": {
+    "settings": "Settings",
+    "app_settings": "App Settings",
+    "language": "Language",
+    "select_language": "Select your preferred language",
+    "english": "English",
+    "german": "Deutsch",
+    "language_changed": "Language changed successfully!",
+    "about": "About",
+    "version": "Version",
+    "app_description": "NovaDraw AI - Draw, create, and watch your art come to life with magic!"
   }
 }
