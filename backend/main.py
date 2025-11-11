@@ -14,6 +14,7 @@ from models import (
     ImageProcessResponse,
     StoryRequest,
     StoryResponse,
+    AudioToPromptResponse,
 )
 
 # from services.drawing_service import DrawingService
@@ -21,6 +22,7 @@ from models import (
 from services.local_db_service import LocalDatabaseService
 from services.image_processing_service import ImageProcessingService
 from services.story_service import StoryService
+from services.audio_service import AudioService
 
 # from utils import create_session_folder
 
@@ -65,6 +67,14 @@ if settings.openai_api_key:
     except Exception as e:
         print(f"Warning: Could not initialize story service: {e}")
 
+# Initialize audio service (only if OpenAI API key is available)
+audio_service = None
+if settings.openai_api_key:
+    try:
+        audio_service = AudioService()
+    except Exception as e:
+        print(f"Warning: Could not initialize audio service: {e}")
+
 
 # Health check routes
 @app.get("/", response_model=HealthResponse)
@@ -78,62 +88,6 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "API is running"}
 
-
-# Generate complete tutorial
-# AI-powered tutorial generation (commented out - using local database instead)
-# @app.post("/api/generate-tutorial", response_model=FullTutorialResponse)
-# async def generate_tutorial(request: FullTutorialRequest):
-#     """
-#     Generate a complete drawing tutorial with steps in English & German plus base64 images.
-#     """
-#     try:
-#         # Generate drawing steps in both languages
-#         steps, steps_german, _ = drawing_service.generate_steps(request.subject)
-
-#         # Create session folder for image storage
-#         session_folder, _ = create_session_folder(
-#             request.subject, settings.storage_path
-#         )
-
-#         # Generate images for all steps
-#         tutorial_steps = []
-#         previous_image_path = None
-
-#         for i, step_description in enumerate(steps, start=1):
-#             # Generate image for this step
-#             image_path, base64_image, _ = image_service.generate_step_image(
-#                 step_description=step_description,
-#                 subject=request.subject,
-#                 step_number=i,
-#                 session_folder=session_folder,
-#                 previous_image_path=previous_image_path,
-#             )
-
-#             # Create tutorial step
-#             tutorial_steps.append(
-#                 TutorialStep(
-#                     step_en=step_description,
-#                     step_de=steps_german[i - 1],
-#                     step_img=base64_image,
-#                 )
-#             )
-
-#             # Update for next iteration
-#             previous_image_path = image_path
-
-#         return FullTutorialResponse(
-#             success="true",
-#             metadata=TutorialMetadata(
-#                 subject=request.subject,
-#                 total_steps=len(tutorial_steps),
-#             ),
-#             steps=tutorial_steps,
-#         )
-
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=500, detail=f"Failed to generate tutorial: {str(e)}"
-#         )
 
 
 # Generate tutorial from local database
@@ -292,6 +246,115 @@ async def create_story(request: StoryRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to generate story: {str(e)}"
+        )
+
+
+# Edit image using audio prompt
+@app.post("/api/audio-to-prompt", response_model=AudioToPromptResponse)
+async def audio_to_prompt(
+    image: UploadFile = File(..., description="Image file to edit"),
+    audio: UploadFile = File(
+        ..., description="Audio file (mp3, wav, m4a, etc.) with editing instructions"
+    ),
+    language: str = Form(..., description="Language code: 'en' or 'de'"),
+):
+    """
+    Edit an uploaded image using voice instructions from an audio file.
+
+    Process:
+    1. Transcribe audio to text using OpenAI Whisper
+    2. Enhance the transcribed text into a detailed prompt
+    3. Edit the image using the enhanced prompt
+    4. Return the edited image
+
+    Supports multiple audio formats: mp3, wav, m4a, webm, ogg
+    Languages: English ('en') and German ('de')
+    """
+    try:
+        # Check if both services are available
+        if not audio_service:
+            raise HTTPException(
+                status_code=503,
+                detail="Audio transcription service not available. Please configure OpenAI API key.",
+            )
+
+        if not image_processing_service:
+            raise HTTPException(
+                status_code=503,
+                detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
+            )
+
+        # Validate language parameter
+        if language not in ["en", "de"]:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid language. Please provide 'en' or 'de'.",
+            )
+
+        # Validate image file type
+        if not image.content_type or not image.content_type.startswith("image/"):
+            raise HTTPException(
+                status_code=400, detail="Image file must be an image (JPEG, PNG, etc.)"
+            )
+
+        # Validate audio file type
+        if not audio.content_type:
+            raise HTTPException(
+                status_code=400, detail="Could not determine audio file type"
+            )
+
+        # Read both files
+        image_data = await image.read()
+        audio_data = await audio.read()
+
+        # Validate image
+        if not image_processing_service.validate_image(image_data):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid image or image too large (max 2048x2048)",
+            )
+
+        # Validate audio file
+        if not audio_service.validate_audio_file(audio_data, audio.content_type):
+            supported = audio_service.get_supported_formats()
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid audio file. Supported formats: {', '.join(supported['formats'])}. Max size: {supported['max_size_mb']}MB",
+            )
+
+        # Get file info for logging
+        image_info = image_processing_service.get_image_info(image_data)
+        audio_info = audio_service.get_audio_info(
+            audio_data, audio.filename or "audio.mp3"
+        )
+        print(f"Processing image: {image_info}")
+        print(f"Processing audio: {audio_info}")
+
+        # Step 1: Transcribe audio to text
+        transcribed_text, transcription_time = audio_service.transcribe_audio(
+            audio_data, language, audio.filename or "audio.mp3"
+        )
+
+        # Step 2: Process the image with the transcribed text
+        result_base64, processing_time = image_processing_service.process_image(
+            image_data, transcribed_text
+        )
+
+        total_time = transcription_time + processing_time
+
+        return AudioToPromptResponse(
+            success="true",
+            prompt=transcribed_text,  # Return the original transcribed text
+            result_image=result_base64,
+            processing_time=total_time,
+        )
+
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to process audio and image: {str(e)}"
         )
 
 
