@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:record/record.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
 import '../../../services/actions/drawing_api_service.dart';
@@ -16,7 +18,7 @@ class DrawingEditOptionsScreen extends StatefulWidget {
   final String drawingId;
   final File? uploadedImage;
 
-  const DrawingEditOptionsScreen({
+  DrawingEditOptionsScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,
@@ -38,6 +40,12 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   bool _isApplyingEdit = false;
   EditOption? _selectedEditOption;
   List<EditOption> _availableEditOptions = [];
+
+  // Audio recording state variables
+  final AudioRecorder audioRecorder = AudioRecorder();
+  bool _isRecording = false;
+  Uint8List? _recordingBytes; // Stores audio bytes directly (no disk I/O)
+  Duration _recordingDuration = Duration.zero;
 
   @override
   void initState() {
@@ -166,6 +174,205 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     );
   }
 
+  /// Start recording audio from the device microphone
+  /// Uses the 'record' package to capture AAC audio directly to memory
+  /// No temporary files are created - audio bytes are stored in _recordingBytes
+  void _startRecording() async {
+    try {
+      // Check if the app has permission to record audio
+      if (await audioRecorder.hasPermission()) {
+        print('🎤 Starting audio recording...');
+
+        // Start recording with AAC format (recommended for quality and compression)
+        // RecordConfig specifies the audio format and quality settings
+        // The record package will create a temporary file which we'll read into memory
+        final tempDir = Directory.systemTemp;
+        final tempPath =
+            '${tempDir.path}/audio_${DateTime.now().millisecondsSinceEpoch}.aac';
+
+        await audioRecorder.start(
+          const RecordConfig(
+            bitRate: 128000, // 128 kbps bitrate (good balance of quality/size)
+            sampleRate: 44100, // 44.1 kHz sample rate (CD quality)
+          ),
+          path: tempPath, // Temporary file path (will be deleted after reading)
+        );
+
+        // Update UI state to show recording is in progress
+        setState(() {
+          _isRecording = true;
+          _recordingDuration = Duration.zero;
+          _recordingBytes = null; // Clear any previous recording
+        });
+
+        print('✅ Audio recording started');
+
+        // TODO: Implement timer to update _recordingDuration every second
+        // This will display the elapsed time during recording
+      } else {
+        print('❌ Microphone permission denied');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('edit_options.no_recording'.tr()),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error starting recording: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Stop recording audio and store the bytes in memory
+  /// The audio bytes are NOT saved to disk - they're kept in RAM for direct transmission
+  void _stopRecording() async {
+    try {
+      if (!_isRecording) return;
+
+      print('🛑 Stopping audio recording...');
+
+      // Stop the recording and get the audio file path
+      final recordingPath = await audioRecorder.stop();
+
+      if (recordingPath != null) {
+        // Read the audio file into memory as bytes
+        // This converts the recorded file to Uint8List for direct backend transmission
+        final audioFile = File(recordingPath);
+        final audioBytes = await audioFile.readAsBytes();
+
+        print('✅ Audio recording stopped');
+        print('📊 Audio size: ${audioBytes.length} bytes');
+
+        // Update UI state to show recording is complete
+        setState(() {
+          _isRecording = false;
+          _recordingBytes = audioBytes; // Store bytes in memory
+        });
+
+        // Delete the temporary file since we have the bytes in memory
+        // This keeps the device storage clean
+        try {
+          await audioFile.delete();
+          print('🗑️  Temporary audio file deleted');
+        } catch (e) {
+          print('⚠️  Could not delete temporary file: $e');
+        }
+      }
+    } catch (e) {
+      print('❌ Error stopping recording: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Send the image and voice recording to the backend for AI enhancement
+  /// The audio bytes are sent directly without any disk I/O
+  /// Language is automatically detected from the app's current locale
+  void _sendWithVoice() async {
+    try {
+      // Validate that we have audio bytes to send
+      if (_recordingBytes == null || _recordingBytes!.isEmpty) {
+        print('❌ No recording available');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('edit_options.no_recording'.tr()),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+
+      // Validate that we have an image to edit
+      if (widget.uploadedImage == null) {
+        print('❌ No image available');
+        throw ApiException('Image is required');
+      }
+
+
+      print('🚀 Sending image with voice to backend...');
+
+      // Update UI to show processing state
+      setState(() {
+        _isApplyingEdit = true;
+      });
+
+      // Get the current app language ('en' or 'de')
+      final language = context.locale.languageCode;
+      print('💬 Language: $language');
+
+      // Call the API service to send both image and audio
+      // The audio bytes are sent directly to memory without saving to disk
+      final response = await DrawingApiService.editImageWithVoice(
+        imageFile: widget.uploadedImage!,
+        audioBytes: _recordingBytes!, // Send audio bytes directly
+        language: language, // Send current app language
+      );
+
+      if (mounted && response.success) {
+        print('✅ Image edited with voice successfully!');
+
+        // Decode the base64 edited image to bytes
+        final imageBytes = base64Decode(response.resultImage);
+
+        // Navigate to the final result screen with the edited image
+        context.pushReplacement(
+          '/drawings/${widget.categoryId}/${widget.drawingId}/result',
+          extra: {
+            'uploadedImage': widget.uploadedImage,
+            'editedImageBytes': imageBytes,
+            'selectedEditOption': _selectedEditOption,
+          },
+        );
+      }
+    } on ApiException catch (e) {
+      print('❌ API Error: ${e.message}');
+      if (mounted) {
+        setState(() {
+          _isApplyingEdit = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.message}'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      print('❌ Unexpected error: $e');
+      if (mounted) {
+        setState(() {
+          _isApplyingEdit = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Show applying edit loading
@@ -276,6 +483,11 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
             ),
 
             const SizedBox(height: 32),
+
+            // Voice recording section
+            _buildVoiceRecordingCard(),
+
+            const SizedBox(height: 24),
 
             // Edit options section
             _availableEditOptions.isEmpty
@@ -406,6 +618,230 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildVoiceRecordingCard() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.accent.withValues(alpha: 0.1),
+            AppColors.secondary.withValues(alpha: 0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.accent.withValues(alpha: 0.3),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accent.withValues(alpha: 0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          // Header with icon and title
+          Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.accent.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text('🎤', style: TextStyle(fontSize: 28)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'edit_options.voice_description'.tr(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                        fontFamily: 'Comic Sans MS',
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'edit_options.voice_description_subtitle'.tr(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textDark.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Recording status and buttons
+          if (!_isRecording && _recordingBytes == null)
+            // Start recording button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _startRecording,
+                icon: const Icon(Icons.mic),
+                label: Text('edit_options.start_recording'.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  elevation: 6,
+                  shadowColor: AppColors.accent.withValues(alpha: 0.3),
+                ),
+              ),
+            )
+          else if (_isRecording)
+            // Recording in progress
+            Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.error.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: AppColors.error,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'edit_options.recording'.tr(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _recordingDuration.toString().split('.').first,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textDark,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _stopRecording,
+                    icon: const Icon(Icons.stop),
+                    label: Text('edit_options.stop_recording'.tr()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 6,
+                      shadowColor: AppColors.error.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            // Recording complete
+            Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.success.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: AppColors.success,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'edit_options.recording_complete'.tr(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.success,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _sendWithVoice,
+                    icon: const Icon(Icons.send),
+                    label: Text('edit_options.send_with_voice'.tr()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 6,
+                      shadowColor: AppColors.accent.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }

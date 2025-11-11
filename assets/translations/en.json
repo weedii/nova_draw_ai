@@ -315,7 +315,15 @@
     "edit_applied": "Edit applied successfully!",
     "no_options_available": "No editing options available for this drawing",
     "keep_original": "Keep Original",
-    "your_drawing": "Your Drawing"
+    "your_drawing": "Your Drawing",
+    "voice_description": "Say Something Magic",
+    "voice_description_subtitle": "Tell your story and watch the magic happen!",
+    "start_recording": "Start Talking",
+    "stop_recording": "Done Talking",
+    "recording": "Listening...",
+    "recording_complete": "Got It!",
+    "send_with_voice": "Send My Story",
+    "no_recording": "Nothing yet"
   },
 
   "final_result": {

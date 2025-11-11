@@ -224,4 +224,71 @@ class DrawingApiService {
       return result;
     });
   }
+
+  /// Edit an image with AI using both a text prompt and voice input
+  /// The voice input provides additional context for the AI to enhance the image
+  ///
+  /// [imageFile] - The image file to edit
+  /// [audioBytes] - Raw audio data (AAC format recommended, no disk I/O needed)
+  /// [language] - Language code: 'en' for English or 'de' for German
+  ///
+  /// Returns [ApiImageEditResponse] with the edited image as base64
+  /// Throws [ApiException] on error
+  static Future<ApiImageEditResponse> editImageWithVoice({
+    required File imageFile,
+    required Uint8List audioBytes,
+    required String language,
+  }) async {
+    return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
+      print('🎨 Starting image edit with voice request');
+      print('📁 Image file: ${imageFile.path}');
+      print('🎤 Audio data: ${audioBytes.length} bytes');
+      print('💬 Language: $language');
+
+      // Validate inputs
+      if (!imageFile.existsSync()) {
+        print('❌ Image file does not exist!');
+        throw ApiException('Image file does not exist');
+      }
+
+      if (audioBytes.isEmpty) {
+        print('❌ Audio data is empty!');
+        throw ApiException('Audio data cannot be empty');
+      }
+
+      // Validate language code
+      if (language != 'en' && language != 'de') {
+        print('❌ Invalid language code: $language');
+        throw ApiException('Language must be "en" or "de"');
+      }
+
+      print('✅ All validations passed');
+
+      // Make multipart API request with both image and audio
+      // Audio bytes are sent directly without saving to disk (memory efficient)
+      final response = await BaseApiService.postMultipartWithAudio(
+        '/api/change this', // TODO: Update endpoint name when backend is ready
+        imageFile: imageFile,
+        imageFieldName: 'file', // Form field name for the image
+        audioBytes: audioBytes,
+        audioFieldName: 'audio', // Form field name for the audio
+        audioFormat: 'aac', // Audio format (AAC is recommended)
+        fields: {
+          'language': language, // Send language to backend for context
+        },
+      );
+
+      print('🎉 API request completed');
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+      final result = ApiImageEditResponse.fromJson(jsonData);
+
+      print(
+        '✅ Image edited with voice successfully! Processing time: ${result.processingTime}s',
+      );
+
+      return result;
+    });
+  }
 }

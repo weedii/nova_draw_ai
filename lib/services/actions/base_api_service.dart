@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'api_exceptions.dart';
@@ -119,7 +120,7 @@ abstract class BaseApiService {
     final url = Uri.parse('$_baseUrl$endpoint');
     final request = http.MultipartRequest('POST', url);
 
-    // Determine content type from file extension
+    // Determine content   type from file extension
     String? contentType;
     final extension = file.path.toLowerCase().split('.').last;
     switch (extension) {
@@ -161,6 +162,123 @@ abstract class BaseApiService {
     }
 
     print('🚀 Sending request to: $url');
+
+    // Send request
+    final streamedResponse = await request.send().timeout(timeout ?? _timeout);
+
+    print('📥 Response status: ${streamedResponse.statusCode}');
+
+    // Convert streamed response to regular response
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode >= 400) {
+      print('❌ Error response: ${response.body}');
+    } else {
+      print('✅ Success response received');
+    }
+
+    return response;
+  }
+
+  /// Make a multipart POST request with file and audio bytes
+  /// This method is specifically designed for sending both an image file and audio data
+  /// without saving the audio to disk
+  ///
+  /// [endpoint] - API endpoint path
+  /// [imageFile] - The image file to upload
+  /// [imageFieldName] - Form field name for the image (default: 'file')
+  /// [audioBytes] - Raw audio data (e.g., AAC bytes from recording)
+  /// [audioFieldName] - Form field name for the audio (default: 'audio')
+  /// [audioFormat] - Audio format identifier (e.g., 'aac', 'mp4', 'wav')
+  /// [fields] - Additional form fields to send
+  /// [timeout] - Request timeout duration
+  static Future<http.Response> postMultipartWithAudio(
+    String endpoint, {
+    required File imageFile,
+    required String imageFieldName,
+    required Uint8List audioBytes,
+    required String audioFieldName,
+    required String audioFormat,
+    Map<String, String>? fields,
+    Duration? timeout,
+  }) async {
+    final url = Uri.parse('$_baseUrl$endpoint');
+    final request = http.MultipartRequest('POST', url);
+
+    // Determine image content type from file extension
+    String imageContentType;
+    final imageExtension = imageFile.path.toLowerCase().split('.').last;
+    switch (imageExtension) {
+      case 'jpg':
+      case 'jpeg':
+        imageContentType = 'image/jpeg';
+        break;
+      case 'png':
+        imageContentType = 'image/png';
+        break;
+      case 'gif':
+        imageContentType = 'image/gif';
+        break;
+      case 'webp':
+        imageContentType = 'image/webp';
+        break;
+      default:
+        imageContentType = 'image/jpeg';
+    }
+
+    print('📤 Uploading image and audio...');
+    print('🖼️  Image file: ${imageFile.path}');
+    print('📝 Image Content-Type: $imageContentType');
+    print('📊 Image size: ${imageFile.lengthSync()} bytes');
+
+    // Add image file with explicit content type
+    final imageMultipartFile = await http.MultipartFile.fromPath(
+      imageFieldName,
+      imageFile.path,
+      contentType: MediaType.parse(imageContentType),
+    );
+    request.files.add(imageMultipartFile);
+    print('✅ Image added to request');
+
+    // Add audio bytes directly without saving to disk
+    // Determine audio MIME type based on format
+    String audioMimeType;
+    switch (audioFormat.toLowerCase()) {
+      case 'aac':
+        audioMimeType = 'audio/aac';
+        break;
+      case 'mp4':
+        audioMimeType = 'audio/mp4';
+        break;
+      case 'wav':
+        audioMimeType = 'audio/wav';
+        break;
+      case 'ogg':
+      case 'opus':
+        audioMimeType = 'audio/ogg';
+        break;
+      default:
+        audioMimeType = 'audio/aac'; // Default to AAC
+    }
+
+    // Create multipart file from bytes (no disk I/O needed)
+    final audioMultipartFile = http.MultipartFile(
+      audioFieldName,
+      Stream.value(audioBytes),
+      audioBytes.length,
+      filename: 'audio.$audioFormat',
+      contentType: MediaType.parse(audioMimeType),
+    );
+    request.files.add(audioMultipartFile);
+    print('🎤 Audio added to request (${audioBytes.length} bytes, format: $audioFormat)');
+
+    // Add additional fields
+    if (fields != null) {
+      request.fields.addAll(fields);
+      print('📋 Additional fields: $fields');
+    }
+
+    print('🚀 Sending multipart request to: $url');
 
     // Send request
     final streamedResponse = await request.send().timeout(timeout ?? _timeout);

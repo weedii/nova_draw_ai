@@ -315,7 +315,15 @@
     "edit_applied": "Bearbeitung erfolgreich angewendet!",
     "no_options_available": "Keine Bearbeitungsoptionen für diese Zeichnung verfügbar",
     "keep_original": "Original behalten",
-    "your_drawing": "Deine Zeichnung"
+    "your_drawing": "Deine Zeichnung",
+    "voice_description": "Sag Etwas Magisches",
+    "voice_description_subtitle": "Erzähle deine Geschichte und lass die Magie geschehen!",
+    "start_recording": "Anfangen zu Sprechen",
+    "stop_recording": "Fertig Sprechen",
+    "recording": "Ich Lausche...",
+    "recording_complete": "Verstanden!",
+    "send_with_voice": "Meine Geschichte Senden",
+    "no_recording": "Noch nichts"
   },
 
   "final_result": {
