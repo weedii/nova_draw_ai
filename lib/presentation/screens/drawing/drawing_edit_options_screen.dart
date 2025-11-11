@@ -190,10 +190,12 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         final tempPath =
             '${tempDir.path}/audio_${DateTime.now().millisecondsSinceEpoch}.aac';
 
+        // Try recording without autoGain and noiseSuppress which may not be available
         await audioRecorder.start(
           const RecordConfig(
             bitRate: 128000, // 128 kbps bitrate (good balance of quality/size)
             sampleRate: 44100, // 44.1 kHz sample rate (CD quality)
+            numChannels: 1, // Mono recording
           ),
           path: tempPath, // Temporary file path (will be deleted after reading)
         );
@@ -245,28 +247,58 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       final recordingPath = await audioRecorder.stop();
 
       if (recordingPath != null) {
-        // Read the audio file into memory as bytes
-        // This converts the recorded file to Uint8List for direct backend transmission
         final audioFile = File(recordingPath);
-        final audioBytes = await audioFile.readAsBytes();
+        final fileExists = await audioFile.exists();
 
-        print('✅ Audio recording stopped');
-        print('📊 Audio size: ${audioBytes.length} bytes');
+        if (fileExists) {
+          // Get file info
+          final fileStat = await audioFile.stat();
+          print('📊 File size: ${fileStat.size} bytes');
+          print('📁 File path: ${audioFile.path}');
 
-        // Update UI state to show recording is complete
-        setState(() {
-          _isRecording = false;
-          _recordingBytes = audioBytes; // Store bytes in memory
-        });
+          // Read the audio file into memory as bytes
+          // This converts the recorded file to Uint8List for direct backend transmission
+          final audioBytes = await audioFile.readAsBytes();
 
-        // Delete the temporary file since we have the bytes in memory
-        // This keeps the device storage clean
-        try {
-          await audioFile.delete();
-          print('🗑️  Temporary audio file deleted');
-        } catch (e) {
-          print('⚠️  Could not delete temporary file: $e');
+          print('✅ Audio recording stopped');
+          print('🎵 Audio bytes loaded: ${audioBytes.length} bytes');
+
+          // Update UI state to show recording is complete
+          setState(() {
+            _isRecording = false;
+            _recordingBytes = audioBytes; // Store bytes in memory
+          });
+
+          // TODO: For debugging - save a copy to Downloads folder to inspect
+          // Uncomment the code below to save the audio file for testing
+          try {
+            final downloadsDir = Directory('/storage/emulated/0/Download');
+            if (await downloadsDir.exists()) {
+              final debugFile = File(
+                '${downloadsDir.path}/audio_debug_${DateTime.now().millisecondsSinceEpoch}.aac',
+              );
+              await debugFile.writeAsBytes(audioBytes);
+              print('💾 Debug copy saved to: ${debugFile.path}');
+            }
+          } catch (e) {
+            print('⚠️  Could not save debug copy: $e');
+          }
+
+          // Delete the temporary file since we have the bytes in memory
+          // This keeps the device storage clean
+          try {
+            await audioFile.delete();
+            print('🗑️  Temporary audio file deleted');
+          } catch (e) {
+            print('⚠️  Could not delete temporary file: $e');
+          }
+        } else {
+          print('❌ Recording file was not created at: $recordingPath');
+          throw Exception('Recording file not found at: $recordingPath');
         }
+      } else {
+        print('❌ Recording path is null - recording may have failed');
+        throw Exception('Recording path is null');
       }
     } catch (e) {
       print('❌ Error stopping recording: $e');
@@ -303,7 +335,6 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         print('❌ No image available');
         throw ApiException('Image is required');
       }
-
 
       print('🚀 Sending image with voice to backend...');
 

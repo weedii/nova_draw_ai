@@ -14,7 +14,7 @@ from models import (
     ImageProcessResponse,
     StoryRequest,
     StoryResponse,
-    AudioToPromptResponse,
+    EditImageWithAudioResponse,
 )
 
 # from services.drawing_service import DrawingService
@@ -249,8 +249,8 @@ async def create_story(request: StoryRequest):
 
 
 # Edit image using audio prompt
-@app.post("/api/audio-to-prompt", response_model=AudioToPromptResponse)
-async def audio_to_prompt(
+@app.post("/api/edit-image-with-audio", response_model=EditImageWithAudioResponse)
+async def edit_image_with_audio(
     image: UploadFile = File(..., description="Image file to edit"),
     audio: UploadFile = File(
         ...,
@@ -342,7 +342,7 @@ async def audio_to_prompt(
 
         total_time = transcription_time + processing_time
 
-        return AudioToPromptResponse(
+        return EditImageWithAudioResponse(
             success="true",
             prompt=transcribed_text,  # Return the original transcribed text
             result_image=result_base64,

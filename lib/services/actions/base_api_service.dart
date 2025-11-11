@@ -1,20 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'api_exceptions.dart';
 
 /// Base class for all API services providing common functionality
 abstract class BaseApiService {
-  /// Base URL for the backend API
-  static const String _baseUrl = 'http://192.168.0.26:8000';
-
   /// Timeout duration for API requests
   static const Duration _timeout = Duration(seconds: 180);
 
-  /// Get the base URL for API requests
-  static String get baseUrl => _baseUrl;
+  /// Get the base URL for API requests from .env file
+  /// Falls back to default URL if not configured
+  static String? get baseUrl {
+    final url = dotenv.env['API_BASE_URL'];
+    return url;
+  }
 
   /// Get the timeout duration for API requests
   static Duration get timeout => _timeout;
@@ -25,7 +26,7 @@ abstract class BaseApiService {
     Map<String, String>? headers,
     Duration? timeout,
   }) async {
-    final url = Uri.parse('$_baseUrl$endpoint');
+    final url = Uri.parse('$baseUrl$endpoint');
     final defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -47,7 +48,7 @@ abstract class BaseApiService {
     Map<String, String>? headers,
     Duration? timeout,
   }) async {
-    final url = Uri.parse('$_baseUrl$endpoint');
+    final url = Uri.parse('$baseUrl$endpoint');
     final defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -71,7 +72,7 @@ abstract class BaseApiService {
     Map<String, String>? headers,
     Duration? timeout,
   }) async {
-    final url = Uri.parse('$_baseUrl$endpoint');
+    final url = Uri.parse('$baseUrl$endpoint');
     final defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -94,7 +95,7 @@ abstract class BaseApiService {
     Map<String, String>? headers,
     Duration? timeout,
   }) async {
-    final url = Uri.parse('$_baseUrl$endpoint');
+    final url = Uri.parse('$baseUrl$endpoint');
     final defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -117,10 +118,10 @@ abstract class BaseApiService {
     Map<String, String>? fields,
     Duration? timeout,
   }) async {
-    final url = Uri.parse('$_baseUrl$endpoint');
+    final url = Uri.parse('$baseUrl$endpoint');
     final request = http.MultipartRequest('POST', url);
 
-    // Determine content   type from file extension
+    // Determine content type from file extension
     String? contentType;
     final extension = file.path.toLowerCase().split('.').last;
     switch (extension) {
@@ -202,7 +203,7 @@ abstract class BaseApiService {
     Map<String, String>? fields,
     Duration? timeout,
   }) async {
-    final url = Uri.parse('$_baseUrl$endpoint');
+    final url = Uri.parse('$baseUrl$endpoint');
     final request = http.MultipartRequest('POST', url);
 
     // Determine image content type from file extension
@@ -270,7 +271,9 @@ abstract class BaseApiService {
       contentType: MediaType.parse(audioMimeType),
     );
     request.files.add(audioMultipartFile);
-    print('🎤 Audio added to request (${audioBytes.length} bytes, format: $audioFormat)');
+    print(
+      '🎤 Audio added to request (${audioBytes.length} bytes, format: $audioFormat)',
+    );
 
     // Add additional fields
     if (fields != null) {

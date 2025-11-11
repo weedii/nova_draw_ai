@@ -102,7 +102,7 @@ class StoryResponse(BaseModel):
     generation_time: Optional[float] = None
 
 
-class AudioToPromptResponse(BaseModel):
+class EditImageWithAudioResponse(BaseModel):
     success: str  # "true" or "false" as string
     prompt: str  # Enhanced drawing prompt (matches ImageProcessResponse structure)
     result_image: str  # The enhanced prompt text (named for consistency with ImageProcessResponse)

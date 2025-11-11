@@ -267,14 +267,14 @@ class DrawingApiService {
       // Make multipart API request with both image and audio
       // Audio bytes are sent directly without saving to disk (memory efficient)
       final response = await BaseApiService.postMultipartWithAudio(
-        '/api/change this', // TODO: Update endpoint name when backend is ready
+        '/api/edit-image-with-audio',
         imageFile: imageFile,
-        imageFieldName: 'file', // Form field name for the image
+        imageFieldName: 'image', // Form field name for the image
         audioBytes: audioBytes,
         audioFieldName: 'audio', // Form field name for the audio
-        audioFormat: 'aac', // Audio format (AAC is recommended)
+        audioFormat: 'aac', // Audio format
         fields: {
-          'language': language, // Send language to backend for context
+          'language': language, // Language ('en' or 'de')
         },
       );
 
