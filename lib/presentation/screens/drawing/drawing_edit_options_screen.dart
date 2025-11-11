@@ -271,18 +271,18 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
           // TODO: For debugging - save a copy to Downloads folder to inspect
           // Uncomment the code below to save the audio file for testing
-          try {
-            final downloadsDir = Directory('/storage/emulated/0/Download');
-            if (await downloadsDir.exists()) {
-              final debugFile = File(
-                '${downloadsDir.path}/audio_debug_${DateTime.now().millisecondsSinceEpoch}.aac',
-              );
-              await debugFile.writeAsBytes(audioBytes);
-              print('💾 Debug copy saved to: ${debugFile.path}');
-            }
-          } catch (e) {
-            print('⚠️  Could not save debug copy: $e');
-          }
+          // try {
+          //   final downloadsDir = Directory('/storage/emulated/0/Download');
+          //   if (await downloadsDir.exists()) {
+          //     final debugFile = File(
+          //       '${downloadsDir.path}/audio_debug_${DateTime.now().millisecondsSinceEpoch}.aac',
+          //     );
+          //     await debugFile.writeAsBytes(audioBytes);
+          //     print('💾 Debug copy saved to: ${debugFile.path}');
+          //   }
+          // } catch (e) {
+          //   print('⚠️  Could not save debug copy: $e');
+          // }
 
           // Delete the temporary file since we have the bytes in memory
           // This keeps the device storage clean
