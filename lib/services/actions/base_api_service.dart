@@ -14,7 +14,8 @@ abstract class BaseApiService {
   /// Get the base URL for API requests from .env file
   /// Falls back to default URL if not configured
   static String? get baseUrl {
-    final url = dotenv.env['API_BASE_URL'];
+    // final url = dotenv.env['API_BASE_URL'];
+    final url = "https://comfortingly-snarly-elliott.ngrok-free.dev";
     return url;
   }
 
