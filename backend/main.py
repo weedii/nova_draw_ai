@@ -89,7 +89,6 @@ async def health_check():
     return {"status": "healthy", "message": "API is running"}
 
 
-
 # Generate tutorial from local database
 @app.post("/api/generate-tutorial", response_model=FullTutorialResponse)
 async def generate_tutorial_local(request: FullTutorialRequest):
@@ -254,7 +253,8 @@ async def create_story(request: StoryRequest):
 async def audio_to_prompt(
     image: UploadFile = File(..., description="Image file to edit"),
     audio: UploadFile = File(
-        ..., description="Audio file (mp3, wav, m4a, etc.) with editing instructions"
+        ...,
+        description="Audio file (mp3, wav, m4a, aac, webm, ogg, flac) with editing instructions",
     ),
     language: str = Form(..., description="Language code: 'en' or 'de'"),
 ):
@@ -267,7 +267,7 @@ async def audio_to_prompt(
     3. Edit the image using the enhanced prompt
     4. Return the edited image
 
-    Supports multiple audio formats: mp3, wav, m4a, webm, ogg
+    Supports multiple audio formats: mp3, wav, m4a, aac, webm, ogg, flac
     Languages: English ('en') and German ('de')
     """
     try:

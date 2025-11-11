@@ -5,6 +5,9 @@ from pathlib import Path
 from openai import OpenAI
 from typing import Tuple
 from config import settings
+import io
+import subprocess
+import tempfile
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +36,119 @@ class AudioService:
         logger.info(f"Using Whisper model: {self.whisper_model}")
         logger.info(f"Using enhancement model: {self.enhancement_model}")
 
+    def convert_audio_to_mp3(
+        self, audio_data: bytes, original_filename: str
+    ) -> Tuple[bytes, str]:
+        """
+        Convert audio to MP3 format if needed.
+        Uses pydub with imageio-ffmpeg for conversion.
+
+        Args:
+            audio_data: Original audio file data
+            original_filename: Original filename
+
+        Returns:
+            Tuple of (converted_audio_data, new_filename)
+        """
+        file_ext = Path(original_filename).suffix.lower().replace(".", "")
+
+        # Whisper supported formats
+        whisper_formats = [
+            "flac",
+            "m4a",
+            "mp3",
+            "mp4",
+            "mpeg",
+            "mpga",
+            "oga",
+            "ogg",
+            "wav",
+            "webm",
+        ]
+
+        # If already supported, return as-is
+        if file_ext in whisper_formats:
+            logger.info(f"✅ Audio format '{file_ext}' is supported by Whisper")
+            return audio_data, original_filename
+
+        # Convert unsupported formats (like AAC) to MP3
+        logger.info(f"🔄 Converting '{file_ext}' to MP3...")
+
+        try:
+            import imageio_ffmpeg
+
+            # Get ffmpeg path from imageio
+            ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+            logger.info(f"📦 Using ffmpeg from: {ffmpeg_path}")
+
+            # Create temporary files for conversion
+            with tempfile.NamedTemporaryFile(
+                suffix=f".{file_ext}", delete=False
+            ) as input_file:
+                input_file.write(audio_data)
+                input_path = input_file.name
+
+            with tempfile.NamedTemporaryFile(
+                suffix=".mp3", delete=False
+            ) as output_file:
+                output_path = output_file.name
+
+            try:
+                # Use ffmpeg directly to convert
+                command = [
+                    ffmpeg_path,
+                    "-i",
+                    input_path,
+                    "-vn",  # No video
+                    "-ar",
+                    "44100",  # Audio sample rate
+                    "-ac",
+                    "2",  # Audio channels
+                    "-b:a",
+                    "128k",  # Audio bitrate
+                    "-f",
+                    "mp3",  # Output format
+                    output_path,
+                    "-y",  # Overwrite output file
+                    "-loglevel",
+                    "error",  # Only show errors
+                ]
+
+                logger.info(f"🔧 Running ffmpeg conversion...")
+                result = subprocess.run(
+                    command, capture_output=True, text=True, timeout=30
+                )
+
+                if result.returncode != 0:
+                    logger.error(f"❌ ffmpeg error: {result.stderr}")
+                    raise ValueError(f"ffmpeg conversion failed: {result.stderr}")
+
+                # Read converted file
+                with open(output_path, "rb") as f:
+                    converted_data = f.read()
+
+                new_filename = Path(original_filename).stem + ".mp3"
+
+                logger.info(
+                    f"✅ Conversion successful: {len(audio_data)} → {len(converted_data)} bytes"
+                )
+
+                return converted_data, new_filename
+
+            finally:
+                # Clean up temporary files
+                try:
+                    Path(input_path).unlink()
+                    Path(output_path).unlink()
+                except:
+                    pass
+
+        except Exception as e:
+            logger.error(f"❌ Conversion failed: {str(e)}")
+            raise ValueError(
+                f"Failed to convert audio format '{file_ext}' to MP3. Error: {str(e)}"
+            )
+
     def transcribe_audio(
         self, audio_data: bytes, language: str = "en", filename: str = "audio.mp3"
     ) -> Tuple[str, float]:
@@ -53,6 +169,9 @@ class AudioService:
         start_time = time.time()
 
         try:
+            # Convert to supported format if needed
+            audio_data, filename = self.convert_audio_to_mp3(audio_data, filename)
+
             # Save audio temporarily for Whisper API
             temp_audio_path = self.audio_storage / f"temp_{int(time.time())}_{filename}"
             logger.info(f"📁 Saving temporary audio file: {temp_audio_path.name}")
@@ -285,8 +404,16 @@ class AudioService:
             "audio/x-wav",
             "audio/mp4",
             "audio/m4a",
+            "audio/x-m4a",
+            "audio/aac",  # aac
+            "audio/aacp",
+            "audio/x-aac",
+            "audio/vnd.dlna.adts",  # AAC ADTS format
+            "audio/flac",
+            "audio/x-flac",
             "audio/webm",
             "audio/ogg",
+            "application/octet-stream",  # Generic binary
         ]
 
         if content_type not in valid_types:
@@ -302,7 +429,7 @@ class AudioService:
             Dictionary with supported formats info
         """
         return {
-            "formats": ["mp3", "wav", "m4a", "webm", "ogg"],
+            "formats": ["mp3", "wav", "m4a", "aac", "webm", "ogg", "flac"],
             "max_size_mb": 25,
             "languages": ["en", "de"],
         }
