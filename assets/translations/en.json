@@ -345,7 +345,9 @@
     "no_image_to_save": "No image to save...",
     "drawing_saved_successfully": "Drawing saved to your gallery! 🎉",
     "failed_to_save_drawing": "Failed to save drawing...",
-    "error_saving_drawing": "Error saving drawing"
+    "error_saving_drawing": "Error saving drawing",
+    "original": "Original",
+    "edited": "Enhanced"
   },
 
   "settings": {

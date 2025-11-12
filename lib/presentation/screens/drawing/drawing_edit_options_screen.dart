@@ -391,13 +391,26 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         // Decode the base64 edited image to bytes
         final imageBytes = base64Decode(response.resultImage);
 
+        // Create a voice edit option to represent the voice-based editing
+        final voiceEditOption = EditOption(
+          id: 'voice_edit',
+          titleEn: 'Voice Story',
+          titleDe: 'Sprachgeschichte',
+          descriptionEn: 'Edited with your voice',
+          descriptionDe: 'Mit deiner Stimme bearbeitet',
+          emoji: '🎤',
+          color: AppColors.accent,
+          promptEn: 'Voice-based editing',
+          promptDe: 'Sprachbasierte Bearbeitung',
+        );
+
         // Navigate to the final result screen with the edited image
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
             'uploadedImage': widget.uploadedImage,
             'editedImageBytes': imageBytes,
-            'selectedEditOption': _selectedEditOption,
+            'selectedEditOption': voiceEditOption,
           },
         );
       }

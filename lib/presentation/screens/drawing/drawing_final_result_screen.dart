@@ -38,7 +38,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  bool _showComparison = false;
+  bool _showEditedImage = true; // Track which image to display
 
   @override
   void initState() {
@@ -71,9 +71,9 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
     super.dispose();
   }
 
-  void _toggleComparison() {
+  void _toggleImageView() {
     setState(() {
-      _showComparison = !_showComparison;
+      _showEditedImage = !_showEditedImage;
     });
   }
 
@@ -249,18 +249,6 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
             // Edit option info (if applied)
             if (widget.selectedEditOption != null) _buildEditInfoCard(),
 
-            const SizedBox(height: 16),
-
-            // Comparison toggle (only if edit was applied)
-            if (widget.selectedEditOption != null && !_showComparison)
-              CustomButton(
-                label: 'common.compare',
-                onPressed: _toggleComparison,
-                variant: 'text',
-                textColor: AppColors.primary,
-                icon: Icons.compare,
-              ),
-
             const SizedBox(height: 24),
 
             // Action buttons
@@ -272,167 +260,12 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   }
 
   Widget _buildImageDisplay() {
-    if (_showComparison && widget.selectedEditOption != null) {
-      return Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    'ai_enhancement.original'.tr(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.border.withValues(alpha: 0.5),
-                          AppColors.background.withValues(alpha: 0.3),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-
-                    child: widget.uploadedImage != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.file(
-                              widget.uploadedImage!,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                            ),
-                          )
-                        : const Center(
-                            child: Icon(
-                              Icons.image,
-                              size: 40,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    'ai_enhancement.enhanced'.tr(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          widget.selectedEditOption!.color.withValues(
-                            alpha: 0.3,
-                          ),
-                          widget.selectedEditOption!.color.withValues(
-                            alpha: 0.1,
-                          ),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-
-                    child: widget.editedImageBytes != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Stack(
-                              children: [
-                                Image.memory(
-                                  widget.editedImageBytes!,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                                // Overlay to simulate edit effect
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        widget.selectedEditOption!.color
-                                            .withValues(alpha: 0.2),
-                                        Colors.transparent,
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                // Edit option emoji overlay
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.9,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      widget.selectedEditOption!.emoji,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  widget.selectedEditOption!.emoji,
-                                  style: const TextStyle(fontSize: 32),
-                                ),
-                                const SizedBox(height: 8),
-                                const Icon(
-                                  Icons.auto_fix_high,
-                                  size: 24,
-                                  color: AppColors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-
-    // Single image view (enhanced or original)
+    // Single image view with switcher at bottom
     return widget.uploadedImage != null || widget.editedImageBytes != null
         ? Stack(
             children: [
-              // Show edited image if available, otherwise show original
-              if (widget.editedImageBytes != null)
+              // Show edited image if available and selected, otherwise show original
+              if (_showEditedImage && widget.editedImageBytes != null)
                 Image.memory(
                   widget.editedImageBytes!,
                   fit: BoxFit.cover,
@@ -447,7 +280,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                   height: double.infinity,
                 ),
 
-              // Edit option indicator
+              // Edit option emoji overlay (always displayed when edit is applied)
               if (widget.selectedEditOption != null)
                 Positioned(
                   top: 16,
@@ -460,37 +293,134 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: widget.selectedEditOption!.color.withValues(
-                          alpha: 0.5,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.selectedEditOption!.color.withValues(
-                              alpha: 0.3,
-                            ),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
                         ],
                       ),
+                      child: Text(
+                        widget.selectedEditOption!.emoji,
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Image switcher at bottom (only if edit was applied)
+              if (widget.selectedEditOption != null)
+                Positioned(
+                  bottom: 12,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            widget.selectedEditOption!.emoji,
-                            style: const TextStyle(fontSize: 16),
+                          GestureDetector(
+                            onTap: () => _toggleImageView(),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                color: !_showEditedImage
+                                    ? widget.selectedEditOption!.color
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.image,
+                                    color: !_showEditedImage
+                                        ? AppColors.white
+                                        : AppColors.textDark.withValues(
+                                            alpha: 0.4,
+                                          ),
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'final_result.original'.tr(),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: !_showEditedImage
+                                          ? AppColors.white
+                                          : AppColors.textDark.withValues(
+                                              alpha: 0.4,
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(
-                            Icons.auto_fix_high,
-                            size: 16,
-                            color: AppColors.white,
+                          GestureDetector(
+                            onTap: () => _toggleImageView(),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _showEditedImage
+                                    ? widget.selectedEditOption!.color
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.auto_fix_high,
+                                    color: _showEditedImage
+                                        ? AppColors.white
+                                        : AppColors.textDark.withValues(
+                                            alpha: 0.4,
+                                          ),
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'final_result.edited'.tr(),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: _showEditedImage
+                                          ? AppColors.white
+                                          : AppColors.textDark.withValues(
+                                              alpha: 0.4,
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),

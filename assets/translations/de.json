@@ -345,7 +345,9 @@
     "no_image_to_save": "Kein Bild zum Speichern...",
     "drawing_saved_successfully": "Zeichnung in deiner Galerie gespeichert! 🎉",
     "failed_to_save_drawing": "Fehler beim Speichern der Zeichnung...",
-    "error_saving_drawing": "Fehler beim Speichern der Zeichnung"
+    "error_saving_drawing": "Fehler beim Speichern der Zeichnung",
+    "original": "Original",
+    "edited": "Bearbeitet"
   },
 
   "settings": {
