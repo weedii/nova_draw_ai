@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -46,6 +47,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   bool _isRecording = false;
   Uint8List? _recordingBytes; // Stores audio bytes directly (no disk I/O)
   Duration _recordingDuration = Duration.zero;
+  Timer? _recordingTimer; // Timer to update recording duration
 
   @override
   void initState() {
@@ -78,7 +80,14 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
+    _recordingTimer?.cancel(); // Cancel the recording timer if active
     super.dispose();
+  }
+
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   void _loadEditOptions() {
@@ -209,8 +218,14 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
         print('✅ Audio recording started');
 
-        // TODO: Implement timer to update _recordingDuration every second
-        // This will display the elapsed time during recording
+        // Start a timer to update the recording duration every second
+        _recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          if (mounted && _isRecording) {
+            setState(() {
+              _recordingDuration += const Duration(seconds: 1);
+            });
+          }
+        });
       } else {
         print('❌ Microphone permission denied');
         if (mounted) {
@@ -242,6 +257,10 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       if (!_isRecording) return;
 
       print('🛑 Stopping audio recording...');
+
+      // Cancel the recording timer
+      _recordingTimer?.cancel();
+      _recordingTimer = null;
 
       // Stop the recording and get the audio file path
       final recordingPath = await audioRecorder.stop();
@@ -311,6 +330,16 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         );
       }
     }
+  }
+
+  /// Restart recording - clear the current recording and start fresh
+  void _restartRecording() {
+    setState(() {
+      _recordingBytes = null;
+      _recordingDuration = Duration.zero;
+      _isRecording = false;
+    });
+    _startRecording();
   }
 
   /// Send the image and voice recording to the backend for AI enhancement
@@ -785,7 +814,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        _recordingDuration.toString().split('.').first,
+                        _formatDuration(_recordingDuration),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -852,23 +881,49 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _sendWithVoice,
-                    icon: const Icon(Icons.send),
-                    label: Text('edit_options.send_with_voice'.tr()),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      foregroundColor: AppColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                // Two buttons: Restart and Send
+                Row(
+                  children: [
+                    // Restart Recording button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _restartRecording,
+                        icon: const Icon(Icons.refresh),
+                        label: Text('edit_options.restart_recording'.tr()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.error.withValues(
+                            alpha: 0.8,
+                          ),
+                          foregroundColor: AppColors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 4,
+                          shadowColor: AppColors.error.withValues(alpha: 0.3),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 6,
-                      shadowColor: AppColors.accent.withValues(alpha: 0.3),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    // Send My Story button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _sendWithVoice,
+                        icon: const Icon(Icons.send),
+                        label: Text('edit_options.send_with_voice'.tr()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent,
+                          foregroundColor: AppColors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 6,
+                          shadowColor: AppColors.accent.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -67,11 +67,11 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     // Start animations
     _fadeController.forward();
 
-    // Simulate AI story generation
-    _generateStory();
-
-    // Initialize TTS
-    initTTS();
+    // Defer context-dependent operations(both are using context.locale) to after the widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _generateStory();
+      initTTS();
+    });
   }
 
   @override
@@ -216,7 +216,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     try {
       // Get current app language
       String currentLanguage = context.locale.languageCode;
-      
+
       // Call the API to generate story with the current language
       final response = await DrawingApiService.createStory(
         imageData: widget.drawingImage,

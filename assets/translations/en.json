@@ -278,7 +278,7 @@
     "error_enhancing": "Something went wrong while enhancing your drawing.",
     "original": "Original",
     "enhanced": "Enhanced ✨",
-    "enhanced_drawing_title": "Enhanced Drawing ✨",
+    "enhanced_drawing_title": "Enhanced Drawing",
     "artwork_enhanced": "Your artwork has been magically enhanced!"
   },
 
@@ -322,6 +322,7 @@
     "stop_recording": "Done Talking",
     "recording": "Listening...",
     "recording_complete": "Got It!",
+    "restart_recording": "Restart Recording",
     "send_with_voice": "Send My Story",
     "no_recording": "Nothing yet"
   },
@@ -329,7 +330,12 @@
   "final_result": {
     "your_amazing_drawing": "Your Amazing Drawing!",
     "great_job_drawing": "Great job! Your drawing looks fantastic!",
-    "save_functionality_coming": "Save functionality will be implemented soon! 💾"
+    "save_functionality_coming": "Save functionality will be implemented soon! 💾",
+    "saving_drawing": "Saving your drawing...",
+    "no_image_to_save": "No image to save...",
+    "drawing_saved_successfully": "Drawing saved to your gallery! 🎉",
+    "failed_to_save_drawing": "Failed to save drawing...",
+    "error_saving_drawing": "Error saving drawing"
   },
 
   "settings": {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
 import '../../animations/app_animations.dart';
@@ -75,19 +76,90 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
     });
   }
 
-  void _saveDrawing() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('final_result.save_functionality_coming'.tr()),
-        backgroundColor: AppColors.success,
-      ),
-    );
+  void _saveDrawing() async {
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('final_result.saving_drawing'.tr()),
+          backgroundColor: AppColors.primary,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Get the image to save
+      Uint8List? imageBytes;
+      if (widget.editedImageBytes != null) {
+        imageBytes = widget.editedImageBytes;
+      } else if (widget.uploadedImage != null) {
+        imageBytes = await widget.uploadedImage!.readAsBytes();
+      }
+
+      if (imageBytes == null || imageBytes.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('final_result.no_image_to_save'.tr()),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Generate filename with timestamp (SaverGallery adds extension automatically)
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filename = 'NovaDrawAI_$timestamp';
+
+      // Save to gallery
+      final result = await SaverGallery.saveImage(
+        imageBytes,
+        quality: 100,
+        fileName: filename,
+        androidRelativePath: 'Pictures/NovaDraw',
+        skipIfExists: false,
+      );
+
+      if (mounted) {
+        if (result.isSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('final_result.drawing_saved_successfully'.tr()),
+              backgroundColor: AppColors.success,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          print('✅ Drawing saved successfully to gallery');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('final_result.failed_to_save_drawing'.tr()),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          print('❌ Failed to save drawing: ${result.errorMessage}');
+        }
+      }
+    } catch (e) {
+      print('❌ Error saving drawing: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('final_result.error_saving_drawing'.tr()),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   void _createStory() {
     // Pass edited image if available, otherwise pass uploaded image
     final imageToPass = widget.editedImageBytes ?? widget.uploadedImage;
-    
+
     context.push(
       '/drawings/${widget.categoryId}/${widget.drawingId}/story',
       extra: imageToPass,

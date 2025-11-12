@@ -278,7 +278,7 @@
     "error_enhancing": "Beim Verbessern deiner Zeichnung ist etwas schief gelaufen.",
     "original": "Original",
     "enhanced": "Verbessert ✨",
-    "enhanced_drawing_title": "Verbesserte Zeichnung ✨",
+    "enhanced_drawing_title": "Verbesserte Zeichnung",
     "artwork_enhanced": "Dein Kunstwerk wurde magisch verbessert!"
   },
 
@@ -322,6 +322,7 @@
     "stop_recording": "Fertig Sprechen",
     "recording": "Ich Lausche...",
     "recording_complete": "Verstanden!",
+    "restart_recording": "Aufnahme Neu Starten",
     "send_with_voice": "Meine Geschichte Senden",
     "no_recording": "Noch nichts"
   },
@@ -329,7 +330,12 @@
   "final_result": {
     "your_amazing_drawing": "Deine fantastische Zeichnung!",
     "great_job_drawing": "Großartige Arbeit! Deine Zeichnung sieht fantastisch aus!",
-    "save_functionality_coming": "Speicherfunktion wird bald implementiert! 💾"
+    "save_functionality_coming": "Speicherfunktion wird bald implementiert! 💾",
+    "saving_drawing": "Speichere deine Zeichnung...",
+    "no_image_to_save": "Kein Bild zum Speichern...",
+    "drawing_saved_successfully": "Zeichnung in deiner Galerie gespeichert! 🎉",
+    "failed_to_save_drawing": "Fehler beim Speichern der Zeichnung...",
+    "error_saving_drawing": "Fehler beim Speichern der Zeichnung"
   },
 
   "settings": {
