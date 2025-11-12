@@ -9,6 +9,7 @@ import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_button.dart';
 
 class DrawingStepsScreen extends StatefulWidget {
   final String categoryId;
@@ -123,52 +124,35 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
             const SizedBox(height: 20),
 
             // Upload Drawing Button (Primary action)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
-                  context.push(
-                    '/drawings/${widget.categoryId}/${widget.drawingId}/upload',
-                  );
-                },
-                icon: const Icon(Icons.camera_alt, size: 20),
-                label: Text('upload.upload_drawing'.tr()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  elevation: 8,
-                  shadowColor: AppColors.primary.withValues(alpha: 0.3),
-                ),
-              ),
+            CustomButton(
+              label: 'upload.upload_drawing',
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                context.push(
+                  '/drawings/${widget.categoryId}/${widget.drawingId}/upload',
+                );
+              },
+              backgroundColor: AppColors.primary,
+              textColor: AppColors.white,
+              icon: Icons.camera_alt,
+              borderRadius: 12,
             ),
 
             const SizedBox(height: 12),
 
             // Draw More Button (Secondary action)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
-                  context.push('/drawings/categories');
-                },
-                icon: const Icon(Icons.palette, size: 20),
-                label: Text('ai_enhancement.draw_another'.tr()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.white,
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary, width: 2),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
+            CustomButton(
+              label: 'common.draw_another',
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                context.push('/drawings/categories');
+              },
+              backgroundColor: AppColors.white,
+              textColor: AppColors.primary,
+              borderColor: AppColors.primary,
+              variant: 'outlined',
+              icon: Icons.palette,
+              borderRadius: 12,
             ),
           ],
         ),
@@ -374,41 +358,30 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             // Retry button
-                            ElevatedButton.icon(
-                              onPressed: () => provider.retryLoadSteps(),
-                              icon: const Icon(Icons.refresh),
-                              label: Text('common.retry'.tr()),
-                              style: ElevatedButton.styleFrom(
+                            Expanded(
+                              child: CustomButton(
+                                label: 'common.retry',
+                                onPressed: () => provider.retryLoadSteps(),
                                 backgroundColor: AppColors.primary,
-                                foregroundColor: AppColors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
+                                textColor: AppColors.white,
+                                icon: Icons.refresh,
+                                borderRadius: 16,
                               ),
                             ),
 
+                            const SizedBox(width: 16),
+
                             // Use static data button
-                            ElevatedButton.icon(
-                              onPressed: () => provider.useStaticDataFallback(),
-                              icon: const Icon(Icons.offline_bolt),
-                              label: Text('drawing_steps.use_offline'.tr()),
-                              style: ElevatedButton.styleFrom(
+                            Expanded(
+                              child: CustomButton(
+                                label: 'drawing_steps.use_offline',
+                                onPressed: () => provider.useStaticDataFallback(),
                                 backgroundColor: AppColors.white,
-                                foregroundColor: AppColors.primary,
-                                side: const BorderSide(
-                                  color: AppColors.primary,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
+                                textColor: AppColors.primary,
+                                borderColor: AppColors.primary,
+                                variant: 'outlined',
+                                icon: Icons.offline_bolt,
+                                borderRadius: 16,
                               ),
                             ),
                           ],
@@ -635,36 +608,15 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                           // Previous button
                           if (provider.hasPreviousStep)
                             Expanded(
-                              child: ElevatedButton(
+                              child: CustomButton(
+                                label: 'drawing_steps.previous',
                                 onPressed: _previousStep,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.white,
-                                  foregroundColor: AppColors.primary,
-                                  side: const BorderSide(
-                                    color: AppColors.primary,
-                                    width: 2,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.arrow_back, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'drawing_steps.previous'.tr(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                backgroundColor: AppColors.white,
+                                textColor: AppColors.primary,
+                                borderColor: AppColors.primary,
+                                variant: 'outlined',
+                                icon: Icons.arrow_back,
+                                borderRadius: 16,
                               ),
                             ),
 
@@ -674,43 +626,17 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                           // Next/Finish button
                           Expanded(
                             flex: provider.hasPreviousStep ? 1 : 1,
-                            child: ElevatedButton(
+                            child: CustomButton(
+                              label: !provider.hasNextStep
+                                  ? 'drawing_steps.finish_drawing'
+                                  : 'drawing_steps.next_step',
                               onPressed: _nextStep,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: AppColors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                elevation: 8,
-                                shadowColor: AppColors.primary.withValues(
-                                  alpha: 0.3,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    !provider.hasNextStep
-                                        ? 'drawing_steps.finish_drawing'.tr()
-                                        : 'drawing_steps.next_step'.tr(),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    !provider.hasNextStep
-                                        ? Icons.check_circle
-                                        : Icons.arrow_forward,
-                                    size: 20,
-                                  ),
-                                ],
-                              ),
+                              backgroundColor: AppColors.primary,
+                              textColor: AppColors.white,
+                              icon: !provider.hasNextStep
+                                  ? Icons.check_circle
+                                  : Icons.arrow_forward,
+                              borderRadius: 16,
                             ),
                           ),
                         ],

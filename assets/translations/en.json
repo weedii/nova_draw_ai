@@ -21,7 +21,11 @@
     "preparing_artwork": "Preparing your artwork...",
     "hang_tight": "Hang tight, we're working on something amazing!",
     "just_a_moment": "Just a moment...",
-    "getting_ready": "Getting everything ready..."
+    "getting_ready": "Getting everything ready...",
+    "upload": "Upload",
+    "draw_another": "Draw Another",
+    "create_story": "Create a Story",
+    "compare": "Compare"
   },
   
   "app_bar": {
@@ -255,9 +259,15 @@
     "image_selected_success": "Image selected successfully! 🖼️",
     "image_selection_canceled": "Image selection was canceled",
     "error_prefix": "Error:",
+    "crop_image": "Crop Image",
     "choose_different": "Choose Different",
     "upload": "Upload",
     "upload_success": "Image uploaded successfully! 🎉"
+  },
+
+  "image_cropper": {
+    "crop_image": "Crop Image",
+    "crop_image_description": "Adjust your image to perfection"
   },
   
   "ai_enhancement": {
@@ -335,7 +345,9 @@
     "no_image_to_save": "No image to save...",
     "drawing_saved_successfully": "Drawing saved to your gallery! 🎉",
     "failed_to_save_drawing": "Failed to save drawing...",
-    "error_saving_drawing": "Error saving drawing"
+    "error_saving_drawing": "Error saving drawing",
+    "original": "Original",
+    "edited": "Enhanced"
   },
 
   "settings": {

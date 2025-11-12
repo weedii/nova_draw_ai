@@ -13,6 +13,7 @@ import '../../../services/actions/api_exceptions.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_button.dart';
 
 class DrawingEditOptionsScreen extends StatefulWidget {
   final String categoryId;
@@ -390,13 +391,26 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         // Decode the base64 edited image to bytes
         final imageBytes = base64Decode(response.resultImage);
 
+        // Create a voice edit option to represent the voice-based editing
+        final voiceEditOption = EditOption(
+          id: 'voice_edit',
+          titleEn: 'Voice Story',
+          titleDe: 'Sprachgeschichte',
+          descriptionEn: 'Edited with your voice',
+          descriptionDe: 'Mit deiner Stimme bearbeitet',
+          emoji: '🎤',
+          color: AppColors.accent,
+          promptEn: 'Voice-based editing',
+          promptDe: 'Sprachbasierte Bearbeitung',
+        );
+
         // Navigate to the final result screen with the edited image
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
             'uploadedImage': widget.uploadedImage,
             'editedImageBytes': imageBytes,
-            'selectedEditOption': _selectedEditOption,
+            'selectedEditOption': voiceEditOption,
           },
         );
       }
@@ -480,13 +494,13 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     return SlideTransition(
       position: _slideAnimation,
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
         child: Column(
           children: [
             // Original image display
             Container(
               width: double.infinity,
-              height: 500,
+              height: 380,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -504,7 +518,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
                 child: widget.uploadedImage != null
                     ? Image.file(
                         widget.uploadedImage!,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         width: double.infinity,
                         height: double.infinity,
                       )
@@ -542,19 +556,19 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
             // Voice recording section
             _buildVoiceRecordingCard(),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Edit options section
             _availableEditOptions.isEmpty
                 ? _buildNoOptionsView()
                 : _buildEditOptionsGrid(),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Action buttons
             _buildActionButtons(),
@@ -637,43 +651,47 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               // Emoji
-              Text(option.emoji, style: const TextStyle(fontSize: 32)),
-              const SizedBox(height: 8),
+              Text(option.emoji, style: const TextStyle(fontSize: 28)),
+              const SizedBox(height: 6),
 
               // Title
-              Text(
-                context.locale.languageCode == 'de'
-                    ? option.titleDe
-                    : option.titleEn,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected ? option.color : AppColors.textDark,
+              Flexible(
+                child: Text(
+                  context.locale.languageCode == 'de'
+                      ? option.titleDe
+                      : option.titleEn,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? option.color : AppColors.textDark,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 3),
 
               // Description
-              Text(
-                context.locale.languageCode == 'de'
-                    ? option.descriptionDe
-                    : option.descriptionEn,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textDark.withValues(alpha: 0.6),
+              Flexible(
+                child: Text(
+                  context.locale.languageCode == 'de'
+                      ? option.descriptionDe
+                      : option.descriptionEn,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppColors.textDark.withValues(alpha: 0.6),
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -706,24 +724,24 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           // Header with icon and title
           Row(
             children: [
               Container(
-                width: 50,
-                height: 50,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.accent.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(
-                  child: Text('🎤', style: TextStyle(fontSize: 28)),
+                  child: Text('🎤', style: TextStyle(fontSize: 24)),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -731,17 +749,17 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
                     Text(
                       'edit_options.voice_description'.tr(),
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
                         fontFamily: 'Comic Sans MS',
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       'edit_options.voice_description_subtitle'.tr(),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: AppColors.textDark.withValues(alpha: 0.6),
                       ),
                     ),
@@ -751,7 +769,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Recording status and buttons
           if (!_isRecording && _recordingBytes == null)
@@ -886,41 +904,25 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
                   children: [
                     // Restart Recording button
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: CustomButton(
+                        label: 'edit_options.restart_recording',
                         onPressed: _restartRecording,
-                        icon: const Icon(Icons.refresh),
-                        label: Text('edit_options.restart_recording'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.error.withValues(
-                            alpha: 0.8,
-                          ),
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 4,
-                          shadowColor: AppColors.error.withValues(alpha: 0.3),
-                        ),
+                        backgroundColor: AppColors.error.withValues(alpha: 0.8),
+                        textColor: AppColors.white,
+                        icon: Icons.refresh,
+                        borderRadius: 12,
                       ),
                     ),
                     const SizedBox(width: 12),
                     // Send My Story button
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: CustomButton(
+                        label: 'edit_options.send_with_voice',
                         onPressed: _sendWithVoice,
-                        icon: const Icon(Icons.send),
-                        label: Text('edit_options.send_with_voice'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 6,
-                          shadowColor: AppColors.accent.withValues(alpha: 0.3),
-                        ),
+                        backgroundColor: AppColors.accent,
+                        textColor: AppColors.white,
+                        icon: Icons.send,
+                        borderRadius: 12,
                       ),
                     ),
                   ],
@@ -937,44 +939,27 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       children: [
         // Apply edit button (only show if option is selected)
         if (_selectedEditOption != null)
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _applyEditOption,
-              icon: const Icon(Icons.auto_fix_high),
-              label: Text('edit_options.apply_edit'.tr()),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _selectedEditOption!.color,
-                foregroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                elevation: 8,
-                shadowColor: _selectedEditOption!.color.withValues(alpha: 0.3),
-              ),
-            ),
+          CustomButton(
+            label: 'edit_options.apply_edit',
+            onPressed: _applyEditOption,
+            backgroundColor: _selectedEditOption!.color,
+            textColor: AppColors.white,
+            icon: Icons.auto_fix_high,
+            borderRadius: 16,
           ),
 
         if (_selectedEditOption != null) const SizedBox(height: 16),
 
         // Skip editing button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _skipEditing,
-            icon: const Icon(Icons.skip_next),
-            label: Text('edit_options.keep_original'.tr()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.white,
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
+        CustomButton(
+          label: 'edit_options.keep_original',
+          onPressed: _skipEditing,
+          backgroundColor: AppColors.white,
+          textColor: AppColors.primary,
+          borderColor: AppColors.primary,
+          variant: 'outlined',
+          icon: Icons.skip_next,
+          borderRadius: 16,
         ),
       ],
     );

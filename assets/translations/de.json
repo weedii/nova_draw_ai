@@ -21,7 +21,11 @@
     "preparing_artwork": "Dein Kunstwerk wird vorbereitet...",
     "hang_tight": "Halt durch, wir arbeiten an etwas Erstaunlichem!",
     "just_a_moment": "Einen Moment...",
-    "getting_ready": "Alles wird vorbereitet..."
+    "getting_ready": "Alles wird vorbereitet...",
+    "upload": "Hochladen",
+    "draw_another": "Noch eine zeichnen",
+    "create_story": "Geschichte erstellen",
+    "compare": "Vergleichen"
   },
 
   "app_bar": {
@@ -255,9 +259,15 @@
     "image_selected_success": "Bild erfolgreich ausgewählt! 🖼️",
     "image_selection_canceled": "Bildauswahl wurde abgebrochen",
     "error_prefix": "Fehler:",
+    "crop_image": "Bild zuschneiden",
     "choose_different": "Anderes wählen",
     "upload": "Hochladen",
     "upload_success": "Bild erfolgreich hochgeladen! 🎉"
+  },
+
+  "image_cropper": {
+    "crop_image": "Bild zuschneiden",
+    "crop_image_description": "Passe dein Bild zur Perfektion an"
   },
   
   "ai_enhancement": {
@@ -335,7 +345,9 @@
     "no_image_to_save": "Kein Bild zum Speichern...",
     "drawing_saved_successfully": "Zeichnung in deiner Galerie gespeichert! 🎉",
     "failed_to_save_drawing": "Fehler beim Speichern der Zeichnung...",
-    "error_saving_drawing": "Fehler beim Speichern der Zeichnung"
+    "error_saving_drawing": "Fehler beim Speichern der Zeichnung",
+    "original": "Original",
+    "edited": "Bearbeitet"
   },
 
   "settings": {

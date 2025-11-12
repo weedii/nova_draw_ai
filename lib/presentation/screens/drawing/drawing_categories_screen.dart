@@ -19,26 +19,16 @@ class DrawingCategoriesScreen extends StatefulWidget {
 class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
-  late AnimationController _sparkleController;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _sparkleFloat;
 
   @override
   void initState() {
     super.initState();
 
     _fadeController = AppAnimations.createFadeController(vsync: this);
-    _sparkleController = AppAnimations.createFloatController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    );
 
     _fadeAnimation = AppAnimations.createFadeAnimation(
       controller: _fadeController,
-    );
-    _sparkleFloat = AppAnimations.createFloatAnimation(
-      controller: _sparkleController,
-      distance: 15.0,
     );
 
     _fadeController.forward();
@@ -47,7 +37,6 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
   @override
   void dispose() {
     _fadeController.dispose();
-    _sparkleController.dispose();
     super.dispose();
   }
 
@@ -146,7 +135,6 @@ class _CategoryCard extends StatefulWidget {
 class _CategoryCardState extends State<_CategoryCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _scaleController;
-  late Animation<double> _scaleAnimation;
   bool _isPressed = false;
 
   String _getCategoryTitle() {
@@ -167,9 +155,6 @@ class _CategoryCardState extends State<_CategoryCard>
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
 
     // Delayed entrance animation

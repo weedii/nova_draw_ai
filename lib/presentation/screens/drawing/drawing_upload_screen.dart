@@ -3,10 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/image_cropper.dart';
 import '../../../services/image_picker_service.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_button.dart';
 
 class DrawingUploadScreen extends StatefulWidget {
   final String categoryId;
@@ -70,7 +72,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
   /// Takes a photo using the device camera
   ///
   /// This method uses the ImagePickerService to open the camera,
-  /// handles loading states, and provides user feedback.
+  /// handles loading states, provides user feedback, and allows cropping.
   void _takePhoto() async {
     try {
       // Set loading state
@@ -82,12 +84,6 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
       final File? image = await _imagePickerService.pickFromCamera();
 
       if (image != null) {
-        // Successfully picked an image
-        setState(() {
-          _pickedImage = image;
-          _isLoading = false;
-        });
-
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -97,6 +93,27 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
               duration: const Duration(seconds: 2),
             ),
           );
+        }
+
+        // Open image cropper
+        if (mounted) {
+          final croppedImage = await ImageCropperService.cropImage(
+            imageFile: image,
+          );
+
+          if (croppedImage != null) {
+            // Successfully cropped image
+            setState(() {
+              _pickedImage = croppedImage;
+              _isLoading = false;
+            });
+          } else {
+            // User canceled cropping, use original image
+            setState(() {
+              _pickedImage = image;
+              _isLoading = false;
+            });
+          }
         }
       } else {
         // User canceled or no image was taken
@@ -135,7 +152,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
   /// Picks an image from the device gallery
   ///
   /// This method uses the ImagePickerService to open the gallery,
-  /// handles loading states, and provides user feedback.
+  /// handles loading states, provides user feedback, and allows cropping.
   void _chooseFromGallery() async {
     try {
       // Set loading state
@@ -147,12 +164,6 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
       final File? image = await _imagePickerService.pickFromGallery();
 
       if (image != null) {
-        // Successfully picked an image
-        setState(() {
-          _pickedImage = image;
-          _isLoading = false;
-        });
-
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -162,6 +173,27 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
               duration: const Duration(seconds: 2),
             ),
           );
+        }
+
+        // Open image cropper
+        if (mounted) {
+          final croppedImage = await ImageCropperService.cropImage(
+            imageFile: image,
+          );
+
+          if (croppedImage != null) {
+            // Successfully cropped image
+            setState(() {
+              _pickedImage = croppedImage;
+              _isLoading = false;
+            });
+          } else {
+            // User canceled cropping, use original image
+            setState(() {
+              _pickedImage = image;
+              _isLoading = false;
+            });
+          }
         }
       } else {
         // User canceled or no image was selected
@@ -307,48 +339,53 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Take Photo button
-        _buildUploadButton(
-          icon: Icons.camera_alt,
-          label: 'upload.take_photo'.tr(),
-          color: AppColors.primary,
-          onPressed: _isLoading ? () {} : _takePhoto,
-          isLoading: _isLoading,
+        SizedBox(
+          height: 80,
+          child: CustomButton(
+            label: 'upload.take_photo',
+            onPressed: _isLoading ? () {} : _takePhoto,
+            backgroundColor: AppColors.primary,
+            textColor: AppColors.white,
+            icon: Icons.camera_alt,
+            iconSize: 32,
+            fontSize: 18,
+            height: 80,
+            borderRadius: 20,
+            enabled: !_isLoading,
+            isLoading: _isLoading,
+          ),
         ),
 
         const SizedBox(height: 20),
 
         // Choose from Gallery button
-        _buildUploadButton(
-          icon: Icons.photo_library,
-          label: 'upload.choose_from_gallery'.tr(),
-          color: AppColors.secondary,
-          onPressed: _isLoading ? () {} : _chooseFromGallery,
-          isLoading: _isLoading,
+        SizedBox(
+          height: 80,
+          child: CustomButton(
+            label: 'upload.choose_from_gallery',
+            onPressed: _isLoading ? () {} : _chooseFromGallery,
+            backgroundColor: AppColors.secondary,
+            textColor: AppColors.white,
+            icon: Icons.photo_library,
+            iconSize: 32,
+            fontSize: 18,
+            height: 80,
+            borderRadius: 20,
+            enabled: !_isLoading,
+            isLoading: _isLoading,
+          ),
         ),
 
         const SizedBox(height: 40),
 
         // Maybe Later button
-        TextButton(
-          onPressed: _isLoading ? null : _uploadLater,
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.textDark.withValues(alpha: 0.6),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.skip_next, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'upload.upload_later'.tr(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+        CustomButton(
+          label: 'upload.upload_later',
+          onPressed: _isLoading ? () {} : _uploadLater,
+          variant: 'text',
+          textColor: AppColors.textDark.withValues(alpha: 0.6),
+          icon: Icons.skip_next,
+          enabled: !_isLoading,
         ),
       ],
     );
@@ -383,48 +420,78 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
         const SizedBox(height: 20),
 
         // Action buttons
-        Row(
+        Column(
           children: [
-            // Retake/Choose different image button
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _isLoading
-                    ? null
-                    : () {
+            // Crop button
+            CustomButton(
+              label: 'upload.crop_image',
+              onPressed: _isLoading
+                  ? () {}
+                  : () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      final croppedImage =
+                          await ImageCropperService.cropImage(
+                        imageFile: _pickedImage!,
+                      );
+                      if (croppedImage != null) {
                         setState(() {
-                          _pickedImage = null;
+                          _pickedImage = croppedImage;
+                          _isLoading = false;
                         });
-                      },
-                icon: const Icon(Icons.refresh),
-                label: Text('upload.choose_different'.tr()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.textDark.withValues(alpha: 0.7),
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
+                      } else {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
+                    },
+              backgroundColor: AppColors.secondary,
+              textColor: AppColors.white,
+              icon: Icons.crop,
+              borderRadius: 15,
+              enabled: !_isLoading,
             ),
 
-            const SizedBox(width: 16),
+            const SizedBox(height: 12),
 
-            // Upload/Continue button
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _uploadImage,
-                icon: const Icon(Icons.cloud_upload),
-                label: Text('upload.upload'.tr()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+            // Retake/Choose different and Upload buttons
+            Row(
+              children: [
+                // Retake/Choose different image button
+                Expanded(
+                  child: CustomButton(
+                    label: 'upload.choose_different',
+                    onPressed: _isLoading
+                        ? () {}
+                        : () {
+                            setState(() {
+                              _pickedImage = null;
+                            });
+                          },
+                    backgroundColor: AppColors.textDark.withValues(alpha: 0.7),
+                    textColor: AppColors.white,
+                    icon: Icons.refresh,
+                    borderRadius: 15,
+                    enabled: !_isLoading,
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-              ),
+
+                const SizedBox(width: 16),
+
+                // Upload/Continue button
+                Expanded(
+                  child: CustomButton(
+                    label: 'common.upload',
+                    onPressed: _isLoading ? () {} : _uploadImage,
+                    backgroundColor: AppColors.primary,
+                    textColor: AppColors.white,
+                    icon: Icons.cloud_upload,
+                    borderRadius: 15,
+                    enabled: !_isLoading,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -453,52 +520,4 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
     );
   }
 
-  Widget _buildUploadButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onPressed,
-    bool isLoading = false,
-  }) {
-    return Container(
-      width: double.infinity,
-      height: 80,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isLoading ? color.withValues(alpha: 0.6) : color,
-          foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: isLoading ? 2 : 8,
-          shadowColor: color.withValues(alpha: 0.3),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: AppColors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, size: 32),
-                  const SizedBox(width: 16),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Comic Sans MS',
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
 }
