@@ -260,6 +260,11 @@
     "upload": "Upload",
     "upload_success": "Image uploaded successfully! 🎉"
   },
+
+  "image_cropper": {
+    "crop_image": "Crop Image",
+    "crop_image_description": "Adjust your image to perfection"
+  },
   
   "ai_enhancement": {
     "ai_magic": "AI Magic",

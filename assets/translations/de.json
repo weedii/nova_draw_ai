@@ -260,6 +260,11 @@
     "upload": "Hochladen",
     "upload_success": "Bild erfolgreich hochgeladen! 🎉"
   },
+
+  "image_cropper": {
+    "crop_image": "Bild zuschneiden",
+    "crop_image_description": "Passe dein Bild zur Perfektion an"
+  },
   
   "ai_enhancement": {
     "ai_magic": "KI-Magie",
