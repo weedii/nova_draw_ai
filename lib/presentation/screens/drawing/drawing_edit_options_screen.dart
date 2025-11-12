@@ -13,6 +13,7 @@ import '../../../services/actions/api_exceptions.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_button.dart';
 
 class DrawingEditOptionsScreen extends StatefulWidget {
   final String categoryId;
@@ -886,41 +887,25 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
                   children: [
                     // Restart Recording button
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: CustomButton(
+                        label: 'edit_options.restart_recording',
                         onPressed: _restartRecording,
-                        icon: const Icon(Icons.refresh),
-                        label: Text('edit_options.restart_recording'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.error.withValues(
-                            alpha: 0.8,
-                          ),
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 4,
-                          shadowColor: AppColors.error.withValues(alpha: 0.3),
-                        ),
+                        backgroundColor: AppColors.error.withValues(alpha: 0.8),
+                        textColor: AppColors.white,
+                        icon: Icons.refresh,
+                        borderRadius: 12,
                       ),
                     ),
                     const SizedBox(width: 12),
                     // Send My Story button
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: CustomButton(
+                        label: 'edit_options.send_with_voice',
                         onPressed: _sendWithVoice,
-                        icon: const Icon(Icons.send),
-                        label: Text('edit_options.send_with_voice'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 6,
-                          shadowColor: AppColors.accent.withValues(alpha: 0.3),
-                        ),
+                        backgroundColor: AppColors.accent,
+                        textColor: AppColors.white,
+                        icon: Icons.send,
+                        borderRadius: 12,
                       ),
                     ),
                   ],
@@ -937,44 +922,27 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       children: [
         // Apply edit button (only show if option is selected)
         if (_selectedEditOption != null)
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _applyEditOption,
-              icon: const Icon(Icons.auto_fix_high),
-              label: Text('edit_options.apply_edit'.tr()),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _selectedEditOption!.color,
-                foregroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                elevation: 8,
-                shadowColor: _selectedEditOption!.color.withValues(alpha: 0.3),
-              ),
-            ),
+          CustomButton(
+            label: 'edit_options.apply_edit',
+            onPressed: _applyEditOption,
+            backgroundColor: _selectedEditOption!.color,
+            textColor: AppColors.white,
+            icon: Icons.auto_fix_high,
+            borderRadius: 16,
           ),
 
         if (_selectedEditOption != null) const SizedBox(height: 16),
 
         // Skip editing button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _skipEditing,
-            icon: const Icon(Icons.skip_next),
-            label: Text('edit_options.keep_original'.tr()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.white,
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
+        CustomButton(
+          label: 'edit_options.keep_original',
+          onPressed: _skipEditing,
+          backgroundColor: AppColors.white,
+          textColor: AppColors.primary,
+          borderColor: AppColors.primary,
+          variant: 'outlined',
+          icon: Icons.skip_next,
+          borderRadius: 16,
         ),
       ],
     );

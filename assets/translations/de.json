@@ -21,7 +21,11 @@
     "preparing_artwork": "Dein Kunstwerk wird vorbereitet...",
     "hang_tight": "Halt durch, wir arbeiten an etwas Erstaunlichem!",
     "just_a_moment": "Einen Moment...",
-    "getting_ready": "Alles wird vorbereitet..."
+    "getting_ready": "Alles wird vorbereitet...",
+    "upload": "Hochladen",
+    "draw_another": "Noch eine zeichnen",
+    "create_story": "Geschichte erstellen",
+    "compare": "Vergleichen"
   },
 
   "app_bar": {

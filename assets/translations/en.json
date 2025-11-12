@@ -21,7 +21,11 @@
     "preparing_artwork": "Preparing your artwork...",
     "hang_tight": "Hang tight, we're working on something amazing!",
     "just_a_moment": "Just a moment...",
-    "getting_ready": "Getting everything ready..."
+    "getting_ready": "Getting everything ready...",
+    "upload": "Upload",
+    "draw_another": "Draw Another",
+    "create_story": "Create a Story",
+    "compare": "Compare"
   },
   
   "app_bar": {

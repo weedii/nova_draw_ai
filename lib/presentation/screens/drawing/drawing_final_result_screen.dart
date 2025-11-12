@@ -8,6 +8,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_button.dart';
 
 class DrawingFinalResultScreen extends StatefulWidget {
   final String categoryId;
@@ -252,11 +253,12 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
 
             // Comparison toggle (only if edit was applied)
             if (widget.selectedEditOption != null && !_showComparison)
-              TextButton.icon(
+              CustomButton(
+                label: 'common.compare',
                 onPressed: _toggleComparison,
-                icon: const Icon(Icons.compare, size: 20),
-                label: Text('ai_enhancement.original_vs_enhanced'.tr()),
-                style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+                variant: 'text',
+                textColor: AppColors.primary,
+                icon: Icons.compare,
               ),
 
             const SizedBox(height: 24),
@@ -592,56 +594,36 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
         Row(
           children: [
             Expanded(
-              child: ElevatedButton.icon(
+              child: CustomButton(
+                label: 'ai_enhancement.save_drawing',
                 onPressed: _saveDrawing,
-                icon: const Icon(Icons.download),
-                label: Text('ai_enhancement.save_drawing'.tr()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+                backgroundColor: AppColors.success,
+                textColor: AppColors.white,
+                icon: Icons.download,
+                borderRadius: 16,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: ElevatedButton.icon(
+              child: CustomButton(
+                label: 'common.create_story',
                 onPressed: _createStory,
-                icon: const Icon(Icons.auto_stories),
-                label: Text('ai_enhancement.create_story'.tr()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+                backgroundColor: AppColors.accent,
+                textColor: AppColors.white,
+                icon: Icons.auto_stories,
+                borderRadius: 16,
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _drawAnother,
-            icon: const Icon(Icons.palette),
-            label: Text('ai_enhancement.draw_another'.tr()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              elevation: 8,
-              shadowColor: AppColors.primary.withValues(alpha: 0.3),
-            ),
-          ),
+        CustomButton(
+          label: 'common.draw_another',
+          onPressed: _drawAnother,
+          backgroundColor: AppColors.primary,
+          textColor: AppColors.white,
+          icon: Icons.palette,
+          borderRadius: 16,
         ),
       ],
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/colors.dart';
 import '../animations/app_animations.dart';
+import '../widgets/custom_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -240,61 +241,19 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           ),
 
                           // Start Button
-                          GestureDetector(
-                            onTapDown: (_) => setState(() {}),
-                            onTapUp: (_) => setState(() {}),
-                            onTapCancel: () => setState(() {}),
-                            child: AnimatedScale(
-                              scale: 1.0,
-                              duration: const Duration(milliseconds: 100),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFF4DA6FF,
-                                      ).withValues(alpha: 0.3),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: _onStartDrawing,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4DA6FF),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.auto_awesome, size: 24),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          'welcome_screen.start_drawing'.tr(),
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Icon(Icons.auto_awesome, size: 24),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                          CustomButton(
+                            label: 'welcome_screen.start_drawing',
+                            onPressed: _onStartDrawing,
+                            backgroundColor: const Color(0xFF4DA6FF),
+                            textColor: Colors.white,
+                            icon: Icons.auto_awesome,
+                            iconSize: 24,
+                            height: 56,
+                            fontSize: 20,
+                            borderRadius: 50,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 16,
                             ),
                           ),
                         ],
