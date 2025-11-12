@@ -255,6 +255,7 @@
     "image_selected_success": "Image selected successfully! 🖼️",
     "image_selection_canceled": "Image selection was canceled",
     "error_prefix": "Error:",
+    "crop_image": "Crop Image",
     "choose_different": "Choose Different",
     "upload": "Upload",
     "upload_success": "Image uploaded successfully! 🎉"

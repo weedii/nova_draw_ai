@@ -47,6 +47,7 @@ class _SignInScreenState extends State<SignInScreen>
   void _signIn() async {
     context.push("/drawings/categories");
     return; // TODO: Remove this
+    // ignore: dead_code
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;

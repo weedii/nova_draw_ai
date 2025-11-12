@@ -255,6 +255,7 @@
     "image_selected_success": "Bild erfolgreich ausgewählt! 🖼️",
     "image_selection_canceled": "Bildauswahl wurde abgebrochen",
     "error_prefix": "Fehler:",
+    "crop_image": "Bild zuschneiden",
     "choose_different": "Anderes wählen",
     "upload": "Hochladen",
     "upload_success": "Bild erfolgreich hochgeladen! 🎉"
