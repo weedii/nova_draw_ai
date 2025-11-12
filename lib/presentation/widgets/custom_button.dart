@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
 
 /// Custom reusable button widget with full dynamic support
-/// 
+///
 /// Features:
 /// - Dynamic colors (background, text, border)
 /// - Dynamic text with multi-language support (English/German)
@@ -161,6 +161,11 @@ class _CustomButtonState extends State<CustomButton>
     final backgroundColor = _getBackgroundColor();
     final textColor = _getTextColor();
     final borderColor = _getBorderColor();
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate responsive font size based on screen width
+    final responsiveFontSize = _calculateResponsiveFontSize(screenWidth);
+    final responsiveIconSize = _calculateResponsiveIconSize(screenWidth);
 
     Widget buttonContent = Row(
       mainAxisSize: MainAxisSize.min,
@@ -169,18 +174,18 @@ class _CustomButtonState extends State<CustomButton>
         // Emoji or Icon
         if (widget.emoji != null)
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 6),
             child: Text(
               widget.emoji!,
-              style: TextStyle(fontSize: widget.iconSize),
+              style: TextStyle(fontSize: responsiveIconSize),
             ),
           )
         else if (widget.icon != null)
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 6),
             child: Icon(
               widget.icon,
-              size: widget.iconSize,
+              size: responsiveIconSize,
               color: textColor,
             ),
           ),
@@ -188,8 +193,8 @@ class _CustomButtonState extends State<CustomButton>
         // Loading indicator or text
         if (widget.isLoading)
           SizedBox(
-            width: widget.iconSize,
-            height: widget.iconSize,
+            width: responsiveIconSize,
+            height: responsiveIconSize,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(textColor),
@@ -200,11 +205,12 @@ class _CustomButtonState extends State<CustomButton>
             child: Text(
               widget.label.tr(),
               style: TextStyle(
-                fontSize: widget.fontSize,
+                fontSize: responsiveFontSize,
                 fontWeight: widget.fontWeight,
                 color: textColor,
               ),
               overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
       ],
@@ -267,5 +273,37 @@ class _CustomButtonState extends State<CustomButton>
         ),
       ),
     );
+  }
+
+  /// Calculate responsive font size based on screen width
+  /// Scales from 12px on small screens to 18px on large screens
+  double _calculateResponsiveFontSize(double screenWidth) {
+    if (screenWidth < 360) {
+      return 12; // Small phones
+    } else if (screenWidth < 480) {
+      return 16; // Medium phones
+    } else if (screenWidth < 600) {
+      return 18; // Large phones
+    } else if (screenWidth < 800) {
+      return 20; // Tablets
+    } else {
+      return 24; // Large tablets/desktops
+    }
+  }
+
+  /// Calculate responsive icon size based on screen width
+  /// Scales from 14px on small screens to 24px on large screens
+  double _calculateResponsiveIconSize(double screenWidth) {
+    if (screenWidth < 360) {
+      return 14; // Small phones
+    } else if (screenWidth < 480) {
+      return 16; // Medium phones
+    } else if (screenWidth < 600) {
+      return 18; // Large phones
+    } else if (screenWidth < 800) {
+      return 20; // Tablets
+    } else {
+      return 24; // Large tablets/desktops
+    }
   }
 }
