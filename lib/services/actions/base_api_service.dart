@@ -14,7 +14,7 @@ abstract class BaseApiService {
   /// Falls back to default URL if not configured
   static String? get baseUrl {
     // final url = dotenv.env['API_BASE_URL'];
-    final url = "https://comfortingly-snarly-elliott.ngrok-free.dev";
+    final url = "https://novadraw-o47gf.ondigitalocean.app";
     return url;
   }
 
