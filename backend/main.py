@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from config import settings
+from core.config import settings
 from routers import health, tutorial, image, story
 
 # Initialize FastAPI app
