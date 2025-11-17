@@ -32,8 +32,8 @@ function Show-Menu {
     Write-Host ""
 }
 
-# Load environment variables from .env
-function Load-Environment {
+# Initialize environment variables from .env file
+function Initialize-Environment {
     if (-not (Test-Path ".env")) {
         Write-Host ".env file not found!" -ForegroundColor Red
         Write-Host "Creating from .env.example..." -ForegroundColor Yellow
@@ -96,7 +96,7 @@ function Start-Containers {
     Write-Host "Starting NovaDraw AI Backend..." -ForegroundColor Cyan
     Write-Host "============================================" -ForegroundColor Cyan
     
-    Load-Environment
+    Initialize-Environment
     
     if (-not (Test-Docker)) {
         exit 1
@@ -167,7 +167,7 @@ function Start-Development {
     Write-Host "Starting NovaDraw AI Backend (Development Mode)..." -ForegroundColor Cyan
     Write-Host "============================================" -ForegroundColor Cyan
     
-    Load-Environment
+    Initialize-Environment
     
     Write-Host ""
     Write-Host "Checking Python environment..." -ForegroundColor Yellow
