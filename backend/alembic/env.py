@@ -1,46 +1,75 @@
-from logging.config import fileConfig
+"""
+Alembic migration environment configuration.
 
+This module configures Alembic to work with the Nova Draw AI database.
+It handles:
+1. Loading environment variables from .env
+2. Importing SQLAlchemy models and Base
+3. Configuring migration modes (online/offline)
+4. Autogenerating migrations based on model changes
+
+Key features:
+- Loads DATABASE_URL from environment variables (Neon connection)
+- Uses sync engine for migrations (correct approach even with async app)
+- Supports both online and offline migration modes
+- Automatically detects model changes for autogenerate
+
+Usage:
+    # Generate a new migration (autogenerate from model changes)
+    alembic revision --autogenerate -m "add users table"
+
+    # Apply all pending migrations
+    alembic upgrade head
+
+    # Rollback one migration
+    alembic downgrade -1
+"""
+
+from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
 
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Add the backend directory to the path
+# Add the backend directory to the path so imports work correctly
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Import your models and Base
-from database.base import Base
-from database.models import User, Tutorial, TutorialStep, Drawing, Story
+# Load environment variables from .env file
+load_dotenv()
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Import models and Base from the correct location
+# Note: We import all models to ensure they're registered with Base.metadata
+from database.db import Base
+from models import *
+
+# Get the Alembic Config object
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Interpret the config file for Python logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
+# Set the SQLAlchemy metadata for autogenerate support
+# This tells Alembic what tables/columns to track
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
-
-# Override sqlalchemy.url with environment variable if present
-from dotenv import load_dotenv
-load_dotenv()
-
+# Override sqlalchemy.url with DATABASE_URL environment variable if present
+# This allows us to use Neon connection string without hardcoding it
 database_url = os.getenv("DATABASE_URL")
 if database_url:
-    config.set_main_option("sqlalchemy.url", database_url)
+    # Convert async URL to sync URL for Alembic (migrations run synchronously)
+    # postgresql+asyncpg://... -> postgresql://...
+    sync_database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+    config.set_main_option("sqlalchemy.url", sync_database_url)
+else:
+    # Fallback to default if DATABASE_URL not set
+    print(
+        "WARNING: DATABASE_URL not set in environment. Using default from alembic.ini"
+    )
 
 
 def run_migrations_offline() -> None:
@@ -81,9 +110,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

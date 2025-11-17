@@ -4,7 +4,7 @@ from PIL import Image
 from io import BytesIO
 from google import genai
 from typing import Optional
-from config import settings
+from core.config import settings
 from utils import sanitize_filename
 
 

@@ -2,7 +2,7 @@ import re
 import time
 from openai import OpenAI
 from typing import List
-from config import settings
+from core.config import settings
 
 
 class DrawingService:

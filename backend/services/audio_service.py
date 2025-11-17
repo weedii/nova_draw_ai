@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from openai import OpenAI
 from typing import Tuple
-from config import settings
+from core.config import settings
 import io
 import subprocess
 import tempfile

@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import time
 
-from config import settings
-from models import (
+from core.config import settings
+from schemas import (
     HealthResponse,
     FullTutorialRequest,
     FullTutorialResponse,
@@ -34,10 +34,10 @@ app = FastAPI(
 )
 
 # Configure CORS for Flutter app
-origins = settings.cors_origins.split(",") if settings.cors_origins != "*" else ["*"]
+origins = settings.CORS_ORIGINS.split(",") if settings.CORS_ORIGINS != "*" else ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development only
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,19 +49,19 @@ local_db_service = LocalDatabaseService()
 
 # Initialize image processing service (requires both Google and OpenAI API keys)
 image_processing_service = None
-if settings.google_api_key and settings.openai_api_key:
+if settings.GOOGLE_API_KEY and settings.OPENAI_API_KEY:
     try:
         image_processing_service = ImageProcessingService()
     except Exception as e:
         print(f"Warning: Could not initialize image processing service: {e}")
-elif not settings.google_api_key:
+elif not settings.GOOGLE_API_KEY:
     print("Warning: Google API key not configured - image processing unavailable")
-elif not settings.openai_api_key:
+elif not settings.OPENAI_API_KEY:
     print("Warning: OpenAI API key not configured - image processing unavailable")
 
 # Initialize story service (only if OpenAI API key is available)
 story_service = None
-if settings.openai_api_key:
+if settings.OPENAI_API_KEY:
     try:
         story_service = StoryService()
     except Exception as e:
@@ -69,7 +69,7 @@ if settings.openai_api_key:
 
 # Initialize audio service (only if OpenAI API key is available)
 audio_service = None
-if settings.openai_api_key:
+if settings.OPENAI_API_KEY:
     try:
         audio_service = AudioService()
     except Exception as e:

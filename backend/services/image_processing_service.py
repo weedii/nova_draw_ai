@@ -7,7 +7,7 @@ from io import BytesIO
 from google import genai
 from openai import OpenAI
 from typing import Tuple
-from config import settings
+from core.config import settings
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
