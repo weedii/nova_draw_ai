@@ -3,8 +3,10 @@ import base64
 from io import BytesIO
 from PIL import Image
 from openai import OpenAI
-from typing import Tuple
+from typing import Tuple, Dict, Any
 from core.config import settings
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 
 class StoryService:
@@ -231,3 +233,44 @@ class StoryService:
                 "preview": "Princess Luna was the kindest princess in all the land, and she had a very special gift...",
             },
         }
+
+    async def save_story_to_db(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+        title: str,
+        story_text_en: str,
+        story_text_de: str,
+        image_url: str,
+        generation_time_ms: int,
+        drawing_id: UUID = None,
+    ) -> Any:
+        """
+        Save a generated story to the database.
+
+        Args:
+            db: Async database session
+            user_id: UUID of the user creating the story
+            title: Story title
+            story_text_en: Story text in English
+            story_text_de: Story text in German
+            image_url: URL of the image used for story generation
+            generation_time_ms: Time taken to generate story in milliseconds
+            drawing_id: Optional UUID of the associated drawing
+
+        Returns:
+            Saved Story model instance
+        """
+        from models import Story
+
+        story = await Story.create(
+            db,
+            user_id=user_id,
+            drawing_id=drawing_id,
+            title=title,
+            story_text_en=story_text_en,
+            story_text_de=story_text_de,
+            image_url=image_url,
+            generation_time_ms=generation_time_ms,
+        )
+        return story

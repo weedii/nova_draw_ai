@@ -1,8 +1,12 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 from schemas import ImageProcessResponse, EditImageWithAudioResponse
 from services.image_processing_service import ImageProcessingService
 from services.audio_service import AudioService
 from core.config import settings
+from database import get_db
+from models import Drawing
 
 router = APIRouter(prefix="/api", tags=["images"])
 
@@ -28,10 +32,16 @@ async def edit_image(
     prompt: str = Form(
         ..., description="Processing instruction (e.g., 'make it alive')"
     ),
+    user_id: str = Form(..., description="UUID of the user editing the image"),
+    tutorial_id: str = Form(
+        None, description="UUID of the tutorial associated with this drawing"
+    ),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Edit an uploaded image with AI using a text prompt.
     Supports prompts like 'make it alive', 'make it colorful', etc.
+    Saves the edited image to the database.
     """
     try:
         # Check if image processing service is available
@@ -66,11 +76,22 @@ async def edit_image(
             image_data, prompt
         )
 
+        # Save drawing to database
+        saved_drawing = await Drawing.create(
+            db,
+            user_id=UUID(user_id),
+            tutorial_id=UUID(tutorial_id) if tutorial_id else None,
+            uploaded_image_url="",
+            edited_images_urls=[result_base64],
+        )
+
         return ImageProcessResponse(
             success="true",
             prompt=prompt,
             result_image=result_base64,
             processing_time=processing_time,
+            drawing_id=str(saved_drawing.id),
+            user_id=user_id,
         )
 
     except HTTPException:
@@ -88,6 +109,11 @@ async def edit_image_with_audio(
         description="Audio file (mp3, wav, m4a, aac, webm, ogg, flac) with editing instructions",
     ),
     language: str = Form(..., description="Language code: 'en' or 'de'"),
+    user_id: str = Form(..., description="UUID of the user editing the image"),
+    tutorial_id: str = Form(
+        None, description="UUID of the tutorial associated with this drawing"
+    ),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Edit an uploaded image using voice instructions from an audio file.
@@ -96,7 +122,8 @@ async def edit_image_with_audio(
     1. Transcribe audio to text using OpenAI Whisper
     2. Enhance the transcribed text into a detailed prompt
     3. Edit the image using the enhanced prompt
-    4. Return the edited image
+    4. Save the edited image to the database
+    5. Return the edited image
 
     Supports multiple audio formats: mp3, wav, m4a, aac, webm, ogg, flac
     Languages: English ('en') and German ('de')
@@ -171,6 +198,15 @@ async def edit_image_with_audio(
             image_data, transcribed_text
         )
 
+        # Step 3: Save drawing to database
+        saved_drawing = await Drawing.create(
+            db,
+            user_id=UUID(user_id),
+            tutorial_id=UUID(tutorial_id) if tutorial_id else None,
+            uploaded_image_url="",
+            edited_images_urls=[result_base64],
+        )
+
         total_time = transcription_time + processing_time
 
         return EditImageWithAudioResponse(
@@ -178,6 +214,8 @@ async def edit_image_with_audio(
             prompt=transcribed_text,  # Return the original transcribed text
             result_image=result_base64,
             processing_time=total_time,
+            drawing_id=str(saved_drawing.id),
+            user_id=user_id,
         )
 
     except HTTPException:

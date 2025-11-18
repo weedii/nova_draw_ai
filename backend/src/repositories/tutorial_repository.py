@@ -1,0 +1,132 @@
+"""
+TutorialRepository for custom Tutorial queries.
+
+Provides specialized query methods beyond basic CRUD operations.
+For basic CRUD, use the @crud_enabled decorator methods on the Tutorial model directly.
+"""
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from typing import Optional, List
+
+from models import Tutorial
+
+
+class TutorialRepository:
+    """
+    Repository for Tutorial model queries.
+
+    Provides custom query methods for specialized use cases.
+    For basic CRUD operations, use Tutorial.create(), Tutorial.get_by_id(), etc.
+    """
+
+    @staticmethod
+    async def find_by_subject(db: AsyncSession, subject: str) -> Optional[Tutorial]:
+        """
+        Find a tutorial by subject name.
+
+        Args:
+            db: Async database session
+            subject: Tutorial subject name
+
+        Returns:
+            Tutorial instance or None if not found
+
+        Example:
+            tutorial = await TutorialRepository.find_by_subject(db, "cat")
+        """
+        query = select(Tutorial).where(Tutorial.subject == subject)
+        result = await db.execute(query)
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def find_by_category(db: AsyncSession, category: str) -> List[Tutorial]:
+        """
+        Find all tutorials in a specific category.
+
+        Args:
+            db: Async database session
+            category: Tutorial category
+
+        Returns:
+            List of Tutorial instances in the category
+
+        Example:
+            tutorials = await TutorialRepository.find_by_category(db, "animals")
+        """
+        query = select(Tutorial).where(Tutorial.category == category)
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def get_all_categories(db: AsyncSession) -> List[str]:
+        """
+        Get all unique tutorial categories.
+
+        Args:
+            db: Async database session
+
+        Returns:
+            List of unique category names
+
+        Example:
+            categories = await TutorialRepository.get_all_categories(db)
+        """
+        query = select(Tutorial.category).distinct()
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def find_by_subject_pattern(db: AsyncSession, pattern: str) -> List[Tutorial]:
+        """
+        Find tutorials by subject pattern (case-insensitive).
+
+        Args:
+            db: Async database session
+            pattern: Subject pattern to search for
+
+        Returns:
+            List of matching Tutorial instances
+
+        Example:
+            tutorials = await TutorialRepository.find_by_subject_pattern(db, "cat")
+        """
+        query = select(Tutorial).where(Tutorial.subject.ilike(f"%{pattern}%"))
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def get_tutorials_with_steps(db: AsyncSession) -> List[Tutorial]:
+        """
+        Get all tutorials that have steps defined.
+
+        Args:
+            db: Async database session
+
+        Returns:
+            List of Tutorial instances with steps
+
+        Example:
+            tutorials = await TutorialRepository.get_tutorials_with_steps(db)
+        """
+        query = select(Tutorial).where(Tutorial.total_steps > 0)
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def subject_exists(db: AsyncSession, subject: str) -> bool:
+        """
+        Check if a tutorial with a specific subject exists.
+
+        Args:
+            db: Async database session
+            subject: Subject to check
+
+        Returns:
+            True if subject exists, False otherwise
+
+        Example:
+            exists = await TutorialRepository.subject_exists(db, "cat")
+        """
+        tutorial = await TutorialRepository.find_by_subject(db, subject)
+        return tutorial is not None

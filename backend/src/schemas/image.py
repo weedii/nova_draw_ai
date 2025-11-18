@@ -35,6 +35,8 @@ class ImageProcessResponse(BaseModel):
     result_image: str  # base64 encoded processed image
     processing_time: Optional[float] = None
     effect_used: Optional[str] = None  # The effect that was applied
+    drawing_id: Optional[str] = None  # ID of the saved drawing in database
+    user_id: Optional[str] = None  # ID of the user who created the drawing
 
 
 class EffectInfo(BaseModel):

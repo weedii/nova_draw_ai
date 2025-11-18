@@ -11,6 +11,13 @@ class StoryRequest(BaseModel):
     language: str = Field(
         ..., description="Language for story generation: 'en' or 'de'"
     )
+    user_id: str = Field(..., description="UUID of the user creating the story")
+    drawing_id: Optional[str] = Field(
+        None, description="UUID of the drawing associated with this story"
+    )
+    image_url: Optional[str] = Field(
+        None, description="URL of the image used for story generation"
+    )
 
 
 class StoryResponse(BaseModel):
@@ -20,3 +27,4 @@ class StoryResponse(BaseModel):
     story: str  # Generated story text
     title: str  # Story title
     generation_time: Optional[float] = None
+    story_id: Optional[str] = None  # ID of the saved story in database

@@ -5,7 +5,7 @@ from io import BytesIO
 from google import genai
 from typing import Optional
 from core.config import settings
-from utils import sanitize_filename
+from utils.file_operations import sanitize_filename
 
 
 class ImageService:

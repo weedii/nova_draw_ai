@@ -6,8 +6,10 @@ from PIL import Image
 from io import BytesIO
 from google import genai
 from openai import OpenAI
-from typing import Tuple
+from typing import Tuple, Any
 from core.config import settings
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -381,4 +383,35 @@ class ImageProcessingService:
                 "size_bytes": len(image_data),
             }
         except Exception as e:
-            return {"error": str(e)}
+            logger.error(f"Failed to get image info: {e}")
+            return {}
+
+    async def save_drawing_to_db(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+        result_base64: str,
+        tutorial_id: UUID = None,
+    ) -> Any:
+        """
+        Save a processed drawing to the database.
+
+        Args:
+            db: Async database session
+            user_id: UUID of the user who edited the image
+            result_base64: Base64 encoded processed image
+            tutorial_id: Optional UUID of the associated tutorial
+
+        Returns:
+            Saved Drawing model instance
+        """
+        from models import Drawing
+
+        drawing = await Drawing.create(
+            db,
+            user_id=user_id,
+            tutorial_id=tutorial_id,
+            uploaded_image_url="",
+            edited_images_urls=[result_base64],
+        )
+        return drawing

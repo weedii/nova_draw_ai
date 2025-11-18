@@ -3,8 +3,10 @@ import base64
 import logging
 from pathlib import Path
 from openai import OpenAI
-from typing import Tuple
+from typing import Tuple, Any
 from core.config import settings
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 import io
 import subprocess
 import tempfile

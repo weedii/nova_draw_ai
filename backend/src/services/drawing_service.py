@@ -1,8 +1,10 @@
 import re
 import time
 from openai import OpenAI
-from typing import List
+from typing import List, Any
 from core.config import settings
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 
 class DrawingService:
@@ -203,3 +205,37 @@ class DrawingService:
             return english_steps  # Fallback to English if counts don't match
 
         return clean_german_steps
+
+    async def save_drawing_to_db(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+        subject: str,
+        english_steps: List[str],
+        german_steps: List[str],
+        tutorial_id: UUID = None,
+    ) -> Any:
+        """
+        Save generated drawing steps to the database.
+
+        Args:
+            db: Async database session
+            user_id: UUID of the user creating the drawing
+            subject: Subject of the drawing
+            english_steps: List of drawing steps in English
+            german_steps: List of drawing steps in German
+            tutorial_id: Optional UUID of the associated tutorial
+
+        Returns:
+            Saved Drawing model instance
+        """
+        from models import Drawing
+
+        drawing = await Drawing.create(
+            db,
+            user_id=user_id,
+            tutorial_id=tutorial_id,
+            uploaded_image_url="",
+            edited_images_urls=[],
+        )
+        return drawing
