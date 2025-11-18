@@ -1,0 +1,104 @@
+
+Project "NovaDrawAI" {
+  database_type: 'PostgreSQL'
+  Note: 'NovaDraw AI - Minimnal Database Schema (5 Tables)'
+}
+
+// ============================================
+// CORE TABLES
+// ============================================
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  email varchar(255) [unique, not null]
+  password varchar(255) [not null]
+  name varchar(50)
+  birthdate date
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    email
+  }
+  
+  Note: 'User accounts and authentication'
+}
+
+Table tutorials {
+  id uuid [pk, default: `gen_random_uuid()`]
+  category varchar(100) [not null, note: 'animals, characters, food, etc.']
+  subject varchar(100) [not null, note: 'cat, dog, etc.']
+  total_steps integer [not null]
+  thumbnail_url text
+  description_en text
+  description_de text
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    category
+  }
+  
+  Note: 'Tutorial metadata - simple version'
+}
+
+Table tutorial_steps {
+  id uuid [pk, default: `gen_random_uuid()`]
+  tutorial_id uuid [not null, ref: > tutorials.id]
+  step_number integer [not null]
+  instruction_en text [not null]
+  instruction_de text [not null]
+  image_url text [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (tutorial_id) [unique]
+  }
+  
+  Note: 'Individual steps for each tutorial'
+}
+
+// ============================================
+// USER CONTENT TABLES
+// ============================================
+
+Table drawings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > users.id]
+  tutorial_id uuid [ref: > tutorials.id]
+  uploaded_image_url string
+  edited_images_urls array_of_string
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    user_id
+    tutorial_id
+    created_at [note: 'DESC']
+  }
+  
+  Note: 'User uploaded & edited image(s)'
+}
+
+Table stories {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > users.id]
+  title varchar(200) [not null]
+  story_text_en string [not null]
+  story_text_de string [not null]
+  image_url string [not null]
+  drawing_id uuid [ref: > drawings.id]
+  is_favorite boolean [default: false]
+  generation_time_ms integer
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    is_favorite
+    created_at [note: 'DESC']
+  }
+  
+  Note: 'AI-generated stories from image'
+}

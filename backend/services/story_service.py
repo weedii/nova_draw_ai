@@ -4,7 +4,7 @@ from io import BytesIO
 from PIL import Image
 from openai import OpenAI
 from typing import Tuple
-from config import settings
+from core.config import settings
 
 
 class StoryService:
