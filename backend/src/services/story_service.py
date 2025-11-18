@@ -4,7 +4,7 @@ from io import BytesIO
 from PIL import Image
 from openai import OpenAI
 from typing import Tuple, Dict, Any
-from core.config import settings
+from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
@@ -13,10 +13,10 @@ class StoryService:
     """Service for generating children's stories from images using GPT-4 Vision"""
 
     def __init__(self):
-        if not settings.openai_api_key:
+        if not settings.OPENAI_API_KEY:
             raise ValueError("OpenAI API key is required for story generation")
 
-        self.client = OpenAI(api_key=settings.openai_api_key)
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.model = "gpt-4o"  # GPT-4 with vision capabilities
 
     def generate_story(

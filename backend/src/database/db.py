@@ -23,7 +23,7 @@ Usage:
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from core.config import settings
+from src.core.config import settings
 from sqlalchemy.orm import declarative_base
 
 # Base class for all models

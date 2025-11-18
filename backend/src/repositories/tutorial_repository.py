@@ -6,10 +6,10 @@ For basic CRUD, use the @crud_enabled decorator methods on the Tutorial model di
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from typing import Optional, List
 
-from models import Tutorial
+from src.models import Tutorial
 
 
 class TutorialRepository:
@@ -23,19 +23,27 @@ class TutorialRepository:
     @staticmethod
     async def find_by_subject(db: AsyncSession, subject: str) -> Optional[Tutorial]:
         """
-        Find a tutorial by subject name.
+        Find a random tutorial by subject name.
 
         Args:
             db: Async database session
-            subject: Tutorial subject name
+            subject: Tutorial subject name (case-insensitive)
 
         Returns:
-            Tutorial instance or None if not found
+            Random Tutorial instance or None if none found
 
         Example:
             tutorial = await TutorialRepository.find_by_subject(db, "cat")
         """
-        query = select(Tutorial).where(Tutorial.subject == subject)
+
+        # Get a random tutorial with the given subject (case-insensitive)
+        query = (
+            select(Tutorial)
+            .where(func.lower(Tutorial.subject) == func.lower(subject))
+            .order_by(func.random())
+            .limit(1)
+        )
+
         result = await db.execute(query)
         return result.scalar_one_or_none()
 

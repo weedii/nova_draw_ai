@@ -7,7 +7,7 @@ from io import BytesIO
 from google import genai
 from openai import OpenAI
 from typing import Tuple, Any
-from core.config import settings
+from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
@@ -22,15 +22,15 @@ class ImageProcessingService:
     def __init__(self):
         logger.info("Initializing ImageProcessingService...")
 
-        if not settings.google_api_key:
+        if not settings.GOOGLE_API_KEY:
             logger.error("Google API key is missing")
             raise ValueError("Google API key is required for image processing")
-        if not settings.openai_api_key:
+        if not settings.OPENAI_API_KEY:
             logger.error("OpenAI API key is missing")
             raise ValueError("OpenAI API key is required for prompt enhancement")
 
-        self.gemini_client = genai.Client(api_key=settings.google_api_key)
-        self.openai_client = OpenAI(api_key=settings.openai_api_key)
+        self.gemini_client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+        self.openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.gemini_model = "gemini-2.5-flash-image-preview"
         self.openai_model = "gpt-3.5-turbo"  # Cheap and fast for prompt enhancement
 

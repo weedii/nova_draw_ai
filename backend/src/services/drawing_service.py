@@ -2,7 +2,7 @@ import re
 import time
 from openai import OpenAI
 from typing import List, Any
-from core.config import settings
+from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
@@ -11,7 +11,7 @@ class DrawingService:
     """Service for generating drawing steps using OpenAI GPT-4o-mini"""
 
     def __init__(self):
-        self.client = OpenAI(api_key=settings.openai_api_key)
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.model = "gpt-4o-mini"
 
     def generate_steps(self, subject: str) -> tuple[List[str], List[str], float]:

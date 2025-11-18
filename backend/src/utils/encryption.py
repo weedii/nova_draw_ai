@@ -7,8 +7,9 @@ import os
 import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import logging
+from src.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -26,35 +27,19 @@ def _get_encryption_key() -> bytes:
         Base64 encoded encryption key
     """
     # Try to get explicit encryption key
-    encryption_key = os.getenv("ENCRYPTION_KEY")
+    encryption_key = settings.ENCRYPTION_KEY
     if encryption_key:
         try:
-            # Decode from base64
-            return base64.urlsafe_b64decode(encryption_key)
+            # The key is already in the correct format, just encode it to bytes
+            return encryption_key.encode("utf-8")
         except Exception as e:
-            logger.warning(f"Failed to decode ENCRYPTION_KEY: {e}")
-
-    # Try to derive key from app secret
-    app_secret = os.getenv("APP_SECRET")
-    if app_secret:
-        try:
-            # Derive a key from the secret using PBKDF2
-            kdf = PBKDF2(
-                algorithm=hashes.SHA256(),
-                length=32,
-                salt=b"nova_draw_ai_salt",  # Fixed salt for consistency
-                iterations=100000,
-            )
-            key = base64.urlsafe_b64encode(kdf.derive(app_secret.encode()))
-            return key
-        except Exception as e:
-            logger.warning(f"Failed to derive key from APP_SECRET: {e}")
+            logger.warning(f"Failed to process ENCRYPTION_KEY: {e}")
 
     # Generate a new key if nothing is configured
     logger.warning(
-        "No ENCRYPTION_KEY or APP_SECRET found. Generating a new key. "
+        "No ENCRYPTION_KEY found. Generating a new key. "
         "This key will NOT persist across restarts. "
-        "Set ENCRYPTION_KEY or APP_SECRET in .env for production."
+        "Set ENCRYPTION_KEY in .env for production."
     )
     return Fernet.generate_key()
 

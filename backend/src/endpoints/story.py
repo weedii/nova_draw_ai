@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from schemas import StoryRequest, StoryResponse
-from services.story_service import StoryService
-from core.config import settings
-from database import get_db
-from models import Story
+from src.schemas import StoryRequest, StoryResponse
+from src.services.story_service import StoryService
+from src.core.config import settings
+from src.database import get_db
+from src.models import Story
 
 router = APIRouter(prefix="/api", tags=["stories"])
 

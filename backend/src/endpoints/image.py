@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from schemas import ImageProcessResponse, EditImageWithAudioResponse
-from services.image_processing_service import ImageProcessingService
-from services.audio_service import AudioService
-from core.config import settings
-from database import get_db
-from models import Drawing
+from src.schemas import ImageProcessResponse, EditImageWithAudioResponse
+from src.services.image_processing_service import ImageProcessingService
+from src.services.audio_service import AudioService
+from src.core.config import settings
+from src.database import get_db
+from src.models import Drawing
 
 router = APIRouter(prefix="/api", tags=["images"])
 

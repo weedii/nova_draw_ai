@@ -1,14 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas import (
+from sqlalchemy import select
+from src.schemas import (
     FullTutorialRequest,
     FullTutorialResponse,
     TutorialStep,
     TutorialMetadata,
 )
-from database import get_db
-from repositories import TutorialRepository
-from models import TutorialStep as TutorialStepModel
+from src.database import get_db
+from src.repositories import TutorialRepository
+from src.models import Tutorial, TutorialStep as TutorialStepModel
+import logging
 
 router = APIRouter(prefix="/api", tags=["tutorials"])
 
@@ -18,11 +20,17 @@ async def generate_tutorial_local(
     request: FullTutorialRequest, db: AsyncSession = Depends(get_db)
 ):
     """
-    Fetch a drawing tutorial from the Neon database by subject.
-    Returns tutorial metadata and steps with base64 encoded images.
+    Fetch a random drawing tutorial from the database by subject.
+    Returns tutorial metadata and all its steps with images.
+
+    Flow:
+    1. Find all tutorials with the given subject
+    2. Select a random one
+    3. Load all steps for that tutorial
+    4. Return tutorial metadata and steps
     """
     try:
-        # Get tutorial by subject from repository
+        # Step 1: Find a random tutorial by subject
         tutorial = await TutorialRepository.find_by_subject(db, request.subject)
 
         if not tutorial:
@@ -32,13 +40,27 @@ async def generate_tutorial_local(
                 detail=f"Subject '{request.subject}' not found in database. Please check the available subjects.",
             )
 
-        # Get tutorial steps from database
-        steps = await TutorialRepository.get_tutorials_with_steps(db)
+        logging.info(f"Selected tutorial: {tutorial.subject} (ID: {tutorial.id})")
 
-        # Filter steps for this tutorial
-        tutorial_steps_data = [s for s in steps if s.tutorial_id == tutorial.id]
+        # Step 2: Get all steps for this specific tutorial
+        query = (
+            select(TutorialStepModel)
+            .where(TutorialStepModel.tutorial_id == tutorial.id)
+            .order_by(TutorialStepModel.step_number)
+        )
+        result = await db.execute(query)
+        tutorial_steps_data = result.scalars().all()
 
-        # Convert to the expected response format
+        if not tutorial_steps_data:
+            logging.warning(f"No steps found for tutorial {tutorial.id}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"No steps found for tutorial '{request.subject}'",
+            )
+
+        logging.info(f"Found {len(tutorial_steps_data)} steps for tutorial")
+
+        # Step 3: Convert to the expected response format
         tutorial_steps = []
         for step_data in tutorial_steps_data:
             tutorial_steps.append(
@@ -49,6 +71,7 @@ async def generate_tutorial_local(
                 )
             )
 
+        # Step 4: Return tutorial with all its steps
         return FullTutorialResponse(
             success="true",
             metadata=TutorialMetadata(
@@ -62,6 +85,7 @@ async def generate_tutorial_local(
         # Re-raise HTTP exceptions (like 404)
         raise
     except Exception as e:
+        logging.error(f"Failed to load tutorial from database: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Failed to load tutorial from database: {str(e)}"
         )

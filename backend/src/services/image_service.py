@@ -12,7 +12,7 @@ class ImageService:
     """Service for generating step images using Google Gemini Nano Banana"""
 
     def __init__(self):
-        self.client = genai.Client(api_key=settings.google_api_key)
+        self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
         self.model = "gemini-2.5-flash-image-preview"
 
     def generate_step_image(

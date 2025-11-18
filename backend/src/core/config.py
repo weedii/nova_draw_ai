@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     max_steps: int = 10
     min_steps: int = 3
 
+    # Encryption
+    ENCRYPTION_KEY: str = os.getenv("ENCRYPTION_KEY", "")
+
     class Config:
         """Pydantic configuration"""
 

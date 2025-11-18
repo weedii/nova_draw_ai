@@ -8,8 +8,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
 
-from database.db import Base
-from utils import auditable, crud_enabled
+from src.database.db import Base
+from src.utils import auditable, crud_enabled
 
 
 @crud_enabled

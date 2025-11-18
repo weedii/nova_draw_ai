@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from core.config import settings
+from src.core.config import settings
 from src.endpoints import health, tutorial, image, story
 
 # Initialize FastAPI app
@@ -33,7 +33,7 @@ app.include_router(story.router)
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host=settings.host,
-        port=settings.port,
+        host=settings.HOST,
+        port=settings.PORT,
         reload=True,  # Enable auto-reload during development
     )

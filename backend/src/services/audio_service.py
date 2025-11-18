@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from openai import OpenAI
 from typing import Tuple, Any
-from core.config import settings
+from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 import io
@@ -22,11 +22,11 @@ class AudioService:
     def __init__(self):
         logger.info("Initializing AudioService...")
 
-        if not settings.openai_api_key:
+        if not settings.OPENAI_API_KEY:
             logger.error("OpenAI API key is missing")
             raise ValueError("OpenAI API key is required for audio transcription")
 
-        self.client = OpenAI(api_key=settings.openai_api_key)
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.whisper_model = "whisper-1"
         self.enhancement_model = "gpt-4o"
 

@@ -10,7 +10,7 @@ from sqlalchemy import select
 from typing import Optional, List
 from uuid import UUID
 
-from models import Drawing
+from src.models import Drawing
 
 
 class DrawingRepository:
