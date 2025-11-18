@@ -5,7 +5,9 @@ from src.schemas import StoryRequest, StoryResponse
 from src.services.story_service import StoryService
 from src.core.config import settings
 from src.database import get_db
-from src.models import Story
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["stories"])
 
@@ -15,7 +17,7 @@ if settings.OPENAI_API_KEY:
     try:
         story_service = StoryService()
     except Exception as e:
-        print(f"Warning: Could not initialize story service: {e}")
+        logger.warning(f"Could not initialize story service: {e}")
 
 
 @router.post("/create-story", response_model=StoryResponse)
@@ -33,53 +35,32 @@ async def create_story(request: StoryRequest, db: AsyncSession = Depends(get_db)
                 detail="Story generation service not available. Please configure OpenAI API key.",
             )
 
-        # Validate the base64 image
-        if not story_service.validate_image_base64(request.image):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid image data. Please provide a valid base64 encoded image.",
-            )
-
-        # Validate language parameter
-        if request.language not in ["en", "de"]:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid language. Please provide 'en' or 'de'.",
-            )
-
-        # Generate the story with the specified language
-        title, story, generation_time = story_service.generate_story(
-            request.image, request.language
-        )
-
-        # Prepare story data for database
-        story_text_en = story if request.language == "en" else ""
-        story_text_de = story if request.language == "de" else ""
-
-        # Save story to database
-        saved_story = await Story.create(
-            db,
+        # Delegate all business logic to the service layer
+        result = await story_service.create_story(
+            db=db,
+            image_base64=request.image,
+            language=request.language,
             user_id=UUID(request.user_id),
             drawing_id=UUID(request.drawing_id) if request.drawing_id else None,
-            title=title,
-            story_text_en=story_text_en,
-            story_text_de=story_text_de,
             image_url=request.image_url or "",
-            generation_time_ms=int(generation_time * 1000),
         )
 
         return StoryResponse(
             success="true",
-            story=story,
-            title=title,
-            generation_time=generation_time,
-            story_id=str(saved_story.id),
+            story=result["story"],
+            title=result["title"],
+            generation_time=result["generation_time"],
+            story_id=result["story_id"],
         )
 
+    except ValueError as e:
+        # Handle validation errors
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
         # Re-raise HTTP exceptions
         raise
     except Exception as e:
+        logger.error(f"Failed to generate story: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Failed to generate story: {str(e)}"
         )

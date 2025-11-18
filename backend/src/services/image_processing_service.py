@@ -10,6 +10,7 @@ from typing import Tuple, Any
 from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from src.models import Drawing
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -386,6 +387,142 @@ class ImageProcessingService:
             logger.error(f"Failed to get image info: {e}")
             return {}
 
+    async def edit_image_with_prompt(
+        self,
+        db: AsyncSession,
+        image_data: bytes,
+        prompt: str,
+        user_id: UUID,
+        tutorial_id: UUID = None,
+    ) -> dict:
+        """
+        Complete image editing flow: validate, process, and save to database.
+
+        Args:
+            db: Async database session
+            image_data: Raw image bytes
+            prompt: Processing instruction
+            user_id: UUID of the user editing the image
+            tutorial_id: Optional UUID of the associated tutorial
+
+        Returns:
+            Dictionary with drawing_id, result_image, and processing_time
+
+        Raises:
+            ValueError: If image validation fails or processing fails
+        """
+
+        # Validate image
+        if not self.validate_image(image_data):
+            raise ValueError("Invalid image or image too large (max 2048x2048)")
+
+        # Get image info for logging
+        image_info = self.get_image_info(image_data)
+        logger.info(f"Processing image: {image_info}")
+
+        # Process the image
+        result_base64, processing_time = self.process_image(image_data, prompt)
+
+        # Save drawing to database
+        saved_drawing = await Drawing.create(
+            db,
+            user_id=user_id,
+            tutorial_id=tutorial_id,
+            uploaded_image_url="",
+            edited_images_urls=[result_base64],
+        )
+
+        return {
+            "drawing_id": str(saved_drawing.id),
+            "result_image": result_base64,
+            "processing_time": processing_time,
+        }
+
+    async def edit_image_with_audio(
+        self,
+        db: AsyncSession,
+        image_data: bytes,
+        audio_data: bytes,
+        audio_filename: str,
+        language: str,
+        user_id: UUID,
+        tutorial_id: UUID = None,
+        audio_service=None,
+    ) -> dict:
+        """
+        Complete image editing flow with audio: transcribe, process, and save to database.
+
+        Args:
+            db: Async database session
+            image_data: Raw image bytes
+            audio_data: Raw audio bytes
+            audio_filename: Audio file name
+            language: Language code ('en' or 'de')
+            user_id: UUID of the user editing the image
+            tutorial_id: Optional UUID of the associated tutorial
+            audio_service: AudioService instance for transcription
+
+        Returns:
+            Dictionary with drawing_id, result_image, prompt, and processing_time
+
+        Raises:
+            ValueError: If validation or processing fails
+        """
+
+        # Validate language
+        if language not in ["en", "de"]:
+            raise ValueError("Invalid language. Please provide 'en' or 'de'.")
+
+        # Validate image
+        if not self.validate_image(image_data):
+            raise ValueError("Invalid image or image too large (max 2048x2048)")
+
+        # Validate audio
+        if not audio_service:
+            raise ValueError("Audio service not available")
+
+        if not audio_service.validate_audio_file(
+            audio_data, f"audio/{audio_filename.split('.')[-1]}"
+        ):
+            supported = audio_service.get_supported_formats()
+            raise ValueError(
+                f"Invalid audio file. Supported formats: {', '.join(supported['formats'])}. Max size: {supported['max_size_mb']}MB"
+            )
+
+        # Get file info for logging
+        image_info = self.get_image_info(image_data)
+        audio_info = audio_service.get_audio_info(audio_data, audio_filename)
+        logger.info(f"Processing image: {image_info}")
+        logger.info(f"Processing audio: {audio_info}")
+
+        # Step 1: Transcribe audio to text
+        transcribed_text, transcription_time = audio_service.transcribe_audio(
+            audio_data, language, audio_filename
+        )
+
+        # Step 2: Process the image with the transcribed text
+        result_base64, processing_time = self.process_image(
+            image_data, transcribed_text
+        )
+
+        # Step 3: Save drawing to database
+        saved_drawing = await Drawing.create(
+            db,
+            user_id=user_id,
+            tutorial_id=tutorial_id,
+            uploaded_image_url="",
+            edited_images_urls=[result_base64],
+        )
+
+        total_time = transcription_time + processing_time
+
+        return {
+            "drawing_id": str(saved_drawing.id),
+            "result_image": result_base64,
+            "prompt": transcribed_text,
+            "processing_time": total_time,
+        }
+
     async def save_drawing_to_db(
         self,
         db: AsyncSession,
@@ -405,7 +542,6 @@ class ImageProcessingService:
         Returns:
             Saved Drawing model instance
         """
-        from models import Drawing
 
         drawing = await Drawing.create(
             db,

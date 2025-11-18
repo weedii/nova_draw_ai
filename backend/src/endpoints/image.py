@@ -6,7 +6,9 @@ from src.services.image_processing_service import ImageProcessingService
 from src.services.audio_service import AudioService
 from src.core.config import settings
 from src.database import get_db
-from src.models import Drawing
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["images"])
 
@@ -16,14 +18,14 @@ if settings.GOOGLE_API_KEY and settings.OPENAI_API_KEY:
     try:
         image_processing_service = ImageProcessingService()
     except Exception as e:
-        print(f"Warning: Could not initialize image processing service: {e}")
+        logger.warning(f"Could not initialize image processing service: {e}")
 
 audio_service = None
 if settings.OPENAI_API_KEY:
     try:
         audio_service = AudioService()
     except Exception as e:
-        print(f"Warning: Could not initialize audio service: {e}")
+        logger.warning(f"Could not initialize audio service: {e}")
 
 
 @router.post("/edit-image", response_model=ImageProcessResponse)
@@ -60,44 +62,32 @@ async def edit_image(
         # Read image data
         image_data = await file.read()
 
-        # Validate image
-        if not image_processing_service.validate_image(image_data):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid image or image too large (max 2048x2048)",
-            )
-
-        # Get image info for logging
-        image_info = image_processing_service.get_image_info(image_data)
-        print(f"Processing image: {image_info}")
-
-        # Process the image
-        result_base64, processing_time = image_processing_service.process_image(
-            image_data, prompt
-        )
-
-        # Save drawing to database
-        saved_drawing = await Drawing.create(
-            db,
+        # Delegate all business logic to the service layer
+        result = await image_processing_service.edit_image_with_prompt(
+            db=db,
+            image_data=image_data,
+            prompt=prompt,
             user_id=UUID(user_id),
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
-            uploaded_image_url="",
-            edited_images_urls=[result_base64],
         )
 
         return ImageProcessResponse(
             success="true",
             prompt=prompt,
-            result_image=result_base64,
-            processing_time=processing_time,
-            drawing_id=str(saved_drawing.id),
+            result_image=result["result_image"],
+            processing_time=result["processing_time"],
+            drawing_id=result["drawing_id"],
             user_id=user_id,
         )
 
+    except ValueError as e:
+        # Handle validation errors
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
         # Re-raise HTTP exceptions
         raise
     except Exception as e:
+        logger.error(f"Failed to edit image: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to edit image: {str(e)}")
 
 
@@ -142,13 +132,6 @@ async def edit_image_with_audio(
                 detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
             )
 
-        # Validate language parameter
-        if language not in ["en", "de"]:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid language. Please provide 'en' or 'de'.",
-            )
-
         # Validate image file type
         if not image.content_type or not image.content_type.startswith("image/"):
             raise HTTPException(
@@ -165,63 +148,35 @@ async def edit_image_with_audio(
         image_data = await image.read()
         audio_data = await audio.read()
 
-        # Validate image
-        if not image_processing_service.validate_image(image_data):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid image or image too large (max 2048x2048)",
-            )
-
-        # Validate audio file
-        if not audio_service.validate_audio_file(audio_data, audio.content_type):
-            supported = audio_service.get_supported_formats()
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid audio file. Supported formats: {', '.join(supported['formats'])}. Max size: {supported['max_size_mb']}MB",
-            )
-
-        # Get file info for logging
-        image_info = image_processing_service.get_image_info(image_data)
-        audio_info = audio_service.get_audio_info(
-            audio_data, audio.filename or "audio.mp3"
-        )
-        print(f"Processing image: {image_info}")
-        print(f"Processing audio: {audio_info}")
-
-        # Step 1: Transcribe audio to text
-        transcribed_text, transcription_time = audio_service.transcribe_audio(
-            audio_data, language, audio.filename or "audio.mp3"
-        )
-
-        # Step 2: Process the image with the transcribed text
-        result_base64, processing_time = image_processing_service.process_image(
-            image_data, transcribed_text
-        )
-
-        # Step 3: Save drawing to database
-        saved_drawing = await Drawing.create(
-            db,
+        # Delegate all business logic to the service layer
+        result = await image_processing_service.edit_image_with_audio(
+            db=db,
+            image_data=image_data,
+            audio_data=audio_data,
+            audio_filename=audio.filename or "audio.mp3",
+            language=language,
             user_id=UUID(user_id),
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
-            uploaded_image_url="",
-            edited_images_urls=[result_base64],
+            audio_service=audio_service,
         )
-
-        total_time = transcription_time + processing_time
 
         return EditImageWithAudioResponse(
             success="true",
-            prompt=transcribed_text,  # Return the original transcribed text
-            result_image=result_base64,
-            processing_time=total_time,
-            drawing_id=str(saved_drawing.id),
+            prompt=result["prompt"],
+            result_image=result["result_image"],
+            processing_time=result["processing_time"],
+            drawing_id=result["drawing_id"],
             user_id=user_id,
         )
 
+    except ValueError as e:
+        # Handle validation errors
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
         # Re-raise HTTP exceptions
         raise
     except Exception as e:
+        logger.error(f"Failed to process audio and image: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Failed to process audio and image: {str(e)}"
         )

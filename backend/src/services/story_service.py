@@ -7,6 +7,7 @@ from typing import Tuple, Dict, Any
 from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from src.models import Story
 
 
 class StoryService:
@@ -234,6 +235,69 @@ class StoryService:
             },
         }
 
+    async def create_story(
+        self,
+        db: AsyncSession,
+        image_base64: str,
+        language: str,
+        user_id: UUID,
+        drawing_id: UUID = None,
+        image_url: str = "",
+    ) -> Dict[str, Any]:
+        """
+        Complete story creation flow: generate and save to database.
+
+        Args:
+            db: Async database session
+            image_base64: Base64 encoded image
+            language: Language for story generation ('en' or 'de')
+            user_id: UUID of the user creating the story
+            drawing_id: Optional UUID of the associated drawing
+            image_url: Optional URL of the image
+
+        Returns:
+            Dictionary with story_id, title, story, and generation_time
+
+        Raises:
+            ValueError: If image validation fails or generation fails
+        """
+
+        # Validate image
+        if not self.validate_image_base64(image_base64):
+            raise ValueError(
+                "Invalid image data. Please provide a valid base64 encoded image."
+            )
+
+        # Validate language
+        if language not in ["en", "de"]:
+            raise ValueError("Invalid language. Please provide 'en' or 'de'.")
+
+        # Generate story
+        title, story, generation_time = self.generate_story(image_base64, language)
+
+        # Prepare story data for database
+        story_text_en = story if language == "en" else ""
+        story_text_de = story if language == "de" else ""
+
+        # Save story to database
+        saved_story = await Story.create(
+            db,
+            user_id=user_id,
+            drawing_id=drawing_id,
+            title=title,
+            story_text_en=story_text_en,
+            story_text_de=story_text_de,
+            image_url=image_url,
+            generation_time_ms=int(generation_time * 1000),
+        )
+
+        return {
+            "story_id": str(saved_story.id),
+            "title": title,
+            "story": story,
+            "generation_time": generation_time,
+        }
+
     async def save_story_to_db(
         self,
         db: AsyncSession,
@@ -261,7 +325,6 @@ class StoryService:
         Returns:
             Saved Story model instance
         """
-        from models import Story
 
         story = await Story.create(
             db,
