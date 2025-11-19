@@ -43,8 +43,8 @@ load_dotenv()
 
 # Import models and Base from the correct location
 # Note: We import all models to ensure they're registered with Base.metadata
-from database.db import Base
-from models import *
+from src.database.db import Base
+from src.models import *
 
 # Get the Alembic Config object
 config = context.config
