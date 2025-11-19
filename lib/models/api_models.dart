@@ -49,7 +49,7 @@ class ApiMetadata {
 class ApiDrawingStep {
   final String stepEn;
   final String stepDe;
-  final String stepImg; // base64 image
+  final String stepImg; // Image URL (public URL or link)
 
   const ApiDrawingStep({
     required this.stepEn,
@@ -73,7 +73,7 @@ class ApiDrawingStep {
 class ApiImageEditResponse {
   final bool success;
   final String prompt;
-  final String resultImage; // base64 encoded edited image
+  final String resultImage; // Image URL (public URL or link)
   final double processingTime;
 
   const ApiImageEditResponse({
