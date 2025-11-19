@@ -82,4 +82,4 @@ app.*.map.json
 
 # Storage
 storage/
-data/
+# data/
