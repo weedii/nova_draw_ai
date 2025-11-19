@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'api_exceptions.dart';
@@ -13,8 +14,8 @@ abstract class BaseApiService {
   /// Get the base URL for API requests from .env file
   /// Falls back to default URL if not configured
   static String? get baseUrl {
-    // final url = dotenv.env['API_BASE_URL'];
-    final url = "https://novadraw-o47gf.ondigitalocean.app";
+    final url = dotenv.env['API_BASE_URL'];
+    // final url = "https://novadraw-o47gf.ondigitalocean.app"; uncomment this for produnction
     return url;
   }
 
