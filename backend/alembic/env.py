@@ -64,6 +64,11 @@ if database_url:
     # Convert async URL to sync URL for Alembic (migrations run synchronously)
     # postgresql+asyncpg://... -> postgresql://...
     sync_database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+
+    # Convert asyncpg SSL parameter to psycopg2 SSL parameter
+    # asyncpg uses ?ssl=require, psycopg2 uses ?sslmode=require
+    sync_database_url = sync_database_url.replace("?ssl=require", "?sslmode=require")
+
     config.set_main_option("sqlalchemy.url", sync_database_url)
 else:
     # Fallback to default if DATABASE_URL not set

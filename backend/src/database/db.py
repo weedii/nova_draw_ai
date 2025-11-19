@@ -8,7 +8,8 @@ This module provides:
 - Database initialization and cleanup utilities
 
 The database URL is loaded from environment variables (DATABASE_URL) via core.config.Settings.
-For Neon, the URL format is: postgresql+asyncpg://user:password@host/dbname?sslmode=require
+For Neon, the URL format is: postgresql+asyncpg://user:password@host/dbname?ssl=require
+Note: asyncpg uses ?ssl=require (not ?sslmode=require). Alembic converts this for psycopg2.
 
 Usage:
     from database import engine, async_session, get_db

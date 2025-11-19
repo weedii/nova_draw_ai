@@ -10,7 +10,7 @@ Environment variables:
 - HOST: Server host (default: 0.0.0.0)
 - PORT: Server port (default: 8000)
 - DATABASE_URL: Neon PostgreSQL connection string (required for production)
-  Format: postgresql+asyncpg://user:password@host/dbname?sslmode=require
+  Format: postgresql+asyncpg://user:password@host/dbname?ssl=require
 - CORS_ORIGINS: Comma-separated list of allowed CORS origins (default: *)
 
 Usage:
@@ -44,7 +44,9 @@ class Settings(BaseSettings):
     PORT: int = int(os.getenv("PORT", "8000"))
 
     # Database Configuration
-    # Format: postgresql+asyncpg://user:password@host/dbname?sslmode=require
+    # Format: postgresql+asyncpg://user:password@host/dbname?ssl=require
+    # Note: asyncpg uses ?ssl=require (not ?sslmode=require)
+    # Alembic will convert this to ?sslmode=require for psycopg2
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
     )
