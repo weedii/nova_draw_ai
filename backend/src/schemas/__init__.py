@@ -32,6 +32,13 @@ from .image import (
 from .story import StoryRequest, StoryResponse
 from .audio import EditImageWithAudioResponse
 from .error import ErrorResponse, SessionInfo
+from .edit_option import (
+    EditOptionCreate,
+    EditOptionUpdate,
+    EditOptionRead,
+    EditOptionsListResponse,
+    EditOptionResponse,
+)
 
 __all__ = [
     "HealthResponse",
@@ -48,4 +55,9 @@ __all__ = [
     "EditImageWithAudioResponse",
     "ErrorResponse",
     "SessionInfo",
+    "EditOptionCreate",
+    "EditOptionUpdate",
+    "EditOptionRead",
+    "EditOptionsListResponse",
+    "EditOptionResponse",
 ]

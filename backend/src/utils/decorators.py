@@ -31,11 +31,14 @@ def timestamped(cls: Type[Any]) -> Type[Any]:
     """
 
     # Add created_at and updated_at columns
+    # Use timezone=True to store timezone-aware datetimes in UTC
     cls.created_at = Column(
-        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
     cls.updated_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
