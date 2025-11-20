@@ -103,12 +103,18 @@ class AuthService {
         print('✅ Registration successful!');
         return authResponse;
       } else {
+        // Handle error response
         try {
           final error = jsonDecode(response.body);
-          final errorMessage = error['detail'] ?? 'Registration failed';
+          final errorMessage = error['detail'] ?? 'Registration failed. Please try again.';
           print('❌ Registration failed: $errorMessage');
           throw Exception(errorMessage);
         } catch (e) {
+          // If it's already our Exception with the error message, rethrow it
+          if (e is Exception && e.toString().contains('Exception: ')) {
+            rethrow;
+          }
+          // Otherwise, it's a JSON parsing error
           print('❌ Failed to parse error response: $e');
           throw Exception('Registration failed. Please try again.');
         }
@@ -118,7 +124,8 @@ class AuthService {
       throw Exception('Network error. Please check your connection and try again.');
     } catch (e) {
       print('❌ Registration error: $e');
-      if (e is Exception) {
+      // If it's already an Exception with our error message, rethrow it
+      if (e is Exception && e.toString().contains('Exception: ')) {
         rethrow;
       }
       throw Exception('Registration failed: $e');
@@ -179,21 +186,28 @@ class AuthService {
         return authResponse;
       } else {
         // Handle error response
-        final error = jsonDecode(response.body);
-        final errorMessage = error['detail'] ?? 'Login failed. Please try again.';
-        print('❌ Login failed: $errorMessage');
-        throw Exception(errorMessage);
+        try {
+          final error = jsonDecode(response.body);
+          final errorMessage = error['detail'] ?? 'Login failed. Please try again.';
+          print('❌ Login failed: $errorMessage');
+          throw Exception(errorMessage);
+        } catch (e) {
+          // If it's already our Exception with the error message, rethrow it
+          if (e is Exception && e.toString().contains('Exception: ')) {
+            rethrow;
+          }
+          // Otherwise, it's a JSON parsing error
+          print('❌ Failed to parse error response: $e');
+          throw Exception('Login failed. Please try again.');
+        }
       }
     } on http.ClientException catch (e) {
       print('❌ Network error: $e');
       throw Exception('Network error. Please check your connection and try again.');
-    } on FormatException catch (e) {
-      print('❌ JSON parsing error: $e');
-      throw Exception('Invalid response from server. Please try again.');
     } catch (e) {
       print('❌ Login error: $e');
       // If it's already an Exception with our error message, rethrow it
-      if (e.toString().startsWith('Exception: ')) {
+      if (e is Exception && e.toString().contains('Exception: ')) {
         rethrow;
       }
       throw Exception('Login failed: $e');

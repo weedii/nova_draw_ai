@@ -6,6 +6,7 @@ import '../../../services/auth_service.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/error_dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -107,17 +108,11 @@ class _SignUpScreenState extends State<SignUpScreen>
         });
 
         if (mounted) {
-          // Show error message
+          // Show beautiful error dialog
           final errorMessage = e.toString().replaceAll('Exception: ', '');
           print('🚨 Showing error to user: $errorMessage');
           
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 4),
-            ),
-          );
+          ErrorDialog.showError(context, errorMessage);
         }
       }
     } else {

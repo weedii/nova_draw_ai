@@ -6,6 +6,7 @@ import '../../../services/auth_service.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/error_dialog.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -88,17 +89,11 @@ class _SignInScreenState extends State<SignInScreen>
         });
 
         if (mounted) {
-          // Show error message
+          // Show beautiful error dialog
           final errorMessage = e.toString().replaceAll('Exception: ', '');
           print('🚨 Showing error to user: $errorMessage');
           
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 4),
-            ),
-          );
+          ErrorDialog.showError(context, errorMessage);
         }
       }
     } else {
@@ -233,9 +228,6 @@ class _SignInScreenState extends State<SignInScreen>
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'auth.error_password_required'.tr();
-                                  }
-                                  if (value.length < 6) {
-                                    return 'auth.error_password_length'.tr();
                                   }
                                   return null;
                                 },

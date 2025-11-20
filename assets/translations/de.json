@@ -84,6 +84,27 @@
     "error_passwords_mismatch": "Passwörter stimmen nicht überein"
   },
   
+  "errors": {
+    "oops": "Hoppla!",
+    "email_already_used": "E-Mail bereits verwendet",
+    "email_already_used_message": "Diese E-Mail ist bereits registriert. Versuche dich stattdessen anzumelden!",
+    "login_failed": "Anmeldung fehlgeschlagen",
+    "login_failed_message": "E-Mail oder Passwort ist falsch. Bitte überprüfe und versuche es erneut!",
+    "connection_problem": "Verbindungsproblem",
+    "connection_problem_message": "Kann keine Verbindung zum Server herstellen. Bitte überprüfe deine Internetverbindung!",
+    "taking_too_long": "Dauert zu lange",
+    "taking_too_long_message": "Die Anfrage dauert zu lange. Bitte versuche es erneut!",
+    "weak_password": "Schwaches Passwort",
+    "weak_password_message": "Bitte verwende ein stärkeres Passwort mit mindestens 6 Zeichen!",
+    "invalid_email": "Ungültige E-Mail",
+    "invalid_email_message": "Bitte gib eine gültige E-Mail-Adresse ein!",
+    "account_not_found": "Konto nicht gefunden",
+    "account_not_found_message": "Kein Konto mit dieser E-Mail gefunden. Versuche dich zu registrieren!",
+    "server_error": "Serverfehler",
+    "server_error_message": "Etwas ist auf unserer Seite schief gelaufen. Bitte versuche es später erneut!",
+    "ok": "OK"
+  },
+  
   "categories": {
     "choose_drawing": "Wähle was du zeichnen möchtest",
     "select_category": "Wähle eine Kategorie und beginne deine kreative Reise!",
