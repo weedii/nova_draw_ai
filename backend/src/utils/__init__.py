@@ -1,6 +1,6 @@
 """
 Utilities package for Nova Draw AI backend.
-Includes decorators, encryption, and helper functions.
+Includes decorators, encryption, authentication, and helper functions.
 """
 
 # Decorators
@@ -28,6 +28,21 @@ from .encryption import (
     generate_encryption_key,
 )
 
+# JWT utilities
+from .jwt import (
+    create_access_token,
+    create_refresh_token,
+    verify_token,
+    decode_token_without_verification,
+)
+
+# Password utilities
+from .password import (
+    hash_password,
+    verify_password,
+    validate_password_strength,
+)
+
 # File operations
 from .file_operations import (
     sanitize_filename,
@@ -51,6 +66,15 @@ __all__ = [
     "encrypt_value",
     "decrypt_value",
     "generate_encryption_key",
+    # JWT utilities
+    "create_access_token",
+    "create_refresh_token",
+    "verify_token",
+    "decode_token_without_verification",
+    # Password utilities
+    "hash_password",
+    "verify_password",
+    "validate_password_strength",
     # File operations
     "sanitize_filename",
     "create_session_folder",

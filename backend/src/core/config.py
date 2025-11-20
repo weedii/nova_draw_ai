@@ -12,6 +12,10 @@ Environment variables:
 - DATABASE_URL: Neon PostgreSQL connection string (required for production)
   Format: postgresql+asyncpg://user:password@host/dbname?ssl=require
 - CORS_ORIGINS: Comma-separated list of allowed CORS origins (default: *)
+- JWT_SECRET_KEY: Secret key for JWT token signing (required for production)
+- JWT_ALGORITHM: JWT signing algorithm (default: HS256)
+- ACCESS_TOKEN_EXPIRE_MINUTES: Access token expiry in minutes (default: 10080 = 7 days)
+- REFRESH_TOKEN_EXPIRE_DAYS: Refresh token expiry in days (default: 30)
 
 Usage:
     from core.config import settings
@@ -62,6 +66,15 @@ class Settings(BaseSettings):
 
     # Encryption
     ENCRYPTION_KEY: str = os.getenv("ENCRYPTION_KEY", "")
+
+    # JWT Authentication
+    # Secret key for signing JWT tokens (should be a long random string in production)
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+    # Access token expires in 7 days (10080 minutes) - kid-friendly, less frequent logins
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))
+    # Refresh token expires in 30 days
+    REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "30"))
 
     class Config:
         """Pydantic configuration"""

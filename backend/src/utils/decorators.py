@@ -31,13 +31,14 @@ def timestamped(cls: Type[Any]) -> Type[Any]:
     """
 
     # Add created_at and updated_at columns
+    # Use datetime.utcnow() for timezone-naive timestamps (compatible with PostgreSQL TIMESTAMP WITHOUT TIME ZONE)
     cls.created_at = Column(
-        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime, default=datetime.utcnow, nullable=False
     )
     cls.updated_at = Column(
         DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
         nullable=False,
     )
 
@@ -88,7 +89,7 @@ def auto_updated(cls: Type[Any]) -> Type[Any]:
     # Add event listener for automatic updated_at updates
     @event.listens_for(cls, "before_update")
     def receive_before_update(mapper, connection, target):
-        target.updated_at = datetime.now(timezone.utc)
+        target.updated_at = datetime.utcnow()
 
     return cls
 
@@ -108,8 +109,9 @@ def creation_tracked(cls: Type[Any]) -> Type[Any]:
     """
 
     # Add only created_at column
+    # Use datetime.utcnow() for timezone-naive timestamps (compatible with PostgreSQL TIMESTAMP WITHOUT TIME ZONE)
     cls.created_at = Column(
-        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime, default=datetime.utcnow, nullable=False
     )
 
     return cls

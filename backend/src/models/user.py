@@ -9,12 +9,11 @@ from sqlalchemy.orm import relationship
 import uuid
 
 from src.database.db import Base
-from src.utils import auditable, crud_enabled, encrypted_field
+from src.utils import auditable, crud_enabled
 
 
 @crud_enabled
 @auditable
-@encrypted_field("password")
 class User(Base):
     """
     User model representing registered users in the Nova Draw AI application.
@@ -25,7 +24,9 @@ class User(Base):
     Decorators:
     - @auditable: Adds created_at, updated_at for audit trail
     - @crud_enabled: Adds CRUD operations (create, get_by_id, get_all, get_paginated, update, delete, count, exists)
-    - @encrypted_field("password"): Encrypts and decrypts password field when creating, updating, and loading from database
+    
+    Note: Password is hashed with bcrypt (not Fernet encryption).
+    Bcrypt is the industry standard for password hashing and provides better security.
     """
 
     __tablename__ = "users"
