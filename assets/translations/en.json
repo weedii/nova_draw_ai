@@ -312,9 +312,9 @@
     "no_story_to_read": "No story available to read",
     "save_story": "Save Story",
     "share_story": "Share Story",
-    "read_aloud_coming_soon": "Read aloud functionality coming soon! 🔊",
-    "save_coming_soon": "Save story functionality coming soon! 💾",
-    "share_coming_soon": "Share story functionality coming soon! 📤"
+    "read_aloud_coming_soon": "Read aloud functionality coming soon! ",
+    "save_coming_soon": "Save story functionality coming soon! ",
+    "share_coming_soon": "Share story functionality coming soon! "
   },
 
   "edit_options": {
@@ -334,13 +334,17 @@
     "recording_complete": "Got It!",
     "restart_recording": "Restart Recording",
     "send_with_voice": "Send My Story",
-    "no_recording": "Nothing yet"
+    "no_recording": "Nothing yet",
+    "loading_options": "Loading Options",
+    "fetching_from_server": "Fetching editing options from server...",
+    "loading_failed": "Failed to Load Options",
+    "loading_error": "An error occurred while loading the editing options. Please try again."
   },
 
   "final_result": {
     "your_amazing_drawing": "Your Amazing Drawing!",
     "great_job_drawing": "Great job! Your drawing looks fantastic!",
-    "save_functionality_coming": "Save functionality will be implemented soon! 💾",
+    "save_functionality_coming": "Save functionality will be implemented soon! ",
     "saving_drawing": "Saving your drawing...",
     "no_image_to_save": "No image to save...",
     "drawing_saved_successfully": "Drawing saved to your gallery! 🎉",

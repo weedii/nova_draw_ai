@@ -7,13 +7,14 @@ This module exports all database models:
 - TutorialStep: Individual steps within a tutorial
 - Drawing: User-created drawings
 - Story: AI-generated stories from drawings
+- EditOption: AI editing options for subjects (e.g., "Make it colorful")
 
 All models use decorators for:
 - @auditable: Automatic timestamp tracking and soft delete
 - @crud_enabled: Automatic CRUD operations (create, read, update, delete)
 
 Usage:
-    from models import User, Tutorial, Drawing, Story
+    from models import User, Tutorial, Drawing, Story, EditOption
     from database import get_db
     from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,5 +34,6 @@ from .tutorial import Tutorial
 from .tutorial_step import TutorialStep
 from .drawing import Drawing
 from .story import Story
+from .edit_option import EditOption
 
-__all__ = ["User", "Tutorial", "TutorialStep", "Drawing", "Story"]
+__all__ = ["User", "Tutorial", "TutorialStep", "Drawing", "Story", "EditOption"]

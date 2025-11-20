@@ -136,3 +136,60 @@ class ApiStoryResponse {
     };
   }
 }
+
+/// API response model for edit options
+class ApiEditOption {
+  final String id;
+  final String category;
+  final String subject;
+  final String titleEn;
+  final String titleDe;
+  final String descriptionEn;
+  final String descriptionDe;
+  final String promptEn;
+  final String promptDe;
+  final String? icon;
+
+  const ApiEditOption({
+    required this.id,
+    required this.category,
+    required this.subject,
+    required this.titleEn,
+    required this.titleDe,
+    required this.descriptionEn,
+    required this.descriptionDe,
+    required this.promptEn,
+    required this.promptDe,
+    this.icon,
+  });
+
+  factory ApiEditOption.fromJson(Map<String, dynamic> json) {
+    return ApiEditOption(
+      id: json['id'] ?? '',
+      category: json['category'] ?? '',
+      subject: json['subject'] ?? '',
+      titleEn: json['title_en'] ?? '',
+      titleDe: json['title_de'] ?? '',
+      descriptionEn: json['description_en'] ?? '',
+      descriptionDe: json['description_de'] ?? '',
+      promptEn: json['prompt_en'] ?? '',
+      promptDe: json['prompt_de'] ?? '',
+      icon: json['icon'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category': category,
+      'subject': subject,
+      'title_en': titleEn,
+      'title_de': titleDe,
+      'description_en': descriptionEn,
+      'description_de': descriptionDe,
+      'prompt_en': promptEn,
+      'prompt_de': promptDe,
+      'icon': icon,
+    };
+  }
+}
