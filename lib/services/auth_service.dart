@@ -1,11 +1,18 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_model.dart';
 
 /// Authentication service for handling user registration, login, and token management
 class AuthService {
+  // Secure storage instance
+  static const _storage = FlutterSecureStorage();
+  
+  // Storage keys
+  static const _accessTokenKey = 'access_token';
+  static const _refreshTokenKey = 'refresh_token';
+  
   // Get API base URL from environment
   static String get baseUrl {
     // TEMPORARY: Hardcoded for testing
@@ -286,9 +293,8 @@ class AuthService {
         final data = jsonDecode(response.body);
         final newAccessToken = data['access_token'];
         
-        // Save new access token
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', newAccessToken);
+        // Save new access token to secure storage
+        await _storage.write(key: _accessTokenKey, value: newAccessToken);
         
         print('✅ Token refreshed successfully');
         return newAccessToken;
@@ -304,24 +310,21 @@ class AuthService {
     }
   }
 
-  /// Save tokens to local storage
+  /// Save tokens to secure storage
   static Future<void> _saveTokens(String accessToken, String refreshToken) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', accessToken);
-    await prefs.setString('refresh_token', refreshToken);
-    print('💾 Tokens saved to local storage');
+    await _storage.write(key: _accessTokenKey, value: accessToken);
+    await _storage.write(key: _refreshTokenKey, value: refreshToken);
+    print('💾 Tokens saved to secure storage');
   }
 
-  /// Get access token from local storage
+  /// Get access token from secure storage
   static Future<String?> getAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('access_token');
+    return await _storage.read(key: _accessTokenKey);
   }
 
-  /// Get refresh token from local storage
+  /// Get refresh token from secure storage
   static Future<String?> getRefreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('refresh_token');
+    return await _storage.read(key: _refreshTokenKey);
   }
 
   /// Check if user is logged in
@@ -330,11 +333,10 @@ class AuthService {
     return accessToken != null;
   }
 
-  /// Logout user (clear tokens)
+  /// Logout user (clear tokens from secure storage)
   static Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
-    await prefs.remove('refresh_token');
-    print('👋 User logged out - tokens cleared');
+    await _storage.delete(key: _accessTokenKey);
+    await _storage.delete(key: _refreshTokenKey);
+    print('👋 User logged out - tokens cleared from secure storage');
   }
 }
