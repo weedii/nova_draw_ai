@@ -4,6 +4,8 @@ from uuid import UUID
 from src.schemas import ImageProcessResponse, EditImageWithAudioResponse
 from src.services.image_processing_service import ImageProcessingService
 from src.services.audio_service import AudioService
+from src.services import AuthService
+from src.models import User
 from src.core.config import settings
 from src.database import get_db
 import logging
@@ -34,16 +36,18 @@ async def edit_image(
     prompt: str = Form(
         ..., description="Processing instruction (e.g., 'make it alive')"
     ),
-    user_id: str = Form(..., description="UUID of the user editing the image"),
     tutorial_id: str = Form(
         None, description="UUID of the tutorial associated with this drawing"
     ),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
 ):
     """
     Edit an uploaded image with AI using a text prompt.
     Supports prompts like 'make it alive', 'make it colorful', etc.
     Saves the edited image to the database.
+    
+    **Authentication Required:** User must be logged in.
     """
     try:
         # Check if image processing service is available
@@ -62,12 +66,15 @@ async def edit_image(
         # Read image data
         image_data = await file.read()
 
+        # Use authenticated user's ID
+        user_id = current_user.id
+
         # Delegate all business logic to the service layer
         result = await image_processing_service.edit_image_with_prompt(
             db=db,
             image_data=image_data,
             prompt=prompt,
-            user_id=UUID(user_id),
+            user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
         )
 
@@ -77,7 +84,7 @@ async def edit_image(
             result_image=result["result_image"],
             processing_time=result["processing_time"],
             drawing_id=result["drawing_id"],
-            user_id=user_id,
+            user_id=str(user_id),
         )
 
     except ValueError as e:
@@ -99,11 +106,11 @@ async def edit_image_with_audio(
         description="Audio file (mp3, wav, m4a, aac, webm, ogg, flac) with editing instructions",
     ),
     language: str = Form(..., description="Language code: 'en' or 'de'"),
-    user_id: str = Form(..., description="UUID of the user editing the image"),
     tutorial_id: str = Form(
         None, description="UUID of the tutorial associated with this drawing"
     ),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
 ):
     """
     Edit an uploaded image using voice instructions from an audio file.
@@ -117,6 +124,8 @@ async def edit_image_with_audio(
 
     Supports multiple audio formats: mp3, wav, m4a, aac, webm, ogg, flac
     Languages: English ('en') and German ('de')
+    
+    **Authentication Required:** User must be logged in.
     """
     try:
         # Check if both services are available
@@ -148,6 +157,9 @@ async def edit_image_with_audio(
         image_data = await image.read()
         audio_data = await audio.read()
 
+        # Use authenticated user's ID
+        user_id = current_user.id
+
         # Delegate all business logic to the service layer
         result = await image_processing_service.edit_image_with_audio(
             db=db,
@@ -155,7 +167,7 @@ async def edit_image_with_audio(
             audio_data=audio_data,
             audio_filename=audio.filename or "audio.mp3",
             language=language,
-            user_id=UUID(user_id),
+            user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
             audio_service=audio_service,
         )
@@ -166,7 +178,7 @@ async def edit_image_with_audio(
             result_image=result["result_image"],
             processing_time=result["processing_time"],
             drawing_id=result["drawing_id"],
-            user_id=user_id,
+            user_id=str(user_id),
         )
 
     except ValueError as e:

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../../services/auth_service.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
@@ -20,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  DateTime? _selectedBirthdate;
   bool _isLoading = false;
 
   late AnimationController _fadeController;
@@ -54,27 +56,105 @@ class _SignUpScreenState extends State<SignUpScreen>
         _isLoading = true;
       });
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // TODO: Implement actual sign up logic
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('auth.account_created'.tr()),
-            backgroundColor: AppColors.success,
-          ),
+      try {
+        print('🎯 Sign up button pressed!');
+        print('📧 Email: ${_emailController.text.trim()}');
+        print('👤 Name: ${_nameController.text.trim()}');
+        
+        // Test connection first
+        print('🧪 Testing backend connection...');
+        final isConnected = await AuthService.testConnection();
+        if (!isConnected) {
+          throw Exception('Cannot connect to server. Please check if the backend is running.');
+        }
+        print('✅ Backend connection successful!');
+        
+        // Call the auth service to register
+        print('📝 Calling register API...');
+        print('🎂 Birthdate: $_selectedBirthdate');
+        final authResponse = await AuthService.register(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          name: _nameController.text.trim().isEmpty 
+              ? null 
+              : _nameController.text.trim(),
+          birthdate: _selectedBirthdate,
         );
+
+        print('🎉 Registration completed successfully!');
+        
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('auth.account_created'.tr()),
+              backgroundColor: AppColors.success,
+            ),
+          );
+
+          // Navigate to drawing categories (main screen)
+          context.go('/drawings/categories');
+        }
+      } catch (e) {
+        print('💥 Error during sign up: $e');
+        
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          // Show error message
+          final errorMessage = e.toString().replaceAll('Exception: ', '');
+          print('🚨 Showing error to user: $errorMessage');
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
       }
+    } else {
+      print('❌ Form validation failed');
     }
   }
 
   void _navigateToSignIn() {
     context.push("/signin");
+  }
+
+  Future<void> _selectBirthdate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2010, 1, 1), // Default to 2010 for kids
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: AppColors.white,
+              surface: AppColors.white,
+              onSurface: AppColors.textDark,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != _selectedBirthdate) {
+      setState(() {
+        _selectedBirthdate = picked;
+      });
+    }
   }
 
   @override
@@ -205,6 +285,72 @@ class _SignUpScreenState extends State<SignUpScreen>
                                   }
                                   return null;
                                 },
+                              ),
+                              const SizedBox(height: 20),
+                              // Birthdate Field
+                              GestureDetector(
+                                onTap: _selectBirthdate,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: AppColors.border,
+                                      width: 1,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primary.withValues(alpha: 0.1),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 18,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.cake_outlined,
+                                        color: AppColors.primary,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Birthdate (Optional)',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.textDark.withValues(alpha: 0.7),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              _selectedBirthdate != null
+                                                  ? DateFormat('MMM dd, yyyy').format(_selectedBirthdate!)
+                                                  : 'Select your birthdate',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: _selectedBirthdate != null
+                                                    ? AppColors.textDark
+                                                    : AppColors.textDark.withValues(alpha: 0.5),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.calendar_today,
+                                        color: AppColors.primary.withValues(alpha: 0.5),
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 20),
                               AuthTextField(

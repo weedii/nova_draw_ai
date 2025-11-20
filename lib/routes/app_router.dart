@@ -13,9 +13,48 @@ import '../presentation/screens/drawing/drawing_upload_screen.dart';
 import '../presentation/screens/drawing/drawing_edit_options_screen.dart';
 import '../presentation/screens/drawing/drawing_final_result_screen.dart';
 import '../presentation/screens/drawing/drawing_story_screen.dart';
+import '../services/auth_service.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: "/welcome",
+  
+  // Auth Guard - Redirect logic for authentication
+  redirect: (BuildContext context, GoRouterState state) async {
+    final isLoggedIn = await AuthService.isLoggedIn();
+    final currentPath = state.uri.toString();
+    
+    // Define public routes (no authentication required)
+    final publicRoutes = [
+      '/welcome',
+      '/signin',
+      '/signup',
+      '/resetpassword',
+    ];
+    
+    // Check if current route is public
+    final isPublicRoute = publicRoutes.any((route) => currentPath.startsWith(route));
+    
+    print('🔐 Auth Guard Check:');
+    print('   Current path: $currentPath');
+    print('   Is logged in: $isLoggedIn');
+    print('   Is public route: $isPublicRoute');
+    
+    // If not logged in and trying to access protected route
+    if (!isLoggedIn && !isPublicRoute) {
+      print('   ❌ Access denied - Redirecting to signin');
+      return '/signin';
+    }
+    
+    // If logged in and trying to access auth routes (except welcome)
+    if (isLoggedIn && (currentPath == '/signin' || currentPath == '/signup')) {
+      print('   ✅ Already logged in - Redirecting to categories');
+      return '/drawings/categories';
+    }
+    
+    print('   ✅ Access granted');
+    return null; // No redirect needed
+  },
+  
   routes: <RouteBase>[
     // Welcome Route
     GoRoute(

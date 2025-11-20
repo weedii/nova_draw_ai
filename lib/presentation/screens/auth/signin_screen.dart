@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../../services/auth_service.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
@@ -45,32 +46,63 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   void _signIn() async {
-    context.push("/drawings/categories");
-    return; // TODO: Remove this
-    // ignore: dead_code
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // TODO: Implement actual sign in logic
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('auth.sign_in_successful'.tr()),
-            backgroundColor: AppColors.success,
-          ),
+      try {
+        print('🎯 Sign in button pressed!');
+        print('📧 Email: ${_emailController.text.trim()}');
+        
+        // Call the auth service to login
+        print('📝 Calling login API...');
+        final authResponse = await AuthService.login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
-        // Navigate to categories after successful sign in
-        context.push("/drawings/categories");
+
+        print('🎉 Login completed successfully!');
+        
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('auth.sign_in_successful'.tr()),
+              backgroundColor: AppColors.success,
+            ),
+          );
+
+          // Navigate to drawing categories
+          context.go('/drawings/categories');
+        }
+      } catch (e) {
+        print('💥 Error during sign in: $e');
+        
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          // Show error message
+          final errorMessage = e.toString().replaceAll('Exception: ', '');
+          print('🚨 Showing error to user: $errorMessage');
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
       }
+    } else {
+      print('❌ Form validation failed');
     }
   }
 

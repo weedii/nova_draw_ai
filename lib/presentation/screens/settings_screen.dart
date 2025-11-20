@@ -1,6 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/colors.dart';
+import '../../services/auth_service.dart';
+import '../../models/user_model.dart';
 import '../animations/app_animations.dart';
 import '../widgets/custom_app_bar.dart';
 
@@ -15,6 +18,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  User? _currentUser;
+  bool _isLoadingUser = true;
 
   @override
   void initState() {
@@ -26,6 +31,23 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
 
     _fadeController.forward();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final user = await AuthService.getCurrentUser();
+      setState(() {
+        _currentUser = user;
+        _isLoadingUser = false;
+      });
+      print('✅ Loaded user: ${user.email}');
+    } catch (e) {
+      print('❌ Failed to load user: $e');
+      setState(() {
+        _isLoadingUser = false;
+      });
+    }
   }
 
   @override
@@ -36,6 +58,109 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   void _changeLanguage(Locale locale) {
     context.setLocale(locale);
+  }
+
+  Future<void> _logout() async {
+    // Show confirmation dialog
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            const Text('👋', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            Text(
+              'settings.logout'.tr(),
+              style: const TextStyle(
+                fontFamily: 'Comic Sans MS',
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'settings.logout_confirmation'.tr(),
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'common.cancel'.tr(),
+              style: const TextStyle(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'settings.logout'.tr(),
+              style: const TextStyle(
+                color: AppColors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      // Show loading
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      try {
+        // Logout
+        await AuthService.logout();
+        print('👋 User logged out successfully');
+
+        // Close loading dialog
+        if (mounted) {
+          Navigator.pop(context);
+        }
+
+        // Navigate to signin
+        if (mounted) {
+          context.go('/signin');
+        }
+      } catch (e) {
+        print('❌ Logout error: $e');
+        
+        // Close loading dialog
+        if (mounted) {
+          Navigator.pop(context);
+        }
+
+        // Show error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to logout: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -63,6 +188,19 @@ class _SettingsScreenState extends State<SettingsScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Column(
                       children: [
+                        const SizedBox(height: 24),
+
+                        // User Profile Section
+                        if (_isLoadingUser)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        else if (_currentUser != null)
+                          _UserProfileCard(user: _currentUser!),
+
                         const SizedBox(height: 24),
 
                         // Language Section
@@ -147,6 +285,61 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     ),
                                   ),
                                 ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Logout Section
+                        _SettingsSectionCard(
+                          title: 'settings.account',
+                          icon: '👤',
+                          child: Column(
+                            children: [
+                              Text(
+                                'settings.logout_description'.tr(),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textDark.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _logout,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.error,
+                                    foregroundColor: AppColors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 24,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 2,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.logout, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'settings.logout'.tr(),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Comic Sans MS',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -314,5 +507,129 @@ class _LanguageButtonState extends State<_LanguageButton>
         ),
       ),
     );
+  }
+}
+
+class _UserProfileCard extends StatelessWidget {
+  final User user;
+
+  const _UserProfileCard({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary,
+            AppColors.primaryDark,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: AppColors.white.withValues(alpha: 0.3),
+                width: 2,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                _getInitials(user.name ?? user.email),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                  fontFamily: 'Comic Sans MS',
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          // User Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.name ?? 'User',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                    fontFamily: 'Comic Sans MS',
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  user.email,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.white.withValues(alpha: 0.9),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          // Badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              children: [
+                Text(
+                  '⭐',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  'Pro',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    } else if (parts.isNotEmpty && parts[0].isNotEmpty) {
+      return parts[0][0].toUpperCase();
+    }
+    return '?';
   }
 }

@@ -360,6 +360,10 @@
     "language_changed": "Language changed successfully!",
     "about": "About",
     "version": "Version",
-    "app_description": "NovaDraw AI - Draw, create, and watch your art come to life with magic!"
+    "app_description": "NovaDraw AI - Draw, create, and watch your art come to life with magic!",
+    "account": "Account",
+    "logout": "Logout",
+    "logout_description": "Sign out of your account",
+    "logout_confirmation": "Are you sure you want to logout?"
   }
 }
