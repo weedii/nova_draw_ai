@@ -18,9 +18,7 @@ class ErrorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 8,
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -44,14 +42,11 @@ class ErrorDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Text(
-                  emoji ?? '❌',
-                  style: const TextStyle(fontSize: 40),
-                ),
+                child: Text(emoji ?? '❌', style: const TextStyle(fontSize: 40)),
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Title
             Text(
               title,
@@ -64,7 +59,7 @@ class ErrorDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            
+
             // Message
             Text(
               message,
@@ -76,7 +71,7 @@ class ErrorDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
+
             // OK Button
             SizedBox(
               width: double.infinity,
@@ -117,45 +112,23 @@ class ErrorDialog extends StatelessWidget {
     return showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) => ErrorDialog(
-        title: title,
-        message: message,
-        emoji: emoji,
-      ),
+      builder: (context) =>
+          ErrorDialog(title: title, message: message, emoji: emoji),
     );
   }
 
-  /// Show error dialog - maps backend errors to translations
+  /// Show error dialog with a message
+  /// Pure reusable component - just displays the error message as-is
   static Future<void> showError(
     BuildContext context,
-    String errorMessage,
-  ) {
-    String emoji = '❌';
-    String translatedMessage = errorMessage;
-    final lowerError = errorMessage.toLowerCase();
-    
-    // Map backend error messages to translation keys
-    if (lowerError.contains('email') && lowerError.contains('already')) {
-      emoji = '📧';
-      translatedMessage = 'errors.email_already_used_message'.tr();
-    } else if (lowerError.contains('password') || lowerError.contains('incorrect')) {
-      emoji = '🔒';
-      translatedMessage = 'errors.login_failed_message'.tr();
-    } else if (lowerError.contains('network') || lowerError.contains('connection')) {
-      emoji = '📡';
-      translatedMessage = 'errors.connection_problem_message'.tr();
-    } else if (lowerError.contains('timeout')) {
-      emoji = '⏱️';
-      translatedMessage = 'errors.taking_too_long_message'.tr();
-    } else if (lowerError.contains('server') || lowerError.contains('wrong') || lowerError.contains('oops')) {
-      emoji = '🛠️';
-      translatedMessage = 'errors.server_error_message'.tr();
-    }
-
+    String errorMessage, {
+    String? title,
+    String? emoji,
+  }) {
     return show(
       context,
-      title: 'common.error'.tr(),
-      message: translatedMessage,
+      title: title ?? 'common.error'.tr(),
+      message: errorMessage,
       emoji: emoji,
     );
   }

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../../services/actions/api_exceptions.dart';
 import '../../../core/constants/colors.dart';
 import '../../../providers/user_provider.dart';
 import '../../widgets/auth_text_field.dart';
@@ -96,15 +97,33 @@ class _SignUpScreenState extends State<SignUpScreen>
           // Router will automatically redirect to /drawings/categories
           // because of the auth state change
         }
-      } catch (e) {
-        print('💥 Error during sign up: $e');
+      } on ApiException catch (e) {
+        print('💥 Error during sign up: ${e.message}');
 
         if (mounted) {
-          // Show beautiful error dialog
-          final errorMessage = e.toString().replaceAll('Exception: ', '');
-          print('🚨 Showing error to user: $errorMessage');
+          String errorMessage = e.message;
+
+          // Map specific error messages to translations
+          if (e.statusCode == 400 &&
+              errorMessage.contains("Password must be at least")) {
+            errorMessage = "auth.errors.weak_password_message".tr();
+          } else if (e.statusCode == 400 &&
+              errorMessage.contains("Email already exists")) {
+            errorMessage = "auth.errors.email_already_used_message".tr();
+          } else {
+            errorMessage = "auth.errors.server_error_message".tr();
+          }
 
           ErrorDialog.showError(context, errorMessage);
+        }
+      } catch (e) {
+        print('💥 Unexpected error during sign up: $e');
+
+        if (mounted) {
+          ErrorDialog.showError(
+            context,
+            "auth.errors.server_error_message".tr(),
+          );
         }
       }
     } else {
@@ -113,7 +132,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   void _navigateToSignIn() {
-    context.push("/signin");
+    context.pushReplacement("/signin");
   }
 
   Future<void> _selectBirthdate() async {
@@ -255,7 +274,9 @@ class _SignUpScreenState extends State<SignUpScreen>
                                   return null;
                                 },
                               ),
+
                               const SizedBox(height: 20),
+
                               AuthTextField(
                                 labelText: 'auth.email'.tr(),
                                 hintText: 'auth.email_hint'.tr(),
@@ -277,87 +298,104 @@ class _SignUpScreenState extends State<SignUpScreen>
                                   return null;
                                 },
                               ),
+
                               const SizedBox(height: 20),
+
                               // Birthdate Field
-                              GestureDetector(
-                                onTap: _selectBirthdate,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: AppColors.border,
-                                      width: 1,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'common.birthdate'.tr(),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textDark,
                                     ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.primary.withValues(
-                                          alpha: 0.1,
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  GestureDetector(
+                                    onTap: _selectBirthdate,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: AppColors.border,
+                                          width: 1,
                                         ),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 18,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.cake_outlined,
-                                        color: AppColors.primary,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Birthdate (Optional)',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: AppColors.textDark
-                                                    .withValues(alpha: 0.7),
-                                              ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.primary.withValues(
+                                              alpha: 0.1,
                                             ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              _selectedBirthdate != null
-                                                  ? DateFormat(
-                                                      'MMM dd, yyyy',
-                                                    ).format(
-                                                      _selectedBirthdate!,
-                                                    )
-                                                  : 'Select your birthdate',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color:
-                                                    _selectedBirthdate != null
-                                                    ? AppColors.textDark
-                                                    : AppColors.textDark
-                                                          .withValues(
-                                                            alpha: 0.5,
-                                                          ),
-                                              ),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 14,
+                                      ),
+
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.cake_outlined,
+                                            color: AppColors.primary,
+                                          ),
+
+                                          const SizedBox(width: 12),
+
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  _selectedBirthdate != null
+                                                      ? DateFormat(
+                                                          'MMM dd, yyyy',
+                                                        ).format(
+                                                          _selectedBirthdate!,
+                                                        )
+                                                      : 'Select your birthdate',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color:
+                                                        _selectedBirthdate !=
+                                                            null
+                                                        ? AppColors.textDark
+                                                        : AppColors.textDark
+                                                              .withValues(
+                                                                alpha: 0.5,
+                                                              ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                          Icon(
+                                            Icons.calendar_today,
+                                            color: AppColors.primary.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                            size: 20,
+                                          ),
+                                        ],
                                       ),
-                                      Icon(
-                                        Icons.calendar_today,
-                                        color: AppColors.primary.withValues(
-                                          alpha: 0.5,
-                                        ),
-                                        size: 20,
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
+
                               const SizedBox(height: 20),
+
                               AuthTextField(
                                 labelText: 'auth.password'.tr(),
                                 hintText: 'auth.password_hint'.tr(),

@@ -9,7 +9,7 @@ import 'api_exceptions.dart';
 /// Base class for all API services providing common functionality
 abstract class BaseApiService {
   /// Timeout duration for API requests
-  static const Duration _timeout = Duration(seconds: 180);
+  static const Duration _timeout = Duration(seconds: 10);
 
   /// Authentication token for API requests
   static String? _authToken;
@@ -38,7 +38,9 @@ abstract class BaseApiService {
   }
 
   /// Get default headers with optional auth token
-  static Map<String, String> _getHeaders({Map<String, String>? additionalHeaders}) {
+  static Map<String, String> _getHeaders({
+    Map<String, String>? additionalHeaders,
+  }) {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -326,11 +328,12 @@ abstract class BaseApiService {
       try {
         final errorData = jsonDecode(response.body);
         final errorMessage = errorData['detail'] ?? 'Unknown error occurred';
-        throw ApiException('API Error (${response.statusCode}): $errorMessage');
+        throw ApiException(errorMessage, statusCode: response.statusCode);
       } catch (e) {
         if (e is ApiException) rethrow;
         throw ApiException(
-          'HTTP Error (${response.statusCode}): ${response.reasonPhrase}',
+          response.reasonPhrase ?? 'Unknown error',
+          statusCode: response.statusCode,
         );
       }
     }

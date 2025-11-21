@@ -165,7 +165,8 @@ class UserProvider extends ChangeNotifier {
       print('✅ Login successful: ${_currentUser!.email}');
       notifyListeners();
     } on ApiException catch (e) {
-      print('❌ Login failed: ${e.message}');
+      print('❌ Login failed: ${e.statusCode}');
+
       _state = AuthState.error;
       _error = e.message;
       notifyListeners();

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nova_draw_ai/services/actions/api_exceptions.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../providers/user_provider.dart';
@@ -75,13 +76,19 @@ class _SignInScreenState extends State<SignInScreen>
           // Router will automatically redirect to /drawings/categories
           // because of the auth state change
         }
-      } catch (e) {
-        print('💥 Error during sign in: $e');
+      } on ApiException catch (e) {
+        print('💥 Error during sign in: ${e.message}');
 
         if (mounted) {
-          // Show beautiful error dialog
-          final errorMessage = e.toString().replaceAll('Exception: ', '');
-          print('🚨 Showing error to user: $errorMessage');
+          String errorMessage = e.message;
+
+          // Map specific error messages to translations
+          if (e.statusCode == 404 && e.message.contains('User not found')) {
+            errorMessage = 'auth.errors.login_failed_user_not_found'.tr();
+          } else if (e.statusCode == 401 &&
+              e.message.contains('Invalid Credentials')) {
+            errorMessage = 'auth.errors.login_failed_invalid_credentials'.tr();
+          }
 
           ErrorDialog.showError(context, errorMessage);
         }
