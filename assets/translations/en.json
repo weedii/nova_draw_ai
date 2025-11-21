@@ -25,7 +25,8 @@
     "upload": "Upload",
     "draw_another": "Draw Another",
     "create_story": "Create a Story",
-    "compare": "Compare"
+    "compare": "Compare",
+    "birthdate": "Birthdate"
   },
   
   "app_bar": {
@@ -81,7 +82,29 @@
     "error_name_required": "Please enter your full name",
     "error_name_length": "Name must be at least 2 characters",
     "error_confirm_password": "Please confirm your password",
-    "error_passwords_mismatch": "Passwords do not match"
+    "error_passwords_mismatch": "Passwords do not match",
+
+    "errors": {
+      "oops": "Oops!",
+      "email_already_used": "Email Already Used",
+      "email_already_used_message": "This email is already registered. Try logging in instead!",
+      "login_failed": "Login Failed",
+      "login_failed_user_not_found": "User not found. Create an account first!",
+      "login_failed_invalid_credentials": "Invalid Credentials",
+      "connection_problem": "Connection Problem",
+      "connection_problem_message": "Cannot connect to the server. Please check your internet connection!",
+      "taking_too_long": "Taking Too Long",
+      "taking_too_long_message": "The request is taking too long. Please try again!",
+      "weak_password": "Weak Password",
+      "weak_password_message": "Please use a stronger password with at least 6 characters!",
+      "invalid_email": "Invalid Email",
+      "invalid_email_message": "Please enter a valid email address!",
+      "account_not_found": "Account Not Found",
+      "account_not_found_message": "No account found with this email. Try signing up!",
+      "server_error": "Server Error",
+      "server_error_message": "Something went wrong on our end. Please try again later!",
+      "ok": "OK"
+    }
   },
   
   "categories": {
@@ -364,6 +387,10 @@
     "language_changed": "Language changed successfully!",
     "about": "About",
     "version": "Version",
-    "app_description": "NovaDraw AI - Draw, create, and watch your art come to life with magic!"
+    "app_description": "NovaDraw AI - Draw, create, and watch your art come to life with magic!",
+    "account": "Account",
+    "logout": "Logout",
+    "logout_description": "Sign out of your account",
+    "logout_confirmation": "Are you sure you want to logout?"
   }
 }

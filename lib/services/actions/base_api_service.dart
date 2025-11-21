@@ -9,7 +9,10 @@ import 'api_exceptions.dart';
 /// Base class for all API services providing common functionality
 abstract class BaseApiService {
   /// Timeout duration for API requests
-  static const Duration _timeout = Duration(seconds: 180);
+  static const Duration _timeout = Duration(seconds: 10);
+
+  /// Authentication token for API requests
+  static String? _authToken;
 
   /// Get the base URL for API requests from .env file
   /// Falls back to default URL if not configured
@@ -22,6 +25,40 @@ abstract class BaseApiService {
   /// Get the timeout duration for API requests
   static Duration get timeout => _timeout;
 
+  /// Set authentication token for API requests
+  static void setAuthToken(String token) {
+    _authToken = token;
+    print('🔑 Auth token set in BaseApiService');
+  }
+
+  /// Clear authentication token
+  static void clearAuthToken() {
+    _authToken = null;
+    print('🔓 Auth token cleared from BaseApiService');
+  }
+
+  /// Get default headers with optional auth token
+  static Map<String, String> _getHeaders({
+    Map<String, String>? additionalHeaders,
+  }) {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    // Add auth token if available
+    if (_authToken != null) {
+      headers['Authorization'] = 'Bearer $_authToken';
+    }
+
+    // Add any additional headers
+    if (additionalHeaders != null) {
+      headers.addAll(additionalHeaders);
+    }
+
+    return headers;
+  }
+
   /// Make a GET request to the specified endpoint
   static Future<http.Response> get(
     String endpoint, {
@@ -29,17 +66,10 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
 
     return await http
-        .get(url, headers: defaultHeaders)
+        .get(url, headers: requestHeaders)
         .timeout(timeout ?? _timeout);
   }
 
@@ -51,19 +81,11 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
-
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
     final requestBody = body != null ? jsonEncode(body) : null;
 
     return await http
-        .post(url, headers: defaultHeaders, body: requestBody)
+        .post(url, headers: requestHeaders, body: requestBody)
         .timeout(timeout ?? _timeout);
   }
 
@@ -75,19 +97,11 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
-
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
     final requestBody = body != null ? jsonEncode(body) : null;
 
     return await http
-        .put(url, headers: defaultHeaders, body: requestBody)
+        .put(url, headers: requestHeaders, body: requestBody)
         .timeout(timeout ?? _timeout);
   }
 
@@ -98,17 +112,10 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
 
     return await http
-        .delete(url, headers: defaultHeaders)
+        .delete(url, headers: requestHeaders)
         .timeout(timeout ?? _timeout);
   }
 
@@ -122,6 +129,11 @@ abstract class BaseApiService {
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final request = http.MultipartRequest('POST', url);
+
+    // Add auth token if available
+    if (_authToken != null) {
+      request.headers['Authorization'] = 'Bearer $_authToken';
+    }
 
     // Determine content type from file extension
     String? contentType;
@@ -207,6 +219,11 @@ abstract class BaseApiService {
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final request = http.MultipartRequest('POST', url);
+
+    // Add auth token if available
+    if (_authToken != null) {
+      request.headers['Authorization'] = 'Bearer $_authToken';
+    }
 
     // Determine image content type from file extension
     String imageContentType;
@@ -311,11 +328,12 @@ abstract class BaseApiService {
       try {
         final errorData = jsonDecode(response.body);
         final errorMessage = errorData['detail'] ?? 'Unknown error occurred';
-        throw ApiException('API Error (${response.statusCode}): $errorMessage');
+        throw ApiException(errorMessage, statusCode: response.statusCode);
       } catch (e) {
         if (e is ApiException) rethrow;
         throw ApiException(
-          'HTTP Error (${response.statusCode}): ${response.reasonPhrase}',
+          response.reasonPhrase ?? 'Unknown error',
+          statusCode: response.statusCode,
         );
       }
     }

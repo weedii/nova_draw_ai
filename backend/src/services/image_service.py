@@ -4,8 +4,8 @@ from PIL import Image
 from io import BytesIO
 from google import genai
 from typing import Optional
-from core.config import settings
-from utils.file_operations import sanitize_filename
+from src.core.config import settings
+from src.utils.file_operations import sanitize_filename
 
 
 class ImageService:

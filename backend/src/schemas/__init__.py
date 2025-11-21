@@ -9,7 +9,7 @@ This module exports all Pydantic models used for:
 These are separate from SQLAlchemy ORM models (in models/).
 
 Usage:
-    from schemas import HealthResponse, FullTutorialRequest
+    from schemas import HealthResponse, FullTutorialRequest, RegisterRequest
 
     @app.get("/health", response_model=HealthResponse)
     async def health():
@@ -32,6 +32,15 @@ from .image import (
 from .story import StoryRequest, StoryResponse
 from .audio import EditImageWithAudioResponse
 from .error import ErrorResponse, SessionInfo
+from .auth import (
+    RegisterRequest,
+    LoginRequest,
+    RefreshTokenRequest,
+    UserResponse,
+    AuthResponse,
+    TokenRefreshResponse,
+    MessageResponse,
+)
 from .edit_option import (
     EditOptionCreate,
     EditOptionUpdate,
@@ -55,6 +64,13 @@ __all__ = [
     "EditImageWithAudioResponse",
     "ErrorResponse",
     "SessionInfo",
+    "RegisterRequest",
+    "LoginRequest",
+    "RefreshTokenRequest",
+    "UserResponse",
+    "AuthResponse",
+    "TokenRefreshResponse",
+    "MessageResponse",
     "EditOptionCreate",
     "EditOptionUpdate",
     "EditOptionRead",

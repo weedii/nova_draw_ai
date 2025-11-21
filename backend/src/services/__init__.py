@@ -1,12 +1,24 @@
 """
-Service layer for Nova Draw AI backend.
+Services package for Nova Draw AI backend.
 
-Services contain business logic and are called by endpoints.
-Each service handles a specific domain (e.g., EditOptionService for edit options).
-
-Usage:
-    from services.edit_option_service import EditOptionService
-    from database import get_db
-
-    response = await EditOptionService.get_edit_options_by_subject(db, "Animals", "dog")
+Business logic layer that orchestrates between repositories, models, and external APIs.
 """
+
+from .auth_service import AuthService
+from .story_service import StoryService
+from .tutorial_service import TutorialService
+from .image_service import ImageService
+from .drawing_service import DrawingService
+from .audio_service import AudioService
+from .image_processing_service import ImageProcessingService
+
+__all__ = [
+    "AuthService",
+    "StoryService",
+    "TutorialService",
+    "ImageService",
+    "DrawingService",
+    "AudioService",
+    "ImageProcessingService",
+]
+

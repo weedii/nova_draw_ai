@@ -28,3 +28,9 @@ sqlalchemy==2.0.44
 psycopg2-binary==2.9.11
 alembic==1.17.2
 asyncpg==0.30.0
+
+# Authentication
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+email-validator==2.3.0

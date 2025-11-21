@@ -19,6 +19,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
 from src.services.edit_option_service import EditOptionService
+from src.services import AuthService
+from src.models import User
 from src.schemas import EditOptionsListResponse
 import logging
 
@@ -33,12 +35,17 @@ router = APIRouter(prefix="/api", tags=["edit-options"])
     summary="Get all categories with edit options",
     description="Fetch all unique categories that have edit options available",
 )
-async def get_categories(db: AsyncSession = Depends(get_db)):
+async def get_categories(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
+):
     """
     Get all unique categories that have edit options.
 
     This endpoint is called when the app first loads to display available categories
     like "Animals", "Nature", etc.
+
+    **Authentication Required:** User must be logged in.
 
     Returns:
         - success: bool - Whether the request was successful
@@ -46,11 +53,12 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
         - count: int - Number of categories
 
     Raises:
+        HTTPException 401: If user is not authenticated
         HTTPException 404: If no categories found
         HTTPException 500: If database error occurs
     """
     try:
-        logger.info("Fetching all categories")
+        logger.info(f"User {current_user.email} fetching all categories")
         response = await EditOptionService.get_categories(db)
         return response
 
@@ -70,12 +78,18 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
     summary="Get all subjects in a category",
     description="Fetch all unique subjects available in a specific category",
 )
-async def get_subjects_by_category(category: str, db: AsyncSession = Depends(get_db)):
+async def get_subjects_by_category(
+    category: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
+):
     """
     Get all subjects available in a specific category.
 
     This endpoint is called when a kid selects a category to see all available subjects
     (e.g., "dog", "cat", "bird" in the "Animals" category).
+
+    **Authentication Required:** User must be logged in.
 
     Args:
         category: Category name (e.g., "Animals")
@@ -86,11 +100,14 @@ async def get_subjects_by_category(category: str, db: AsyncSession = Depends(get
         - count: int - Number of subjects
 
     Raises:
+        HTTPException 401: If user is not authenticated
         HTTPException 404: If category not found or no subjects available
         HTTPException 500: If database error occurs
     """
     try:
-        logger.info(f"Fetching subjects for category '{category}'")
+        logger.info(
+            f"User {current_user.email} fetching subjects for category '{category}'"
+        )
         response = await EditOptionService.get_subjects_by_category(db, category)
         return response
 
@@ -112,13 +129,18 @@ async def get_subjects_by_category(category: str, db: AsyncSession = Depends(get
     description="Fetch all available edit options for a specific subject in a category",
 )
 async def get_edit_options_by_subject(
-    category: str, subject: str, db: AsyncSession = Depends(get_db)
+    category: str,
+    subject: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
 ):
     """
     Get all edit options for a specific subject.
 
     This endpoint is called when a kid selects a subject and needs to see all available
     edit options (e.g., "Make it colorful", "Add sunglasses" for the "dog" subject).
+
+    **Authentication Required:** User must be logged in.
 
     Args:
         category: Category name (e.g., "Animals")
@@ -131,11 +153,13 @@ async def get_edit_options_by_subject(
         - count: int - Number of edit options
 
     Raises:
+        HTTPException 401: If user is not authenticated
         HTTPException 404: If subject not found or no options available
         HTTPException 500: If database error occurs
 
     Example:
         GET /api/edit-options/Animals/dog
+        Headers: Authorization: Bearer <token>
         Returns:
         {
             "success": true,
@@ -157,7 +181,9 @@ async def get_edit_options_by_subject(
         }
     """
     try:
-        logger.info(f"Fetching edit options for {category}/{subject}")
+        logger.info(
+            f"User {current_user.email} fetching edit options for {category}/{subject}"
+        )
         response = await EditOptionService.get_edit_options_by_subject(
             db, category, subject
         )

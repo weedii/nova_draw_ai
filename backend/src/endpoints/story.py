@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from src.schemas import StoryRequest, StoryResponse
 from src.services.story_service import StoryService
+from src.services import AuthService
+from src.models import User
 from src.core.config import settings
 from src.database import get_db
 import logging
@@ -21,11 +23,17 @@ if settings.OPENAI_API_KEY:
 
 
 @router.post("/create-story", response_model=StoryResponse)
-async def create_story(request: StoryRequest, db: AsyncSession = Depends(get_db)):
+async def create_story(
+    request: StoryRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user)
+):
     """
     Generate a children's story (ages 4-7) from an uploaded image.
     Supports English ('en') and German ('de') story generation.
     Saves the generated story to the database.
+    
+    **Authentication Required:** User must be logged in.
     """
     try:
         # Check if story service is available
@@ -35,12 +43,16 @@ async def create_story(request: StoryRequest, db: AsyncSession = Depends(get_db)
                 detail="Story generation service not available. Please configure OpenAI API key.",
             )
 
+        # Use authenticated user's ID instead of request user_id
+        # This ensures users can only create stories for themselves
+        user_id = current_user.id
+
         # Delegate all business logic to the service layer
         result = await story_service.create_story(
             db=db,
             image_base64=request.image,
             language=request.language,
-            user_id=UUID(request.user_id),
+            user_id=user_id,
             drawing_id=UUID(request.drawing_id) if request.drawing_id else None,
             image_url=request.image_url or "",
         )

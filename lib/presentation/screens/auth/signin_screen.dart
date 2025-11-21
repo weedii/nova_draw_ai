@@ -1,10 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nova_draw_ai/services/actions/api_exceptions.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../../providers/user_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/error_dialog.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -18,7 +22,6 @@ class _SignInScreenState extends State<SignInScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -45,32 +48,53 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   void _signIn() async {
-    context.push("/drawings/categories");
-    return; // TODO: Remove this
-    // ignore: dead_code
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        print('🎯 Sign in button pressed!');
+        print('📧 Email: ${_emailController.text.trim()}');
 
-      setState(() {
-        _isLoading = false;
-      });
-
-      // TODO: Implement actual sign in logic
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('auth.sign_in_successful'.tr()),
-            backgroundColor: AppColors.success,
-          ),
+        // Call the user provider to login
+        print('📝 Calling login...');
+        await userProvider.login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
-        // Navigate to categories after successful sign in
-        context.push("/drawings/categories");
+
+        print('🎉 Login completed successfully!');
+
+        if (mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('auth.sign_in_successful'.tr()),
+              backgroundColor: AppColors.success,
+            ),
+          );
+
+          // Router will automatically redirect to /drawings/categories
+          // because of the auth state change
+        }
+      } on ApiException catch (e) {
+        print('💥 Error during sign in: ${e.message}');
+
+        if (mounted) {
+          String errorMessage = e.message;
+
+          // Map specific error messages to translations
+          if (e.statusCode == 404 && e.message.contains('User not found')) {
+            errorMessage = 'auth.errors.login_failed_user_not_found'.tr();
+          } else if (e.statusCode == 401 &&
+              e.message.contains('Invalid Credentials')) {
+            errorMessage = 'auth.errors.login_failed_invalid_credentials'.tr();
+          }
+
+          ErrorDialog.showError(context, errorMessage);
+        }
       }
+    } else {
+      print('❌ Form validation failed');
     }
   }
 
@@ -84,6 +108,10 @@ class _SignInScreenState extends State<SignInScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch user provider for loading state
+    final userProvider = context.watch<UserProvider>();
+    final isLoading = userProvider.isLoading;
+
     return Stack(
       children: [
         Scaffold(
@@ -202,9 +230,6 @@ class _SignInScreenState extends State<SignInScreen>
                                   if (value == null || value.isEmpty) {
                                     return 'auth.error_password_required'.tr();
                                   }
-                                  if (value.length < 6) {
-                                    return 'auth.error_password_length'.tr();
-                                  }
                                   return null;
                                 },
                               ),
@@ -226,7 +251,7 @@ class _SignInScreenState extends State<SignInScreen>
                               AuthButton(
                                 text: 'auth.sign_in'.tr(),
                                 onPressed: _signIn,
-                                isLoading: _isLoading,
+                                isLoading: isLoading,
                                 icon: const Icon(Icons.login, size: 20),
                               ),
                             ],
@@ -273,7 +298,7 @@ class _SignInScreenState extends State<SignInScreen>
         ),
 
         // Full-screen loading overlay
-        if (_isLoading)
+        if (isLoading)
           CustomLoadingWidget(
             message: 'auth.signing_in',
             subtitle: 'common.please_wait',
