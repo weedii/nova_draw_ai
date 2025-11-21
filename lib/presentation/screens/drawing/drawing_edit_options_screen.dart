@@ -20,7 +20,7 @@ class DrawingEditOptionsScreen extends StatefulWidget {
   final String drawingId;
   final File? uploadedImage;
 
-  DrawingEditOptionsScreen({
+  const DrawingEditOptionsScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,

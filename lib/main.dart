@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'core/constants/colors.dart';
+import 'providers/auth_provider.dart';
 import 'providers/drawing_provider.dart';
 import 'routes/app_router.dart';
 
@@ -14,9 +16,16 @@ void main() async {
 
   await EasyLocalization.ensureInitialized();
 
+  // Create auth provider and check auth status
+  final authProvider = AuthProvider();
+  await authProvider.checkAuthStatus();
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => DrawingProvider())],
+      providers: [
+        ChangeNotifierProvider.value(value: authProvider),
+        ChangeNotifierProvider(create: (_) => DrawingProvider()),
+      ],
       child: EasyLocalization(
         supportedLocales: [Locale('en'), Locale('de')],
         path: 'assets/translations',
@@ -28,8 +37,23 @@ void main() async {
   );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create router once and reuse it
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _router = createAppRouter(authProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +88,7 @@ class MainApp extends StatelessWidget {
         ),
       ),
 
-      routerConfig: appRouter,
+      routerConfig: _router,
     );
   }
 }

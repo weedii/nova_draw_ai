@@ -1,8 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
-import '../../../services/auth_service.dart';
+import '../../../providers/auth_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
@@ -23,7 +24,6 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   DateTime? _selectedBirthdate;
-  bool _isLoading = false;
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -53,9 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen>
 
   void _signUp() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       try {
         print('🎯 Sign up button pressed!');
@@ -64,16 +62,16 @@ class _SignUpScreenState extends State<SignUpScreen>
         
         // Test connection first
         print('🧪 Testing backend connection...');
-        final isConnected = await AuthService.testConnection();
+        final isConnected = await authProvider.testConnection();
         if (!isConnected) {
           throw Exception('Cannot connect to server. Please check if the backend is running.');
         }
         print('✅ Backend connection successful!');
         
-        // Call the auth service to register
-        print('📝 Calling register API...');
+        // Call the auth provider to register
+        print('📝 Calling register...');
         print('🎂 Birthdate: $_selectedBirthdate');
-        final authResponse = await AuthService.register(
+        await authProvider.register(
           email: _emailController.text.trim(),
           password: _passwordController.text,
           name: _nameController.text.trim().isEmpty 
@@ -83,10 +81,6 @@ class _SignUpScreenState extends State<SignUpScreen>
         );
 
         print('🎉 Registration completed successfully!');
-        
-        setState(() {
-          _isLoading = false;
-        });
 
         if (mounted) {
           // Show success message
@@ -97,15 +91,11 @@ class _SignUpScreenState extends State<SignUpScreen>
             ),
           );
 
-          // Navigate to drawing categories (main screen)
-          context.go('/drawings/categories');
+          // Router will automatically redirect to /drawings/categories
+          // because of the auth state change
         }
       } catch (e) {
         print('💥 Error during sign up: $e');
-        
-        setState(() {
-          _isLoading = false;
-        });
 
         if (mounted) {
           // Show beautiful error dialog
@@ -154,6 +144,10 @@ class _SignUpScreenState extends State<SignUpScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch auth provider for loading state
+    final authProvider = context.watch<AuthProvider>();
+    final isLoading = authProvider.isLoading;
+
     return Stack(
       children: [
         Scaffold(
@@ -391,7 +385,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                               AuthButton(
                                 text: 'auth.create_account'.tr(),
                                 onPressed: _signUp,
-                                isLoading: _isLoading,
+                                isLoading: isLoading,
                                 icon: const Icon(Icons.person_add, size: 20),
                               ),
                             ],
@@ -438,7 +432,7 @@ class _SignUpScreenState extends State<SignUpScreen>
         ),
 
         // Full-screen loading overlay
-        if (_isLoading)
+        if (isLoading)
           CustomLoadingWidget(
             message: 'auth.creating_account',
             subtitle: 'common.please_wait',

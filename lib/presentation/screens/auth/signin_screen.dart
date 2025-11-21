@@ -1,8 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
-import '../../../services/auth_service.dart';
+import '../../../providers/auth_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
@@ -20,7 +21,6 @@ class _SignInScreenState extends State<SignInScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -48,26 +48,20 @@ class _SignInScreenState extends State<SignInScreen>
 
   void _signIn() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       try {
         print('🎯 Sign in button pressed!');
         print('📧 Email: ${_emailController.text.trim()}');
         
-        // Call the auth service to login
-        print('📝 Calling login API...');
-        final authResponse = await AuthService.login(
+        // Call the auth provider to login
+        print('📝 Calling login...');
+        await authProvider.login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
         print('🎉 Login completed successfully!');
-        
-        setState(() {
-          _isLoading = false;
-        });
 
         if (mounted) {
           // Show success message
@@ -78,15 +72,11 @@ class _SignInScreenState extends State<SignInScreen>
             ),
           );
 
-          // Navigate to drawing categories
-          context.go('/drawings/categories');
+          // Router will automatically redirect to /drawings/categories
+          // because of the auth state change
         }
       } catch (e) {
         print('💥 Error during sign in: $e');
-        
-        setState(() {
-          _isLoading = false;
-        });
 
         if (mounted) {
           // Show beautiful error dialog
@@ -111,6 +101,10 @@ class _SignInScreenState extends State<SignInScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch auth provider for loading state
+    final authProvider = context.watch<AuthProvider>();
+    final isLoading = authProvider.isLoading;
+
     return Stack(
       children: [
         Scaffold(
@@ -250,7 +244,7 @@ class _SignInScreenState extends State<SignInScreen>
                               AuthButton(
                                 text: 'auth.sign_in'.tr(),
                                 onPressed: _signIn,
-                                isLoading: _isLoading,
+                                isLoading: isLoading,
                                 icon: const Icon(Icons.login, size: 20),
                               ),
                             ],
@@ -297,7 +291,7 @@ class _SignInScreenState extends State<SignInScreen>
         ),
 
         // Full-screen loading overlay
-        if (_isLoading)
+        if (isLoading)
           CustomLoadingWidget(
             message: 'auth.signing_in',
             subtitle: 'common.please_wait',

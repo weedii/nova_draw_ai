@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
-import '../../services/auth_service.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
 import '../animations/app_animations.dart';
 import '../widgets/custom_app_bar.dart';
@@ -18,8 +18,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-  User? _currentUser;
-  bool _isLoadingUser = true;
 
   @override
   void initState() {
@@ -31,23 +29,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
 
     _fadeController.forward();
-    _loadCurrentUser();
-  }
-
-  Future<void> _loadCurrentUser() async {
-    try {
-      final user = await AuthService.getCurrentUser();
-      setState(() {
-        _currentUser = user;
-        _isLoadingUser = false;
-      });
-      print('✅ Loaded user: ${user.email}');
-    } catch (e) {
-      print('❌ Failed to load user: $e');
-      setState(() {
-        _isLoadingUser = false;
-      });
-    }
   }
 
   @override
@@ -117,38 +98,17 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
 
     if (confirm == true) {
-      // Show loading
-      if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       try {
         // Logout
-        await AuthService.logout();
+        await authProvider.logout();
         print('👋 User logged out successfully');
 
-        // Close loading dialog
-        if (mounted) {
-          Navigator.pop(context);
-        }
-
-        // Navigate to signin
-        if (mounted) {
-          context.go('/signin');
-        }
+        // Router will automatically redirect to /signin
+        // because of the auth state change
       } catch (e) {
         print('❌ Logout error: $e');
-        
-        // Close loading dialog
-        if (mounted) {
-          Navigator.pop(context);
-        }
 
         // Show error
         if (mounted) {
@@ -165,6 +125,11 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch auth provider for user data
+    final authProvider = context.watch<AuthProvider>();
+    final currentUser = authProvider.currentUser;
+    final isLoading = authProvider.isLoading;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
@@ -191,15 +156,15 @@ class _SettingsScreenState extends State<SettingsScreen>
                         const SizedBox(height: 24),
 
                         // User Profile Section
-                        if (_isLoadingUser)
+                        if (isLoading)
                           const Center(
                             child: Padding(
                               padding: EdgeInsets.all(20.0),
                               child: CircularProgressIndicator(),
                             ),
                           )
-                        else if (_currentUser != null)
-                          _UserProfileCard(user: _currentUser!),
+                        else if (currentUser != null)
+                          _UserProfileCard(user: currentUser),
 
                         const SizedBox(height: 24),
 

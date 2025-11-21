@@ -13,47 +13,54 @@ import '../presentation/screens/drawing/drawing_upload_screen.dart';
 import '../presentation/screens/drawing/drawing_edit_options_screen.dart';
 import '../presentation/screens/drawing/drawing_final_result_screen.dart';
 import '../presentation/screens/drawing/drawing_story_screen.dart';
-import '../services/auth_service.dart';
+import '../providers/auth_provider.dart';
 
-final GoRouter appRouter = GoRouter(
-  initialLocation: "/welcome",
-  
-  // Auth Guard - Redirect logic for authentication
-  redirect: (BuildContext context, GoRouterState state) async {
-    final isLoggedIn = await AuthService.isLoggedIn();
-    final currentPath = state.uri.toString();
+// Create router as a function to access BuildContext
+GoRouter createAppRouter(AuthProvider authProvider) {
+  return GoRouter(
+    initialLocation: "/welcome",
     
-    // Define public routes (no authentication required)
-    final publicRoutes = [
-      '/welcome',
-      '/signin',
-      '/signup',
-      '/resetpassword',
-    ];
+    // Make router reactive to auth state changes
+    refreshListenable: authProvider,
     
-    // Check if current route is public
-    final isPublicRoute = publicRoutes.any((route) => currentPath.startsWith(route));
-    
-    print('🔐 Auth Guard Check:');
-    print('   Current path: $currentPath');
-    print('   Is logged in: $isLoggedIn');
-    print('   Is public route: $isPublicRoute');
-    
-    // If not logged in and trying to access protected route
-    if (!isLoggedIn && !isPublicRoute) {
-      print('   ❌ Access denied - Redirecting to signin');
-      return '/signin';
-    }
-    
-    // If logged in and trying to access auth routes (except welcome)
-    if (isLoggedIn && (currentPath == '/signin' || currentPath == '/signup')) {
-      print('   ✅ Already logged in - Redirecting to categories');
-      return '/drawings/categories';
-    }
-    
-    print('   ✅ Access granted');
-    return null; // No redirect needed
-  },
+    // Auth Guard - Redirect logic for authentication
+    redirect: (BuildContext context, GoRouterState state) {
+      final authState = authProvider.state;
+      final isAuthenticated = authState == AuthState.authenticated;
+      final currentPath = state.uri.toString();
+      
+      // Define public routes (no authentication required)
+      final publicRoutes = [
+        '/welcome',
+        '/signin',
+        '/signup',
+        '/resetpassword',
+      ];
+      
+      // Check if current route is public
+      final isPublicRoute = publicRoutes.any((route) => currentPath.startsWith(route));
+      
+      print('🔐 Auth Guard Check:');
+      print('   Current path: $currentPath');
+      print('   Auth state: $authState');
+      print('   Is authenticated: $isAuthenticated');
+      print('   Is public route: $isPublicRoute');
+      
+      // If not authenticated and trying to access protected route
+      if (!isAuthenticated && !isPublicRoute) {
+        print('   ❌ Access denied - Redirecting to signin');
+        return '/signin';
+      }
+      
+      // If authenticated and on any public route, redirect to categories
+      if (isAuthenticated && isPublicRoute) {
+        print('   ✅ Already authenticated - Redirecting to categories');
+        return '/drawings/categories';
+      }
+      
+      print('   ✅ Access granted');
+      return null; // No redirect needed
+    },
   
   routes: <RouteBase>[
     // Welcome Route
@@ -170,4 +177,5 @@ final GoRouter appRouter = GoRouter(
       },
     ),
   ],
-);
+  );
+}
