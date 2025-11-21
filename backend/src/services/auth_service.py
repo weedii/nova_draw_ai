@@ -170,8 +170,8 @@ class AuthService:
             user = await UserRepository.find_by_email(db, request.email)
             if not user:
                 raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Email or password is incorrect. Please try again!",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found. Create an account first!",
                 )
 
             # Verify password
@@ -181,7 +181,7 @@ class AuthService:
             if not is_valid:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Email or password is incorrect. Please try again!",
+                    detail="Invalid Credentials",
                 )
 
             # Generate new tokens

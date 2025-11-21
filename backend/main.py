@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from src.core.config import settings
-from src.endpoints import auth, health, tutorial, image, story
+from src.endpoints import auth, health, tutorial, image, story, edit_option
 
 # Initialize FastAPI app
 app = FastAPI(
