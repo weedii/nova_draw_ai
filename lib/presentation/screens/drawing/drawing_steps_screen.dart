@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -202,96 +201,74 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
       );
     }
 
-    // Decode base64 image from API
-    try {
-      final bytes = base64Decode(stepData.stepImg);
-      return Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image.memory(
-            bytes,
-            fit: BoxFit.contain,
-            width: double.infinity,
-            height: double.infinity,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.error.withValues(alpha: 0.8),
-                      AppColors.accent.withValues(alpha: 0.6),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.broken_image,
-                      size: 80,
-                      color: AppColors.white,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'drawing_steps.failed_load_image'.tr(),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.white,
-                      ),
-                    ),
+    // Load image from URL
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Image.network(
+          stepData.stepImg,
+          fit: BoxFit.contain,
+          width: double.infinity,
+          height: double.infinity,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.error.withValues(alpha: 0.8),
+                    AppColors.accent.withValues(alpha: 0.6),
                   ],
                 ),
-              );
-            },
-          ),
-        ),
-      );
-    } catch (e) {
-      // Fallback to placeholder
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.error.withValues(alpha: 0.8),
-              AppColors.accent.withValues(alpha: 0.6),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 80, color: AppColors.white),
-            const SizedBox(height: 16),
-            Text(
-              'drawing_steps.image_error'.tr(),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.white,
+                borderRadius: BorderRadius.circular(20),
               ),
-            ),
-          ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.broken_image,
+                    size: 80,
+                    color: AppColors.white,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'drawing_steps.failed_load_image'.tr(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
-      );
-    }
+      ),
+    );
   }
 
   // Loading screen while API generates steps
@@ -375,7 +352,8 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                             Expanded(
                               child: CustomButton(
                                 label: 'drawing_steps.use_offline',
-                                onPressed: () => provider.useStaticDataFallback(),
+                                onPressed: () =>
+                                    provider.useStaticDataFallback(),
                                 backgroundColor: AppColors.white,
                                 textColor: AppColors.primary,
                                 borderColor: AppColors.primary,
@@ -634,8 +612,9 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                               backgroundColor: AppColors.primary,
                               textColor: AppColors.white,
                               icon: !provider.hasNextStep
-                                  ? Icons.check_circle
+                                  ? null
                                   : Icons.arrow_forward,
+                              iconPosition: 'right',
                               borderRadius: 16,
                             ),
                           ),

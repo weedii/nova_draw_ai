@@ -333,9 +333,9 @@
     "no_story_to_read": "Keine Geschichte zum Vorlesen verfügbar",
     "save_story": "Geschichte speichern",
     "share_story": "Geschichte teilen",
-    "read_aloud_coming_soon": "Vorlese-Funktion kommt bald! 🔊",
-    "save_coming_soon": "Geschichte speichern-Funktion kommt bald! 💾",
-    "share_coming_soon": "Geschichte teilen-Funktion kommt bald! 📤"
+    "read_aloud_coming_soon": "Vorlese-Funktion kommt bald! ",
+    "save_coming_soon": "Geschichte speichern-Funktion kommt bald! ",
+    "share_coming_soon": "Geschichte teilen-Funktion kommt bald! "
   },
 
   "edit_options": {
@@ -355,13 +355,17 @@
     "recording_complete": "Verstanden!",
     "restart_recording": "Aufnahme Neu Starten",
     "send_with_voice": "Meine Geschichte Senden",
-    "no_recording": "Noch nichts"
+    "no_recording": "Noch nichts",
+    "loading_options": "Optionen werden geladen",
+    "fetching_from_server": "Bearbeitungsoptionen vom Server abrufen...",
+    "loading_failed": "Optionen konnten nicht geladen werden",
+    "loading_error": "Ein Fehler ist beim Laden der Bearbeitungsoptionen aufgetreten. Bitte versuchen Sie es erneut."
   },
 
   "final_result": {
     "your_amazing_drawing": "Deine fantastische Zeichnung!",
     "great_job_drawing": "Großartige Arbeit! Deine Zeichnung sieht fantastisch aus!",
-    "save_functionality_coming": "Speicherfunktion wird bald implementiert! 💾",
+    "save_functionality_coming": "Speicherfunktion wird bald implementiert! ",
     "saving_drawing": "Speichere deine Zeichnung...",
     "no_image_to_save": "Kein Bild zum Speichern...",
     "drawing_saved_successfully": "Zeichnung in deiner Galerie gespeichert! 🎉",

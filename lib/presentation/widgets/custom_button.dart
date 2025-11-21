@@ -67,6 +67,9 @@ class CustomButton extends StatefulWidget {
   /// Whether button is enabled
   final bool enabled;
 
+  /// Icon position: 'left' or 'right' (default: 'left')
+  final String iconPosition;
+
   const CustomButton({
     super.key,
     required this.label,
@@ -87,6 +90,7 @@ class CustomButton extends StatefulWidget {
     this.showShadow = true,
     this.iconSize = 20,
     this.enabled = true,
+    this.iconPosition = 'left',
   });
 
   @override
@@ -167,53 +171,72 @@ class _CustomButtonState extends State<CustomButton>
     final responsiveFontSize = _calculateResponsiveFontSize(screenWidth);
     final responsiveIconSize = _calculateResponsiveIconSize(screenWidth);
 
+    // Build icon/emoji widget
+    Widget? iconWidget;
+    if (widget.emoji != null) {
+      iconWidget = Text(
+        widget.emoji!,
+        style: TextStyle(fontSize: responsiveIconSize),
+      );
+    } else if (widget.icon != null) {
+      iconWidget = Icon(
+        widget.icon,
+        size: responsiveIconSize,
+        color: textColor,
+      );
+    }
+
+    // Build text/loading widget
+    Widget textWidget;
+    if (widget.isLoading) {
+      textWidget = SizedBox(
+        width: responsiveIconSize,
+        height: responsiveIconSize,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(textColor),
+        ),
+      );
+    } else {
+      textWidget = Flexible(
+        child: Text(
+          widget.label.tr(),
+          style: TextStyle(
+            fontSize: responsiveFontSize,
+            fontWeight: widget.fontWeight,
+            color: textColor,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      );
+    }
+
+    // Build button content based on icon position
+    List<Widget> rowChildren = [];
+
+    if (widget.iconPosition == 'right') {
+      // Text on left, icon on right
+      rowChildren.add(textWidget);
+      if (iconWidget != null) {
+        rowChildren.add(
+          Padding(padding: const EdgeInsets.only(left: 6), child: iconWidget),
+        );
+      }
+    } else {
+      // Icon on left, text on right (default)
+      if (iconWidget != null) {
+        rowChildren.add(
+          Padding(padding: const EdgeInsets.only(right: 6), child: iconWidget),
+        );
+      }
+      rowChildren.add(textWidget);
+    }
+
     Widget buttonContent = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Emoji or Icon
-        if (widget.emoji != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Text(
-              widget.emoji!,
-              style: TextStyle(fontSize: responsiveIconSize),
-            ),
-          )
-        else if (widget.icon != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Icon(
-              widget.icon,
-              size: responsiveIconSize,
-              color: textColor,
-            ),
-          ),
-
-        // Loading indicator or text
-        if (widget.isLoading)
-          SizedBox(
-            width: responsiveIconSize,
-            height: responsiveIconSize,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(textColor),
-            ),
-          )
-        else
-          Flexible(
-            child: Text(
-              widget.label.tr(),
-              style: TextStyle(
-                fontSize: responsiveFontSize,
-                fontWeight: widget.fontWeight,
-                color: textColor,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ),
-      ],
+      children: rowChildren,
     );
 
     return GestureDetector(

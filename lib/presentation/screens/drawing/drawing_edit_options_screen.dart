@@ -9,6 +9,7 @@ import 'package:record/record.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/drawing_data.dart';
 import '../../../services/actions/drawing_api_service.dart';
+import '../../../services/actions/edit_option_api_service.dart';
 import '../../../services/actions/api_exceptions.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
@@ -40,6 +41,8 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   late Animation<Offset> _slideAnimation;
 
   bool _isApplyingEdit = false;
+  bool _isLoadingOptions = true;
+  String? _loadingError;
   EditOption? _selectedEditOption;
   List<EditOption> _availableEditOptions = [];
 
@@ -91,15 +94,76 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  void _loadEditOptions() {
-    final drawing = DrawingData.getDrawingById(
-      widget.categoryId,
-      widget.drawingId,
-    );
-    if (drawing != null) {
+  Future<void> _loadEditOptions() async {
+    try {
+      print('📋 Loading edit options from API...');
+
+      // Fetch edit options from the API
+      final apiOptions = await EditOptionApiService.getEditOptions(
+        category: widget.categoryId,
+        subject: widget.drawingId,
+      );
+
+      if (!mounted) return;
+
+      print('✅ Edit options loaded successfully: ${apiOptions.length} options');
+
+      // Convert API options to local EditOption objects
+      final convertedOptions = apiOptions
+          .map(
+            (apiOption) => EditOption(
+              id: apiOption.id,
+              titleEn: apiOption.titleEn,
+              titleDe: apiOption.titleDe,
+              descriptionEn: apiOption.descriptionEn,
+              descriptionDe: apiOption.descriptionDe,
+              promptEn: apiOption.promptEn,
+              promptDe: apiOption.promptDe,
+              emoji: apiOption.icon ?? '✨',
+              color: AppColors.primary,
+            ),
+          )
+          .toList();
+
       setState(() {
-        _availableEditOptions = drawing.editOptions;
+        _availableEditOptions = convertedOptions;
+        _isLoadingOptions = false;
+        _loadingError = null;
       });
+    } on ApiException catch (e) {
+      print('❌ API Error loading edit options: ${e.message}');
+
+      // Check if this is a "No edit options found" error (404)
+      // In this case, we don't show an error - just proceed without edit options
+      // The voice editing option will still be available
+      if (e.message.contains('No edit options found')) {
+        print(
+          'ℹ️ No edit options available for this subject, but voice editing is still available',
+        );
+        if (mounted) {
+          setState(() {
+            _availableEditOptions = [];
+            _isLoadingOptions = false;
+            _loadingError = null;
+          });
+        }
+      } else {
+        // For other API errors, show the error screen
+        if (mounted) {
+          setState(() {
+            _isLoadingOptions = false;
+            _loadingError = e.message;
+          });
+        }
+      }
+    } catch (e) {
+      print('❌ Unexpected error loading edit options: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingOptions = false;
+          _loadingError = 'edit_options.loading_error'.tr();
+        });
+      }
     }
   }
 
@@ -454,6 +518,19 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       return _buildApplyingEditView();
     }
 
+    // Show loading state while fetching edit options
+    if (_isLoadingOptions) {
+      return CustomLoadingWidget(
+        message: 'edit_options.loading_options',
+        subtitle: 'edit_options.fetching_from_server',
+      );
+    }
+
+    // Show error state if loading failed
+    if (_loadingError != null) {
+      return _buildErrorView();
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
@@ -487,6 +564,72 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     return CustomLoadingWidget(
       message: 'ai_enhancement.processing_image',
       subtitle: 'ai_enhancement.this_may_take',
+    );
+  }
+
+  Widget _buildErrorView() {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 80,
+                    color: AppColors.error,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'edit_options.loading_failed'.tr(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _loadingError ?? 'edit_options.loading_error'.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.border,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  CustomButton(
+                    label: 'common.retry',
+                    onPressed: () {
+                      setState(() {
+                        _isLoadingOptions = true;
+                        _loadingError = null;
+                      });
+                      _loadEditOptions();
+                    },
+                    backgroundColor: AppColors.primary,
+                    textColor: AppColors.white,
+                    icon: Icons.refresh,
+                  ),
+                  const SizedBox(height: 12),
+                  CustomButton(
+                    label: 'common.back',
+                    onPressed: () => context.pop(),
+                    variant: 'outlined',
+                    borderColor: AppColors.primary,
+                    textColor: AppColors.primary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -582,7 +725,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     return Container(
       height: 200,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),

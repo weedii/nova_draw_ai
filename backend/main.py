@@ -28,6 +28,7 @@ app.include_router(auth.router)  # Authentication endpoints
 app.include_router(tutorial.router)
 app.include_router(image.router)
 app.include_router(story.router)
+app.include_router(edit_option.router)
 
 
 # Run the application
