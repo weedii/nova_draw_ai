@@ -24,7 +24,7 @@ class User(Base):
     Decorators:
     - @auditable: Adds created_at, updated_at for audit trail
     - @crud_enabled: Adds CRUD operations (create, get_by_id, get_all, get_paginated, update, delete, count, exists)
-    
+
     Note: Password is hashed with bcrypt (not Fernet encryption).
     Bcrypt is the industry standard for password hashing and provides better security.
     """

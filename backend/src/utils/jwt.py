@@ -20,7 +20,7 @@ Usage:
     user_id = payload.get("sub")
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 from jose import JWTError, jwt
 from src.core.config import settings
@@ -32,11 +32,11 @@ logger = logging.getLogger(__name__)
 def create_access_token(
     user_id: str,
     email: str,
-    expires_delta: Optional[timedelta] = None
+    expires_delta: Optional[timedelta] = timedelta(days=7),  # Default 7 days
 ) -> str:
     """
     Create a JWT access token for user authentication.
-    
+
     Token never expires for kid-friendly UX.
 
     Args:
@@ -53,28 +53,30 @@ def create_access_token(
             email="kid@example.com"
         )
     """
-    # JWT payload (claims) - no expiration for kid-friendly UX
+
+    # JWT payload (claims)
     payload = {
         "sub": user_id,  # Subject (user ID)
         "email": email,
-        "iat": datetime.utcnow(),  # Issued at
-        "type": "access"  # Token type
+        "iat": datetime.now(timezone.utc),  # Issued at
+        "type": "access",  # Token type
+        "exp": datetime.now(timezone.utc) + expires_delta,
     }
 
     # Encode and sign the token
     encoded_jwt = jwt.encode(
-        payload,
-        settings.JWT_SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM
+        payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
     )
 
     return encoded_jwt
 
 
-def create_refresh_token(user_id: str) -> str:
+def create_refresh_token(
+    user_id: str, expires_delta: Optional[timedelta] = timedelta(days=14)
+) -> str:
     """
     Create a JWT refresh token for obtaining new access tokens.
-    
+
     Token never expires for kid-friendly UX.
 
     Args:
@@ -88,18 +90,18 @@ def create_refresh_token(user_id: str) -> str:
             user_id="550e8400-e29b-41d4-a716-446655440000"
         )
     """
+
     # JWT payload (claims) - minimal data, no expiration
     payload = {
         "sub": user_id,  # Subject (user ID)
-        "iat": datetime.utcnow(),  # Issued at
-        "type": "refresh"  # Token type
+        "iat": datetime.now(timezone.utc),  # Issued at
+        "type": "refresh",  # Token type
+        "exp": datetime.now(timezone.utc) + expires_delta,
     }
 
     # Encode and sign the token
     encoded_jwt = jwt.encode(
-        payload,
-        settings.JWT_SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM
+        payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
     )
 
     return encoded_jwt
@@ -108,7 +110,7 @@ def create_refresh_token(user_id: str) -> str:
 def verify_token(token: str, token_type: str = "access") -> Optional[Dict[str, Any]]:
     """
     Verify and decode a JWT token.
-    
+
     Tokens don't expire, so only signature and type are verified.
 
     Args:
@@ -130,18 +132,21 @@ def verify_token(token: str, token_type: str = "access") -> Optional[Dict[str, A
             # Handle invalid token
             pass
     """
+
     try:
-        # Decode and verify the token (no expiration check)
+        # Decode and verify the token (check expiration date/time)
         payload = jwt.decode(
             token,
             settings.JWT_SECRET_KEY,
             algorithms=[settings.JWT_ALGORITHM],
-            options={"verify_exp": False}  # Don't verify expiration
+            options={"verify_exp": True},  # Enable expiration verification
         )
 
         # Verify token type
         if payload.get("type") != token_type:
-            logger.warning(f"Token type mismatch. Expected: {token_type}, Got: {payload.get('type')}")
+            logger.warning(
+                f"Token type mismatch. Expected: {token_type}, Got: {payload.get('type')}"
+            )
             raise JWTError("Invalid token type")
 
         return payload
@@ -168,10 +173,10 @@ def decode_token_without_verification(token: str) -> Optional[Dict[str, Any]]:
         payload = decode_token_without_verification(expired_token)
         user_id = payload.get("sub")  # Can still read user ID
     """
+
     try:
         payload = jwt.decode(
-            token,
-            options={"verify_signature": False, "verify_exp": False}
+            token, options={"verify_signature": False, "verify_exp": False}
         )
         return payload
     except JWTError as e:

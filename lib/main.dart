@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'core/constants/colors.dart';
-import 'providers/auth_provider.dart';
+import 'providers/user_provider.dart';
 import 'providers/drawing_provider.dart';
 import 'routes/app_router.dart';
 
@@ -16,14 +16,14 @@ void main() async {
 
   await EasyLocalization.ensureInitialized();
 
-  // Create auth provider and check auth status
-  final authProvider = AuthProvider();
-  await authProvider.checkAuthStatus();
+  // Create user provider and check auth status
+  final userProvider = UserProvider();
+  await userProvider.checkAuthStatus();
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: authProvider),
+        ChangeNotifierProvider.value(value: userProvider),
         ChangeNotifierProvider(create: (_) => DrawingProvider()),
       ],
       child: EasyLocalization(
@@ -51,8 +51,8 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
     // Create router once and reuse it
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _router = createAppRouter(authProvider);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    _router = createAppRouter(userProvider);
   }
 
   @override

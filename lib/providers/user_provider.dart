@@ -14,9 +14,9 @@ enum AuthState {
   error, // Auth operation failed
 }
 
-/// Authentication provider for managing user state and authentication
+/// User provider for managing user state and authentication
 /// Follows the same pattern as DrawingProvider
-class AuthProvider extends ChangeNotifier {
+class UserProvider extends ChangeNotifier {
   // Secure storage instance
   static const _storage = FlutterSecureStorage();
 
@@ -45,6 +45,7 @@ class AuthProvider extends ChangeNotifier {
   /// Checks for stored tokens and validates them
   Future<void> checkAuthStatus() async {
     print('🔐 Checking auth status...');
+
     _state = AuthState.initial;
     _error = null;
     notifyListeners();
@@ -93,6 +94,7 @@ class AuthProvider extends ChangeNotifier {
     DateTime? birthdate,
   }) async {
     print('📝 Starting registration...');
+
     _state = AuthState.loading;
     _error = null;
     notifyListeners();
@@ -107,10 +109,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       // Save tokens
-      await _saveTokens(
-        authResponse.accessToken,
-        authResponse.refreshToken,
-      );
+      await _saveTokens(authResponse.accessToken, authResponse.refreshToken);
 
       // Set token in BaseApiService
       BaseApiService.setAuthToken(authResponse.accessToken);
@@ -138,11 +137,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Login existing user
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     print('🔑 Starting login...');
+
     _state = AuthState.loading;
     _error = null;
     notifyListeners();
@@ -155,10 +152,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       // Save tokens
-      await _saveTokens(
-        authResponse.accessToken,
-        authResponse.refreshToken,
-      );
+      await _saveTokens(authResponse.accessToken, authResponse.refreshToken);
 
       // Set token in BaseApiService
       BaseApiService.setAuthToken(authResponse.accessToken);
@@ -188,6 +182,7 @@ class AuthProvider extends ChangeNotifier {
   /// Logout user
   Future<void> logout() async {
     print('👋 Logging out...');
+
     _state = AuthState.loading;
     notifyListeners();
 
@@ -209,8 +204,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Note: Token refresh methods removed because tokens never expire
-  // Backend tokens are configured to never expire for kid-friendly UX
+  // Note: Token refresh methods removed
 
   /// Load current user data
   Future<void> loadUser() async {
@@ -221,8 +215,11 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       print('📥 Loading user data...');
+
       _currentUser = await AuthApiService.getCurrentUser();
+
       print('✅ User data loaded: ${_currentUser!.email}');
+
       notifyListeners();
     } catch (e) {
       print('❌ Failed to load user: $e');

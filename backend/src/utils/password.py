@@ -47,6 +47,7 @@ def hash_password(password: str) -> str:
         hashed = hash_password("my_secure_password")
         # Returns: "$2b$12$KIXxLV..." (60 chars)
     """
+
     if not password:
         raise ValueError("Password cannot be empty")
 
@@ -77,6 +78,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
             # Password is correct
             pass
     """
+
     if not plain_password or not hashed_password:
         return False
 
@@ -107,6 +109,7 @@ def validate_password_strength(password: str, min_length: int = 6) -> tuple[bool
         if not is_valid:
             print(message)  # "Password is too short"
     """
+
     if not password:
         return False, "Password cannot be empty"
 

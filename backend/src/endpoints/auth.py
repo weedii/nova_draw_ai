@@ -44,13 +44,13 @@ router = APIRouter(
     description="Create a new user account with email and password. Returns access and refresh tokens.",
 )
 async def register(
-    request: RegisterRequest,
-    db: AsyncSession = Depends(get_db)
+    request: RegisterRequest, db: AsyncSession = Depends(get_db)
 ) -> AuthResponse:
     """
     Register a new user account.
-    
+
     """
+
     return await AuthService.register_user(db, request)
 
 
@@ -62,13 +62,12 @@ async def register(
     description="Authenticate user with email and password. Returns access and refresh tokens.",
 )
 async def login(
-    request: LoginRequest,
-    db: AsyncSession = Depends(get_db)
+    request: LoginRequest, db: AsyncSession = Depends(get_db)
 ) -> AuthResponse:
     """
     Login user with email and password.
-    
     """
+
     return await AuthService.login_user(db, request)
 
 
@@ -80,13 +79,12 @@ async def login(
     description="Generate a new access token using a refresh token.",
 )
 async def refresh_token(
-    request: RefreshTokenRequest,
-    db: AsyncSession = Depends(get_db)
+    request: RefreshTokenRequest, db: AsyncSession = Depends(get_db)
 ) -> TokenRefreshResponse:
     """
     Refresh access token using refresh token.
-    
     """
+
     return await AuthService.refresh_access_token(db, request.refresh_token)
 
 
@@ -98,14 +96,14 @@ async def refresh_token(
     description="Get the profile of the currently authenticated user.",
 )
 async def get_current_user_profile(
-    current_user: User = Depends(AuthService.get_current_user)
+    current_user: User = Depends(AuthService.get_current_user),
 ) -> UserResponse:
     """
     Get current authenticated user profile.
-    
+
     **Authentication Required:**
     - Include access token in Authorization header: `Bearer <token>`
-    
+
     **Example Response:**
     ```json
     {
@@ -116,9 +114,10 @@ async def get_current_user_profile(
       "created_at": "2024-01-15T10:30:00"
     }
     ```
-    
+
     **Errors:**
     - 401: Invalid or missing token
     - 404: User not found
     """
+
     return UserResponse.model_validate(current_user)

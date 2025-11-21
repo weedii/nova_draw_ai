@@ -3,7 +3,7 @@
 Utility script to generate a secure encryption key for the application.
 
 Usage:
-    python -m src.utils.generate_key
+    python scripts/generate_encryption_key.py
 """
 
 import base64

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/user_provider.dart';
 import '../../models/user_model.dart';
 import '../animations/app_animations.dart';
 import '../widgets/custom_app_bar.dart';
@@ -46,9 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             const Text('👋', style: TextStyle(fontSize: 24)),
@@ -98,11 +96,11 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
 
     if (confirm == true) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
 
       try {
         // Logout
-        await authProvider.logout();
+        await userProvider.logout();
         print('👋 User logged out successfully');
 
         // Router will automatically redirect to /signin
@@ -125,10 +123,10 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch auth provider for user data
-    final authProvider = context.watch<AuthProvider>();
-    final currentUser = authProvider.currentUser;
-    final isLoading = authProvider.isLoading;
+    // Watch user provider for user data
+    final userProvider = context.watch<UserProvider>();
+    final currentUser = userProvider.currentUser;
+    final isLoading = userProvider.isLoading;
 
     return Scaffold(
       body: Container(
@@ -487,10 +485,7 @@ class _UserProfileCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primaryDark,
-          ],
+          colors: [AppColors.primary, AppColors.primaryDark],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -567,10 +562,7 @@ class _UserProfileCard extends StatelessWidget {
             ),
             child: const Row(
               children: [
-                Text(
-                  '⭐',
-                  style: TextStyle(fontSize: 16),
-                ),
+                Text('⭐', style: TextStyle(fontSize: 16)),
                 SizedBox(width: 4),
                 Text(
                   'Pro',

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
-import '../../../providers/auth_provider.dart';
+import '../../../providers/user_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
@@ -48,15 +48,15 @@ class _SignInScreenState extends State<SignInScreen>
 
   void _signIn() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
 
       try {
         print('🎯 Sign in button pressed!');
         print('📧 Email: ${_emailController.text.trim()}');
-        
-        // Call the auth provider to login
+
+        // Call the user provider to login
         print('📝 Calling login...');
-        await authProvider.login(
+        await userProvider.login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
@@ -82,7 +82,7 @@ class _SignInScreenState extends State<SignInScreen>
           // Show beautiful error dialog
           final errorMessage = e.toString().replaceAll('Exception: ', '');
           print('🚨 Showing error to user: $errorMessage');
-          
+
           ErrorDialog.showError(context, errorMessage);
         }
       }
@@ -101,9 +101,9 @@ class _SignInScreenState extends State<SignInScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch auth provider for loading state
-    final authProvider = context.watch<AuthProvider>();
-    final isLoading = authProvider.isLoading;
+    // Watch user provider for loading state
+    final userProvider = context.watch<UserProvider>();
+    final isLoading = userProvider.isLoading;
 
     return Stack(
       children: [

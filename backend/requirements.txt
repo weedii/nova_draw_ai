@@ -30,6 +30,7 @@ alembic==1.17.2
 asyncpg==0.30.0
 
 # Authentication
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
-bcrypt==4.0.1  # Explicit bcrypt version for compatibility
+bcrypt==5.0.0
+email-validator==2.3.0
