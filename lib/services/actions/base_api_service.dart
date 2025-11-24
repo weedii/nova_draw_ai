@@ -9,7 +9,7 @@ import 'api_exceptions.dart';
 /// Base class for all API services providing common functionality
 abstract class BaseApiService {
   /// Timeout duration for API requests
-  static const Duration _timeout = Duration(seconds: 10);
+  static const Duration _timeout = Duration(seconds: 120);
 
   /// Authentication token for API requests
   static String? _authToken;

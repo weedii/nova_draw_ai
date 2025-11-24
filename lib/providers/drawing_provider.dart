@@ -1,15 +1,20 @@
 import 'package:flutter/foundation.dart';
-import '../core/constants/drawing_data.dart';
+import 'package:flutter/material.dart';
+import '../models/ui_models.dart';
 import '../services/actions/drawing_api_service.dart';
 import '../services/actions/api_exceptions.dart';
 
 enum DrawingStepsState { initial, loading, loaded, error }
 
-class DrawingProvider extends ChangeNotifier {
-  // Static data (current implementation)
-  final List<DrawingCategory> _categories = DrawingData.categories;
+enum CategoriesState { initial, loading, loaded, error, empty }
 
-  // Dynamic drawing steps (future API implementation)
+class DrawingProvider extends ChangeNotifier {
+  // Categories loaded from API
+  List<DrawingCategory> _categories = [];
+  CategoriesState _categoriesState = CategoriesState.initial;
+  String? _categoriesError;
+
+  // Dynamic drawing steps
   DrawingStepsState _stepsState = DrawingStepsState.initial;
   List<DrawingStep> _currentSteps = [];
   String? _error;
@@ -20,8 +25,12 @@ class DrawingProvider extends ChangeNotifier {
   String? _selectedDrawingId;
   int _currentStepIndex = 0;
 
-  // Getters for static data
+  // Getters for categories
   List<DrawingCategory> get categories => _categories;
+  CategoriesState get categoriesState => _categoriesState;
+  String? get categoriesError => _categoriesError;
+  bool get isLoadingCategories => _categoriesState == CategoriesState.loading;
+  bool get hasCategories => _categories.isNotEmpty;
 
   // Getters for dynamic steps
   DrawingStepsState get stepsState => _stepsState;
@@ -38,22 +47,27 @@ class DrawingProvider extends ChangeNotifier {
   bool get hasNextStep => _currentStepIndex < _currentSteps.length - 1;
   bool get hasPreviousStep => _currentStepIndex > 0;
 
-  // Get category by ID
-  DrawingCategory? getCategoryById(String categoryId) {
+  // Get category by title (since we removed IDs)
+  DrawingCategory? getCategoryByTitle(String categoryTitle) {
     try {
-      return _categories.firstWhere((category) => category.id == categoryId);
+      return _categories.firstWhere(
+        (category) =>
+            category.titleEn.toLowerCase() == categoryTitle.toLowerCase(),
+      );
     } catch (e) {
       return null;
     }
   }
 
-  // Get drawing by category and drawing ID
-  Drawing? getDrawingById(String categoryId, String drawingId) {
-    final category = getCategoryById(categoryId);
+  // Get drawing by category title and drawing name
+  Drawing? getDrawingByName(String categoryTitle, String drawingName) {
+    final category = getCategoryByTitle(categoryTitle);
     if (category == null) return null;
 
     try {
-      return category.drawings.firstWhere((drawing) => drawing.id == drawingId);
+      return category.drawings.firstWhere(
+        (drawing) => drawing.nameEn.toLowerCase() == drawingName.toLowerCase(),
+      );
     } catch (e) {
       return null;
     }
@@ -68,13 +82,13 @@ class DrawingProvider extends ChangeNotifier {
   }
 
   // Select drawing
-  void selectDrawing(String categoryId, String drawingId) async {
-    _selectedCategoryId = categoryId;
-    _selectedDrawingId = drawingId;
+  void selectDrawing(String categoryTitle, String drawingName) async {
+    _selectedCategoryId = categoryTitle;
+    _selectedDrawingId = drawingName;
     _currentStepIndex = 0;
 
     // Get the drawing to find its subject for API call
-    final drawing = getDrawingById(categoryId, drawingId);
+    final drawing = getDrawingByName(categoryTitle, drawingName);
     if (drawing != null) {
       // Use the drawing's English name as the subject for API
       final subject = drawing.nameEn;
@@ -87,19 +101,72 @@ class DrawingProvider extends ChangeNotifier {
     }
   }
 
-  // Load steps from static data (current implementation)
-  void _loadStaticSteps(String categoryId, String drawingId) {
-    final drawing = getDrawingById(categoryId, drawingId);
-    if (drawing != null) {
-      _stepsState = DrawingStepsState.loaded;
-      _currentSteps = drawing.steps;
-      _currentSubject = drawing.id;
-      _error = null;
-    } else {
-      _stepsState = DrawingStepsState.error;
-      _error = 'Drawing not found';
-      _currentSteps = [];
+  // Load categories with drawings from API
+  Future<void> loadCategoriesWithDrawingsFromApi() async {
+    _categoriesState = CategoriesState.loading;
+    _categoriesError = null;
+    notifyListeners();
+
+    try {
+      // Fetch categories from API
+      final apiCategories = await DrawingApiService.getCategoriesWithDrawings();
+
+      if (apiCategories.isEmpty) {
+        _categoriesState = CategoriesState.empty;
+        _categories = [];
+        _categoriesError = null;
+      } else {
+        // Convert API categories to UI categories
+        _categories = apiCategories.map((apiCategory) {
+          // Convert color from hex string to Flutter Color
+          final colorValue =
+              int.tryParse(apiCategory.color.replaceFirst('#', '0xFF')) ??
+              0xFFFF6B6B;
+          final categoryColor = Color(colorValue);
+
+          // Convert API drawings to UI drawings
+          final drawings = apiCategory.drawings
+              .map(
+                (apiDrawing) => Drawing(
+                  nameEn: apiDrawing.nameEn,
+                  nameDe: apiDrawing.nameDe,
+                  emoji: apiDrawing.emoji,
+                  totalSteps: apiDrawing.totalSteps,
+                  thumbnailUrl: apiDrawing.thumbnailUrl,
+                ),
+              )
+              .toList();
+
+          return DrawingCategory(
+            titleEn: apiCategory.titleEn,
+            titleDe: apiCategory.titleDe,
+            descriptionEn: apiCategory.descriptionEn,
+            descriptionDe: apiCategory.descriptionDe,
+            icon: apiCategory.emoji,
+            color: categoryColor,
+            drawings: drawings,
+          );
+        }).toList();
+
+        _categoriesState = CategoriesState.loaded;
+        _categoriesError = null;
+      }
+    } on ApiException catch (e) {
+      _categoriesState = CategoriesState.error;
+      _categoriesError = e.message;
+      _categories = [];
+    } catch (e) {
+      _categoriesState = CategoriesState.error;
+      _categoriesError = 'Failed to load categories: ${e.toString()}';
+      _categories = [];
     }
+
+    notifyListeners();
+  }
+
+  // Retry loading categories
+  Future<void> retryLoadCategories() async {
+    await loadCategoriesWithDrawingsFromApi();
   }
 
   // Load steps from API
@@ -192,14 +259,6 @@ class DrawingProvider extends ChangeNotifier {
   Future<void> retryLoadSteps() async {
     if (_currentSubject != null) {
       await loadStepsFromApi(_currentSubject!);
-    }
-  }
-
-  // Use static data as fallback when API fails
-  void useStaticDataFallback() {
-    if (_selectedCategoryId != null && _selectedDrawingId != null) {
-      _loadStaticSteps(_selectedCategoryId!, _selectedDrawingId!);
-      notifyListeners();
     }
   }
 

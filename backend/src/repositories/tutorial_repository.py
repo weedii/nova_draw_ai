@@ -62,6 +62,7 @@ class TutorialRepository:
         Example:
             tutorials = await TutorialRepository.find_by_category(db, "animals")
         """
+
         query = select(Tutorial).where(Tutorial.category == category)
         result = await db.execute(query)
         return result.scalars().all()
@@ -80,6 +81,7 @@ class TutorialRepository:
         Example:
             categories = await TutorialRepository.get_all_categories(db)
         """
+
         query = select(Tutorial.category).distinct()
         result = await db.execute(query)
         return result.scalars().all()
@@ -99,6 +101,7 @@ class TutorialRepository:
         Example:
             tutorials = await TutorialRepository.find_by_subject_pattern(db, "cat")
         """
+
         query = select(Tutorial).where(Tutorial.subject.ilike(f"%{pattern}%"))
         result = await db.execute(query)
         return result.scalars().all()
@@ -117,6 +120,7 @@ class TutorialRepository:
         Example:
             tutorials = await TutorialRepository.get_tutorials_with_steps(db)
         """
+
         query = select(Tutorial).where(Tutorial.total_steps > 0)
         result = await db.execute(query)
         return result.scalars().all()
@@ -136,5 +140,58 @@ class TutorialRepository:
         Example:
             exists = await TutorialRepository.subject_exists(db, "cat")
         """
+
         tutorial = await TutorialRepository.find_by_subject(db, subject)
         return tutorial is not None
+
+    @staticmethod
+    async def get_all_tutorials_grouped_by_category(
+        db: AsyncSession,
+    ) -> List[Tutorial]:
+        """
+        Query all tutorials from database, ordered and grouped by category.
+
+        This method returns all tutorials ordered by category name, which allows
+        the service layer to group them into nested category structures.
+
+        Args:
+            db: Async database session
+
+        Returns:
+            List of all Tutorial instances ordered by category
+
+        Example:
+            tutorials = await TutorialRepository.get_all_tutorials_grouped_by_category(db)
+        """
+
+        query = select(Tutorial).order_by(Tutorial.category, Tutorial.subject)
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def get_all_tutorials_for_category(
+        db: AsyncSession, category: str
+    ) -> List[Tutorial]:
+        """
+        Query all tutorials for a specific category with complete metadata.
+
+        Uses case-insensitive matching for the category name.
+
+        Args:
+            db: Async database session
+            category: Category name to filter by
+
+        Returns:
+            List of Tutorial instances in the specified category
+
+        Example:
+            tutorials = await TutorialRepository.get_all_tutorials_for_category(db, "Animals")
+        """
+
+        query = (
+            select(Tutorial)
+            .where(func.lower(Tutorial.category) == func.lower(category))
+            .order_by(Tutorial.subject)
+        )
+        result = await db.execute(query)
+        return result.scalars().all()

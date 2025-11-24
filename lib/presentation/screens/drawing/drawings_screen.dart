@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/drawing_data.dart';
+import '../../../models/ui_models.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -36,7 +36,8 @@ class _DrawingsScreenState extends State<DrawingsScreen>
     super.initState();
 
     // Get category data
-    category = DrawingData.getCategoryById(widget.categoryId);
+    final provider = context.read<DrawingProvider>();
+    category = provider.getCategoryByTitle(widget.categoryId);
 
     // Initialize animations
     _fadeController = AppAnimations.createFadeController(vsync: this);
@@ -63,10 +64,10 @@ class _DrawingsScreenState extends State<DrawingsScreen>
     // Update provider state
     context.read<DrawingProvider>().selectDrawing(
       widget.categoryId,
-      drawing.id,
+      drawing.nameEn,
     );
     // Navigate to drawing steps with both category and drawing IDs
-    context.push('/drawings/${widget.categoryId}/${drawing.id}');
+    context.push('/drawings/${widget.categoryId}/${drawing.nameEn}');
   }
 
   @override
@@ -191,7 +192,7 @@ class _DrawingCardState extends State<_DrawingCard>
   String _getStepsDescription() {
     final isGerman = context.locale.languageCode == 'de';
     final stepsText = isGerman ? 'Schritte' : 'Steps';
-    return '${widget.drawing.steps.length} $stepsText';
+    return '${widget.drawing.totalSteps} $stepsText';
   }
 
   bool _isPressed = false;

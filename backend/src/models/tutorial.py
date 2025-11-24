@@ -32,7 +32,18 @@ class Tutorial(Base):
 
     # Tutorial information
     category = Column(String(100), nullable=False, index=True)
+    category_emoji = Column(
+        String(10), nullable=False, default="🎨"
+    )  # Emoji for category (e.g., "🐶", "🌳")
+    category_color = Column(
+        String(7), nullable=False, default="#FF6B6B"
+    )  # Hex color for category (e.g., "#FF6B6B")
+
     subject = Column(String(100), nullable=False)
+    subject_emoji = Column(
+        String(10), nullable=False, default="✏️"
+    )  # Emoji for subject/drawing (e.g., "🐕", "🐱")
+
     total_steps = Column(Integer, nullable=False)
     thumbnail_url = Column(Text, nullable=True)
     description_en = Column(Text, nullable=True)
@@ -57,4 +68,4 @@ class Tutorial(Base):
     # - Tutorial.exists(db, id) -> bool
 
     def __repr__(self):
-        return f"<Tutorial(id={self.id}, category={self.category}, subject={self.subject})>"
+        return f"<Tutorial(id={self.id}, category={self.category} {self.category_icon}, subject={self.subject} {self.subject_emoji})>"

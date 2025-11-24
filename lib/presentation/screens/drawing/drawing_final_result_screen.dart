@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_gallery/saver_gallery.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/drawing_data.dart';
+import '../../../models/ui_models.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';

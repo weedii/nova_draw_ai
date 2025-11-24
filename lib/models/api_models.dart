@@ -193,3 +193,100 @@ class ApiEditOption {
     };
   }
 }
+
+/// API model for drawing/subject data
+class ApiDrawing {
+  final String nameEn;
+  final String nameDe;
+  final String emoji;
+  final int totalSteps;
+  final String? thumbnailUrl;
+  final String? descriptionEn;
+  final String? descriptionDe;
+
+  const ApiDrawing({
+    required this.nameEn,
+    required this.nameDe,
+    required this.emoji,
+    required this.totalSteps,
+    this.thumbnailUrl,
+    this.descriptionEn,
+    this.descriptionDe,
+  });
+
+  factory ApiDrawing.fromJson(Map<String, dynamic> json) {
+    return ApiDrawing(
+      nameEn: json['name_en'] ?? '',
+      nameDe: json['name_de'] ?? '',
+      emoji: json['emoji'],
+      totalSteps: json['total_steps'] ?? 0,
+      thumbnailUrl: json['thumbnail_url'],
+      descriptionEn: json['description_en'],
+      descriptionDe: json['description_de'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name_en': nameEn,
+      'name_de': nameDe,
+      'emoji': emoji,
+      'total_steps': totalSteps,
+      'thumbnail_url': thumbnailUrl,
+      'description_en': descriptionEn,
+      'description_de': descriptionDe,
+    };
+  }
+}
+
+/// API model for category with nested drawings
+class ApiCategoryWithDrawings {
+  final String titleEn;
+  final String titleDe;
+  final String? descriptionEn;
+  final String? descriptionDe;
+  final String emoji;
+  final String color;
+  final List<ApiDrawing> drawings;
+
+  const ApiCategoryWithDrawings({
+    required this.titleEn,
+    required this.titleDe,
+    this.descriptionEn,
+    this.descriptionDe,
+    required this.emoji,
+    required this.color,
+    required this.drawings,
+  });
+
+  factory ApiCategoryWithDrawings.fromJson(Map<String, dynamic> json) {
+    return ApiCategoryWithDrawings(
+      titleEn: json['title_en'] ?? '',
+      titleDe: json['title_de'] ?? '',
+      descriptionEn: json['description_en'],
+      descriptionDe: json['description_de'],
+      emoji: json['emoji'],
+      color: json['color'],
+      drawings:
+          (json['drawings'] as List<dynamic>?)
+              ?.map(
+                (drawing) =>
+                    ApiDrawing.fromJson(drawing as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title_en': titleEn,
+      'title_de': titleDe,
+      'description_en': descriptionEn,
+      'description_de': descriptionDe,
+      'emoji': emoji,
+      'color': color,
+      'drawings': drawings.map((d) => d.toJson()).toList(),
+    };
+  }
+}

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:record/record.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/drawing_data.dart';
+import '../../../models/ui_models.dart';
 import '../../../services/actions/drawing_api_service.dart';
 import '../../../services/actions/edit_option_api_service.dart';
 import '../../../services/actions/api_exceptions.dart';
