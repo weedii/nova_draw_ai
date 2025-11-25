@@ -3,7 +3,7 @@ User model for Nova Draw AI application.
 Represents registered users with authentication and profile information.
 """
 
-from sqlalchemy import Column, String, Date
+from sqlalchemy import Column, String, Date, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
@@ -39,6 +39,10 @@ class User(Base):
     password = Column(String(255), nullable=False)
     name = Column(String(50), nullable=True)
     birthdate = Column(Date, nullable=True)
+
+    # Password Reset
+    reset_code = Column(String(6), nullable=True)
+    reset_code_expires_at = Column(DateTime, nullable=True)
 
     # Relationships
     drawings = relationship(

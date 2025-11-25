@@ -142,4 +142,105 @@ class AuthApiService {
       return response.statusCode == 200;
     });
   }
+
+  /// Request password reset (forgot password)
+  ///
+  /// [email] - User's email address
+  ///
+  /// Returns [MessageResponse] with confirmation message
+  /// Throws [ApiException] on error
+  static Future<MessageResponse> forgotPassword({required String email}) async {
+    return await BaseApiService.handleApiCall<MessageResponse>(() async {
+      if (email.trim().isEmpty) {
+        throw ApiException('Email cannot be empty');
+      }
+
+      print('🔑 Requesting password reset for: $email');
+
+      final response = await BaseApiService.post(
+        '/auth/forgot-password',
+        body: {'email': email.trim()},
+      );
+
+      final jsonData = BaseApiService.handleResponse(response);
+      print('✅ Password reset email sent');
+      return MessageResponse.fromJson(jsonData);
+    });
+  }
+
+  /// Reset password with OTP code
+  ///
+  /// [email] - User's email address
+  /// [code] - 6-digit OTP code from email
+  /// [newPassword] - New password (min 6 characters)
+  ///
+  /// Returns [MessageResponse] with confirmation message
+  /// Throws [ApiException] on error
+  static Future<MessageResponse> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    return await BaseApiService.handleApiCall<MessageResponse>(() async {
+      if (email.trim().isEmpty) {
+        throw ApiException('Email cannot be empty');
+      }
+      if (code.trim().isEmpty || code.trim().length != 6) {
+        throw ApiException('Please enter a valid 6-digit code');
+      }
+      if (newPassword.length < 6) {
+        throw ApiException('Password must be at least 6 characters');
+      }
+
+      print('🔐 Resetting password for: $email');
+
+      final response = await BaseApiService.post(
+        '/auth/reset-password',
+        body: {
+          'email': email.trim(),
+          'code': code.trim(),
+          'new_password': newPassword,
+        },
+      );
+
+      final jsonData = BaseApiService.handleResponse(response);
+      print('✅ Password reset successful');
+      return MessageResponse.fromJson(jsonData);
+    });
+  }
+
+  /// Change password for authenticated user
+  ///
+  /// [currentPassword] - Current password for verification
+  /// [newPassword] - New password (min 6 characters)
+  ///
+  /// Returns [MessageResponse] with confirmation message
+  /// Throws [ApiException] on error
+  static Future<MessageResponse> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    return await BaseApiService.handleApiCall<MessageResponse>(() async {
+      if (currentPassword.isEmpty) {
+        throw ApiException('Current password cannot be empty');
+      }
+      if (newPassword.length < 6) {
+        throw ApiException('New password must be at least 6 characters');
+      }
+
+      print('🔄 Changing password...');
+
+      final response = await BaseApiService.post(
+        '/auth/change-password',
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+      );
+
+      final jsonData = BaseApiService.handleResponse(response);
+      print('✅ Password changed successfully');
+      return MessageResponse.fromJson(jsonData);
+    });
+  }
 }

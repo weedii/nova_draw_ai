@@ -40,6 +40,9 @@ from .auth import (
     AuthResponse,
     TokenRefreshResponse,
     MessageResponse,
+    PasswordResetRequest,
+    PasswordResetConfirm,
+    ChangePasswordRequest,
 )
 from .edit_option import (
     EditOptionCreate,
@@ -71,6 +74,9 @@ __all__ = [
     "AuthResponse",
     "TokenRefreshResponse",
     "MessageResponse",
+    "PasswordResetRequest",
+    "PasswordResetConfirm",
+    "ChangePasswordRequest",
     "EditOptionCreate",
     "EditOptionUpdate",
     "EditOptionRead",
