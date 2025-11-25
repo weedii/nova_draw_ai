@@ -9,7 +9,7 @@ import 'api_exceptions.dart';
 /// Base class for all API services providing common functionality
 abstract class BaseApiService {
   /// Timeout duration for API requests
-  static const Duration _timeout = Duration(seconds: 10);
+  static const Duration _timeout = Duration(seconds: 120);
 
   /// Authentication token for API requests
   static String? _authToken;
@@ -355,34 +355,5 @@ abstract class BaseApiService {
       if (e is ApiException) rethrow;
       throw ApiException('Unexpected error: ${e.toString()}');
     }
-  }
-}
-
-/// API configuration class for easy customization
-class ApiConfig {
-  static String? _baseUrl;
-  static Duration _timeout = const Duration(seconds: 180);
-
-  /// Get the current base URL (from .env or manually set)
-  static String get baseUrl {
-    if (_baseUrl != null) return _baseUrl!;
-    final url = dotenv.env['API_BASE_URL'];
-    if (url == null || url.isEmpty) {
-      throw Exception('API_BASE_URL not configured');
-    }
-    return url;
-  }
-
-  /// Get the current timeout duration
-  static Duration get timeout => _timeout;
-
-  /// Update the base URL (useful for different environments)
-  static void setBaseUrl(String url) {
-    _baseUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
-  }
-
-  /// Update the timeout duration
-  static void setTimeout(Duration duration) {
-    _timeout = duration;
   }
 }

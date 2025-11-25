@@ -28,7 +28,7 @@ class EditOption {
 class DrawingStep {
   final String stepEn;
   final String stepDe;
-  final String stepImg; // base64 image string
+  final String stepImg; // Image URL (public URL or link)
 
   const DrawingStep({
     required this.stepEn,

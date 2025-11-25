@@ -3,9 +3,10 @@ import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:saver_gallery/saver_gallery.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/drawing_data.dart';
+import '../../../models/ui_models.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
@@ -15,6 +16,7 @@ class DrawingFinalResultScreen extends StatefulWidget {
   final String drawingId;
   final File? uploadedImage;
   final Uint8List? editedImageBytes;
+  final String? editedImageUrl; // Image URL from API
   final EditOption? selectedEditOption;
 
   const DrawingFinalResultScreen({
@@ -23,6 +25,7 @@ class DrawingFinalResultScreen extends StatefulWidget {
     required this.drawingId,
     this.uploadedImage,
     this.editedImageBytes,
+    this.editedImageUrl,
     this.selectedEditOption,
   });
 
@@ -90,7 +93,13 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
 
       // Get the image to save
       Uint8List? imageBytes;
-      if (widget.editedImageBytes != null) {
+      if (widget.editedImageUrl != null) {
+        // Download image from URL
+        final response = await http.get(Uri.parse(widget.editedImageUrl!));
+        if (response.statusCode == 200) {
+          imageBytes = response.bodyBytes;
+        }
+      } else if (widget.editedImageBytes != null) {
         imageBytes = widget.editedImageBytes;
       } else if (widget.uploadedImage != null) {
         imageBytes = await widget.uploadedImage!.readAsBytes();
@@ -261,11 +270,39 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
 
   Widget _buildImageDisplay() {
     // Single image view with switcher at bottom
-    return widget.uploadedImage != null || widget.editedImageBytes != null
+    return widget.uploadedImage != null ||
+            widget.editedImageBytes != null ||
+            widget.editedImageUrl != null
         ? Stack(
             children: [
               // Show edited image if available and selected, otherwise show original
-              if (_showEditedImage && widget.editedImageBytes != null)
+              if (_showEditedImage && widget.editedImageUrl != null)
+                Image.network(
+                  widget.editedImageUrl!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: AppColors.error.withValues(alpha: 0.2),
+                      child: const Center(
+                        child: Icon(Icons.broken_image, size: 64),
+                      ),
+                    );
+                  },
+                )
+              else if (_showEditedImage && widget.editedImageBytes != null)
                 Image.memory(
                   widget.editedImageBytes!,
                   fit: BoxFit.cover,

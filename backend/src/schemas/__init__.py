@@ -22,6 +22,9 @@ from .tutorial import (
     FullTutorialResponse,
     TutorialMetadata,
     TutorialStep,
+    TutorialDrawingResponse,
+    CategoryWithNestedDrawingsResponse,
+    AllCategoriesWithDrawingsResponse,
 )
 from .image import (
     ImageProcessRequest,
@@ -58,6 +61,9 @@ __all__ = [
     "FullTutorialResponse",
     "TutorialMetadata",
     "TutorialStep",
+    "TutorialDrawingResponse",
+    "CategoryWithNestedDrawingsResponse",
+    "AllCategoriesWithDrawingsResponse",
     "ImageProcessRequest",
     "ImageProcessResponse",
     "EffectInfo",

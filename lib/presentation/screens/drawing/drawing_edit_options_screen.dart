@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
@@ -7,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:record/record.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/drawing_data.dart';
+import '../../../models/ui_models.dart';
 import '../../../services/actions/drawing_api_service.dart';
 import '../../../services/actions/edit_option_api_service.dart';
 import '../../../services/actions/api_exceptions.dart';
@@ -191,15 +190,12 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       );
 
       if (mounted && response.success) {
-        // Decode base64 image to bytes
-        final imageBytes = base64Decode(response.resultImage);
-
-        // Navigate to the final result screen with the edited image
+        // Navigate to the final result screen with the edited image URL
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
             'uploadedImage': widget.uploadedImage,
-            'editedImageBytes': imageBytes,
+            'editedImageUrl': response.resultImage,
             'selectedEditOption': _selectedEditOption,
           },
         );
@@ -452,9 +448,6 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       if (mounted && response.success) {
         print('✅ Image edited with voice successfully!');
 
-        // Decode the base64 edited image to bytes
-        final imageBytes = base64Decode(response.resultImage);
-
         // Create a voice edit option to represent the voice-based editing
         final voiceEditOption = EditOption(
           id: 'voice_edit',
@@ -468,12 +461,12 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           promptDe: 'Sprachbasierte Bearbeitung',
         );
 
-        // Navigate to the final result screen with the edited image
+        // Navigate to the final result screen with the edited image URL
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
             'uploadedImage': widget.uploadedImage,
-            'editedImageBytes': imageBytes,
+            'editedImageUrl': response.resultImage,
             'selectedEditOption': voiceEditOption,
           },
         );

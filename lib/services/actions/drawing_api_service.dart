@@ -291,4 +291,74 @@ class DrawingApiService {
       return result;
     });
   }
+
+  /// Get all categories with their nested drawings
+  ///
+  /// Fetches all available drawing categories from the backend with complete
+  /// drawing information for each category.
+  ///
+  /// Returns [List<ApiCategoryWithDrawings>] with categories and their drawings
+  /// Throws [ApiException] on error
+  static Future<List<ApiCategoryWithDrawings>>
+  getCategoriesWithDrawings() async {
+    return await BaseApiService.handleApiCall<List<ApiCategoryWithDrawings>>(
+      () async {
+        print('📚 Fetching categories with drawings from API');
+
+        final response = await BaseApiService.get(
+          '/api/categories-with-drawings',
+        );
+        final jsonData = BaseApiService.handleResponse(response);
+
+        print('✅ Categories response received');
+
+        // Parse the response
+        final data = jsonData['data'] as List<dynamic>? ?? [];
+        final categories = data
+            .map(
+              (item) => ApiCategoryWithDrawings.fromJson(
+                item as Map<String, dynamic>,
+              ),
+            )
+            .toList();
+
+        print('📦 Parsed ${categories.length} categories');
+
+        return categories;
+      },
+    );
+  }
+
+  /// Get drawings for a specific category
+  ///
+  /// [category] - Category name (e.g., "Animals", "Nature")
+  ///
+  /// Returns [List<ApiDrawing>] with drawings in the category
+  /// Throws [ApiException] on error
+  static Future<List<ApiDrawing>> getDrawingsByCategory(String category) async {
+    return await BaseApiService.handleApiCall<List<ApiDrawing>>(() async {
+      if (category.trim().isEmpty) {
+        throw ApiException('Category cannot be empty');
+      }
+
+      print('🎨 Fetching drawings for category: $category');
+
+      final response = await BaseApiService.get(
+        '/api/categories/${Uri.encodeComponent(category)}/drawings',
+      );
+      final jsonData = BaseApiService.handleResponse(response);
+
+      print('✅ Drawings response received');
+
+      // Parse the response (it's a list of drawings)
+      final data = jsonData as List<dynamic>? ?? [];
+      final drawings = data
+          .map((item) => ApiDrawing.fromJson(item as Map<String, dynamic>))
+          .toList();
+
+      print('📦 Parsed ${drawings.length} drawings');
+
+      return drawings;
+    });
+  }
 }

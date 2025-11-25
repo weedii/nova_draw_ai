@@ -161,7 +161,10 @@
     "select_drawing": "Select a Drawing",
     "choose_what_to_draw": "Choose what you want to draw from this category!",
     "back_to_categories": "Back to Categories",
-    "category_not_found": "Category not found"
+    "category_not_found": "Category not found",
+    "steps": "Steps",
+    "loading": "Loading categories...",
+    "error": "Error loading categories"
   },
   
   "drawing_items": {
