@@ -59,7 +59,7 @@ class TutorialService:
                     f"Subject '{subject}' not found in database. Please check the available subjects."
                 )
 
-            logger.info(f"Selected tutorial: {tutorial.subject} (ID: {tutorial.id})")
+            logger.info(f"Selected tutorial: {tutorial.subject_en} (ID: {tutorial.id})")
 
             # Step 2: Get all steps for this specific tutorial
             query = (
