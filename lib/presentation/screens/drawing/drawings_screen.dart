@@ -190,8 +190,7 @@ class _DrawingCardState extends State<_DrawingCard>
   }
 
   String _getStepsDescription() {
-    final isGerman = context.locale.languageCode == 'de';
-    final stepsText = isGerman ? 'Schritte' : 'Steps';
+    final stepsText = 'drawings.steps'.tr();
     return '${widget.drawing.totalSteps} $stepsText';
   }
 

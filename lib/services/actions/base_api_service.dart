@@ -353,25 +353,3 @@ abstract class BaseApiService {
     }
   }
 }
-
-/// API configuration class for easy customization
-class ApiConfig {
-  static String _baseUrl = 'http://192.168.0.26:8000';
-  static Duration _timeout = const Duration(seconds: 180);
-
-  /// Get the current base URL
-  static String get baseUrl => _baseUrl;
-
-  /// Get the current timeout duration
-  static Duration get timeout => _timeout;
-
-  /// Update the base URL (useful for different environments)
-  static void setBaseUrl(String url) {
-    _baseUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
-  }
-
-  /// Update the timeout duration
-  static void setTimeout(Duration duration) {
-    _timeout = duration;
-  }
-}
