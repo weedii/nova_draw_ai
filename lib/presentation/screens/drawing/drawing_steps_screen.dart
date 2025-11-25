@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/drawing_data.dart';
+import '../../../models/ui_models.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
@@ -342,23 +342,6 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                                 backgroundColor: AppColors.primary,
                                 textColor: AppColors.white,
                                 icon: Icons.refresh,
-                                borderRadius: 16,
-                              ),
-                            ),
-
-                            const SizedBox(width: 16),
-
-                            // Use static data button
-                            Expanded(
-                              child: CustomButton(
-                                label: 'drawing_steps.use_offline',
-                                onPressed: () =>
-                                    provider.useStaticDataFallback(),
-                                backgroundColor: AppColors.white,
-                                textColor: AppColors.primary,
-                                borderColor: AppColors.primary,
-                                variant: 'outlined',
-                                icon: Icons.offline_bolt,
                                 borderRadius: 16,
                               ),
                             ),

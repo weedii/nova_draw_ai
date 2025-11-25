@@ -25,8 +25,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
 
-from src.models import EditOption
+from src.models import EditOption, Tutorial
 from src.core.config import settings
 
 
@@ -51,8 +52,9 @@ async def populate_edit_options():
     This function:
     1. Loads data from JSON
     2. Creates database session
-    3. Inserts all edit options
-    4. Prints summary
+    3. Finds matching tutorials for each category/subject
+    4. Inserts all edit options linked to tutorials
+    5. Prints summary
     """
     # Get JSON file path
     json_file_path = Path(__file__).parent / "edit_options_extracted_fully.json"
@@ -75,27 +77,79 @@ async def populate_edit_options():
             total_inserted = 0
             categories_processed = 0
             subjects_processed = 0
-            now = datetime.now(timezone.utc)  # Use timezone-aware UTC datetime
+            tutorials_not_found = 0
 
             # Iterate through categories
-            for category, subjects in data.items():
+            for category, category_data in data.items():
+                # Extract bilingual category names
+                category_en = category_data.get("category_en", category)
+                category_de = category_data.get("category_de", category)
                 categories_processed += 1
-                print(f"\n📂 Processing category: {category}")
+                print(f"\n📂 Processing category: {category_en} ({category_de})")
 
                 # Iterate through subjects
-                for subject, options in subjects.items():
+                for subject, subject_data in category_data.items():
+                    # Skip metadata fields
+                    if subject in ["category_en", "category_de"]:
+                        continue
+
+                    # Extract bilingual subject names
+                    subject_en = (
+                        subject_data.get("subject_en", subject)
+                        if isinstance(subject_data, dict)
+                        and "subject_en" in subject_data
+                        else subject
+                    )
+                    subject_de = (
+                        subject_data.get("subject_de", subject)
+                        if isinstance(subject_data, dict)
+                        and "subject_de" in subject_data
+                        else subject
+                    )
+
+                    # Get options list
+                    options = (
+                        subject_data
+                        if isinstance(subject_data, list)
+                        else (
+                            subject_data.get("options", [])
+                            if isinstance(subject_data, dict)
+                            else []
+                        )
+                    )
+
                     subjects_processed += 1
                     print(
-                        f"  📋 Processing subject: {subject} ({len(options)} options)"
+                        f"  📋 Processing subject: {subject_en} ({subject_de}) ({len(options)} options)"
                     )
+
+                    # Find tutorial for this category/subject
+                    query = select(Tutorial).where(
+                        (
+                            (Tutorial.category_en == category_en)
+                            | (Tutorial.category_de == category_de)
+                        )
+                        & (
+                            (Tutorial.subject_en == subject_en)
+                            | (Tutorial.subject_de == subject_de)
+                        )
+                    )
+                    result = await session.execute(query)
+                    tutorial = result.scalars().first()
+
+                    if not tutorial:
+                        print(
+                            f"    ⚠️  No tutorial found for {category_en}/{subject_en}, skipping options"
+                        )
+                        tutorials_not_found += 1
+                        continue
 
                     # Iterate through options
                     for option in options:
                         try:
-                            # Create EditOption instance
+                            # Create EditOption instance linked to tutorial
                             edit_option = EditOption(
-                                category=category,
-                                subject=subject,
+                                tutorial_id=tutorial.id,
                                 title_en=option.get("titleEn", ""),
                                 title_de=option.get("titleDe", ""),
                                 description_en=option.get("descriptionEn", ""),
@@ -127,6 +181,8 @@ async def populate_edit_options():
             print(f"      - Categories: {categories_processed}")
             print(f"      - Subjects: {subjects_processed}")
             print(f"      - Edit Options: {total_inserted}")
+            if tutorials_not_found > 0:
+                print(f"      - ⚠️  Tutorials not found: {tutorials_not_found}")
 
     except Exception as e:
         print(f"❌ Error populating database: {str(e)}")

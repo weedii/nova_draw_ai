@@ -128,7 +128,10 @@
     "select_drawing": "Wähle eine Zeichnung",
     "choose_what_to_draw": "Wähle aus dieser Kategorie, was du zeichnen möchtest!",
     "back_to_categories": "Zurück zu Kategorien",
-    "category_not_found": "Kategorie nicht gefunden"
+    "category_not_found": "Kategorie nicht gefunden",
+    "steps": "Schritte",
+    "loading": "Kategorien werden geladen...",
+    "error": "Fehler beim Laden der Kategorien"
   },
   
   "drawing_items": {

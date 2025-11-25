@@ -27,9 +27,9 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from database.db import async_session, init_db
-from models.tutorial import Tutorial
-from models.tutorial_step import TutorialStep
+from src.database.db import async_session, init_db
+from src.models.tutorial import Tutorial
+from src.models.tutorial_step import TutorialStep
 
 
 async def load_json_data(json_path: str) -> dict:
@@ -58,25 +58,52 @@ async def fill_database():
         step_count = 0
 
         # Iterate through categories
-        for category, subjects in data.items():
-            print(f"Processing category: {category}")
+        for category, category_data in data.items():
+            # Extract bilingual category names
+            category_en = category_data.get("category_en", category)
+            category_de = category_data.get("category_de", category)
+            print(f"Processing category: {category_en} ({category_de})")
 
             # Iterate through subjects (e.g., cat, dog, elephant)
-            for subject, tutorials in subjects.items():
-                print(f"  Subject: {subject}")
+            for subject, subject_data in category_data.items():
+                # Skip metadata fields
+                if subject in ["category_en", "category_de"]:
+                    continue
+
+                # Extract bilingual subject names
+                subject_en = (
+                    subject_data.get("subject_en", subject)
+                    if isinstance(subject_data, dict)
+                    else subject
+                )
+                subject_de = (
+                    subject_data.get("subject_de", subject)
+                    if isinstance(subject_data, dict)
+                    else subject
+                )
+
+                # Get tutorials dict
+                tutorials = subject_data if isinstance(subject_data, dict) else {}
+                print(f"  Subject: {subject_en} ({subject_de})")
 
                 # Iterate through tutorials (e.g., cat_1, cat_2, cat_3)
                 for tutorial_key, steps in tutorials.items():
+                    # Skip metadata fields
+                    if tutorial_key in ["subject_en", "subject_de"]:
+                        continue
+
                     # Create Tutorial record
                     tutorial = Tutorial(
-                        category=category,
-                        subject=subject,
+                        category_en=category_en,
+                        category_de=category_de,
+                        subject_en=subject_en,
+                        subject_de=subject_de,
                         total_steps=len(steps),
                         thumbnail_url=(
                             steps[0]["image"] if steps else None
                         ),  # Use first step image as thumbnail
-                        description_en=f"Learn to draw {subject}",
-                        description_de=f"Lerne, {subject} zu zeichnen",
+                        description_en=f"Learn to draw {subject_en}",
+                        description_de=f"Lerne, {subject_de} zu zeichnen",
                     )
 
                     session.add(tutorial)
@@ -119,12 +146,24 @@ async def fill_database():
         # Show summary by category
         print("Summary by category:")
         for category, subjects in data.items():
-            total_tutorials = sum(len(tutorials) for tutorials in subjects.values())
-            total_steps = sum(
-                len(steps)
-                for subjects_dict in subjects.values()
-                for steps in subjects_dict.values()
-            )
+            total_tutorials = 0
+            total_steps = 0
+
+            # Skip metadata fields (category_en, category_de)
+            for subject_key, subject_data in subjects.items():
+                if subject_key in ["category_en", "category_de"]:
+                    continue
+
+                # Skip metadata fields (subject_en, subject_de) and count tutorials
+                for tutorial_key, tutorial_data in subject_data.items():
+                    if tutorial_key in ["subject_en", "subject_de"]:
+                        continue
+
+                    # tutorial_data is a list of steps
+                    if isinstance(tutorial_data, list):
+                        total_tutorials += 1
+                        total_steps += len(tutorial_data)
+
             print(f"  {category}: {total_tutorials} tutorials, {total_steps} steps")
 
 
