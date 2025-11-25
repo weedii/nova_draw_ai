@@ -95,8 +95,7 @@ class EditOptionService:
             options_data = [
                 EditOptionRead(
                     id=str(option.id),
-                    category=option.category,
-                    subject=option.subject,
+                    tutorial_id=str(option.tutorial_id),
                     title_en=option.title_en,
                     title_de=option.title_de,
                     description_en=option.description_en,

@@ -23,7 +23,7 @@ class TutorialRepository:
     @staticmethod
     async def find_by_subject(db: AsyncSession, subject: str) -> Optional[Tutorial]:
         """
-        Find a random tutorial by subject name.
+        Find a random tutorial by subject name (English or German).
 
         Args:
             db: Async database session
@@ -36,10 +36,13 @@ class TutorialRepository:
             tutorial = await TutorialRepository.find_by_subject(db, "cat")
         """
 
-        # Get a random tutorial with the given subject (case-insensitive)
+        # Get a random tutorial with the given subject (case-insensitive, checks both EN and DE)
         query = (
             select(Tutorial)
-            .where(func.lower(Tutorial.subject) == func.lower(subject))
+            .where(
+                (func.lower(Tutorial.subject_en) == func.lower(subject))
+                | (func.lower(Tutorial.subject_de) == func.lower(subject))
+            )
             .order_by(func.random())
             .limit(1)
         )
@@ -50,7 +53,7 @@ class TutorialRepository:
     @staticmethod
     async def find_by_category(db: AsyncSession, category: str) -> List[Tutorial]:
         """
-        Find all tutorials in a specific category.
+        Find all tutorials in a specific category (English or German).
 
         Args:
             db: Async database session
@@ -63,33 +66,36 @@ class TutorialRepository:
             tutorials = await TutorialRepository.find_by_category(db, "animals")
         """
 
-        query = select(Tutorial).where(Tutorial.category == category)
+        query = select(Tutorial).where(
+            (func.lower(Tutorial.category_en) == func.lower(category))
+            | (func.lower(Tutorial.category_de) == func.lower(category))
+        )
         result = await db.execute(query)
         return result.scalars().all()
 
     @staticmethod
     async def get_all_categories(db: AsyncSession) -> List[str]:
         """
-        Get all unique tutorial categories.
+        Get all unique tutorial categories (English names).
 
         Args:
             db: Async database session
 
         Returns:
-            List of unique category names
+            List of unique category names (English)
 
         Example:
             categories = await TutorialRepository.get_all_categories(db)
         """
 
-        query = select(Tutorial.category).distinct()
+        query = select(Tutorial.category_en).distinct()
         result = await db.execute(query)
         return result.scalars().all()
 
     @staticmethod
     async def find_by_subject_pattern(db: AsyncSession, pattern: str) -> List[Tutorial]:
         """
-        Find tutorials by subject pattern (case-insensitive).
+        Find tutorials by subject pattern (case-insensitive, checks both EN and DE).
 
         Args:
             db: Async database session
@@ -102,7 +108,10 @@ class TutorialRepository:
             tutorials = await TutorialRepository.find_by_subject_pattern(db, "cat")
         """
 
-        query = select(Tutorial).where(Tutorial.subject.ilike(f"%{pattern}%"))
+        query = select(Tutorial).where(
+            (Tutorial.subject_en.ilike(f"%{pattern}%"))
+            | (Tutorial.subject_de.ilike(f"%{pattern}%"))
+        )
         result = await db.execute(query)
         return result.scalars().all()
 
@@ -164,7 +173,7 @@ class TutorialRepository:
             tutorials = await TutorialRepository.get_all_tutorials_grouped_by_category(db)
         """
 
-        query = select(Tutorial).order_by(Tutorial.category, Tutorial.subject)
+        query = select(Tutorial).order_by(Tutorial.category_en, Tutorial.subject_en)
         result = await db.execute(query)
         return result.scalars().all()
 
@@ -175,7 +184,7 @@ class TutorialRepository:
         """
         Query all tutorials for a specific category with complete metadata.
 
-        Uses case-insensitive matching for the category name.
+        Uses case-insensitive matching for the category name (English or German).
 
         Args:
             db: Async database session
@@ -190,8 +199,11 @@ class TutorialRepository:
 
         query = (
             select(Tutorial)
-            .where(func.lower(Tutorial.category) == func.lower(category))
-            .order_by(Tutorial.subject)
+            .where(
+                (func.lower(Tutorial.category_en) == func.lower(category))
+                | (func.lower(Tutorial.category_de) == func.lower(category))
+            )
+            .order_by(Tutorial.subject_en)
         )
         result = await db.execute(query)
         return result.scalars().all()

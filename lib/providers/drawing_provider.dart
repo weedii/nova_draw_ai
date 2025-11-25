@@ -52,7 +52,8 @@ class DrawingProvider extends ChangeNotifier {
     try {
       return _categories.firstWhere(
         (category) =>
-            category.titleEn.toLowerCase() == categoryTitle.toLowerCase(),
+            category.categoryEn.toLowerCase() == categoryTitle.toLowerCase() ||
+            category.categoryDe.toLowerCase() == categoryTitle.toLowerCase(),
       );
     } catch (e) {
       return null;
@@ -66,7 +67,9 @@ class DrawingProvider extends ChangeNotifier {
 
     try {
       return category.drawings.firstWhere(
-        (drawing) => drawing.nameEn.toLowerCase() == drawingName.toLowerCase(),
+        (drawing) =>
+            drawing.subjectEn.toLowerCase() == drawingName.toLowerCase() ||
+            drawing.subjectDe.toLowerCase() == drawingName.toLowerCase(),
       );
     } catch (e) {
       return null;
@@ -91,7 +94,7 @@ class DrawingProvider extends ChangeNotifier {
     final drawing = getDrawingByName(categoryTitle, drawingName);
     if (drawing != null) {
       // Use the drawing's English name as the subject for API
-      final subject = drawing.nameEn;
+      final subject = drawing.subjectEn;
       await loadStepsFromApi(subject);
     } else {
       _stepsState = DrawingStepsState.error;
@@ -128,8 +131,8 @@ class DrawingProvider extends ChangeNotifier {
           final drawings = apiCategory.drawings
               .map(
                 (apiDrawing) => Drawing(
-                  nameEn: apiDrawing.nameEn,
-                  nameDe: apiDrawing.nameDe,
+                  subjectEn: apiDrawing.subjectEn,
+                  subjectDe: apiDrawing.subjectDe,
                   emoji: apiDrawing.emoji,
                   totalSteps: apiDrawing.totalSteps,
                   thumbnailUrl: apiDrawing.thumbnailUrl,
@@ -138,8 +141,8 @@ class DrawingProvider extends ChangeNotifier {
               .toList();
 
           return DrawingCategory(
-            titleEn: apiCategory.titleEn,
-            titleDe: apiCategory.titleDe,
+            categoryEn: apiCategory.categoryEn,
+            categoryDe: apiCategory.categoryDe,
             descriptionEn: apiCategory.descriptionEn,
             descriptionDe: apiCategory.descriptionDe,
             icon: apiCategory.emoji,

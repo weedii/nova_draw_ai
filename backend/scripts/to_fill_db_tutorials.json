@@ -1,6 +1,10 @@
 {
   "animals": {
+    "category_en": "Animals",
+    "category_de": "Tiere",
     "cat": {
+      "subject_en": "Cat",
+      "subject_de": "Katze",
       "cat_1": [
         {
           "step_en": "Draw a round fluffy head in the center.",
@@ -114,6 +118,8 @@
       ]
     },
     "dog": {
+      "subject_en": "Dog",
+      "subject_de": "Hund",
       "dog_1": [
         {
           "step_en": "Draw a round fluffy head in the center.",
@@ -227,6 +233,8 @@
       ]
     },
     "elephant": {
+      "subject_en": "Elephant",
+      "subject_de": "Elefant",
       "elephant_1": [
         {
           "step_en": "Draw a large rounded head in the center with a gentle curve at the top.",
@@ -340,6 +348,8 @@
       ]
     },
     "fish": {
+      "subject_en": "Fish",
+      "subject_de": "Fisch",
       "fish_1": [
         {
           "step_en": "Draw an oval shape for the fish's body, slightly pointed at one end to represent the head.",
@@ -444,7 +454,11 @@
     }
   },
   "characters": {
+    "category_en": "Characters",
+    "category_de": "Charaktere",
     "king": {
+      "subject_en": "King",
+      "subject_de": "König",
       "king_1": [
         {
           "step_en": "Draw a large oval head at the top center of your page.",
@@ -558,6 +572,8 @@
       ]
     },
     "princess": {
+      "subject_en": "Princess",
+      "subject_de": "Prinzessin",
       "princess_1": [
         {
           "step_en": "Draw a round head in the center of the page.",
@@ -671,6 +687,8 @@
       ]
     },
     "robot": {
+      "subject_en": "Robot",
+      "subject_de": "Roboter",
       "robot_1": [
         {
           "step_en": "Draw a rectangular head with slightly rounded corners at the top center of your page.",
@@ -785,7 +803,11 @@
     }
   },
   "food": {
+    "category_en": "Food",
+    "category_de": "Essen",
     "apple": {
+      "subject_en": "Apple",
+      "subject_de": "Apfel",
       "apple_1": [
         {
           "step_en": "Draw a round, plump shape for the body of the apple in the center of your page.",
@@ -874,6 +896,8 @@
       ]
     },
     "pizza": {
+      "subject_en": "Pizza",
+      "subject_de": "Pizza",
       "pizza_1": [
         {
           "step_en": "Draw a large circle in the center of your paper to represent the pizza's crust.",
@@ -943,7 +967,11 @@
     }
   },
   "nature": {
+    "category_en": "Nature",
+    "category_de": "Natur",
     "flower": {
+      "subject_en": "Flower",
+      "subject_de": "Blume",
       "flower_1": [
         {
           "step_en": "Draw a round center for the flower in the middle of your paper.",
@@ -1042,6 +1070,8 @@
       ]
     },
     "sun": {
+      "subject_en": "Sun",
+      "subject_de": "Sonne",
       "sun_1": [
         {
           "step_en": "Draw a large circle in the center of your paper to form the main body of the sun.",
@@ -1135,6 +1165,8 @@
       ]
     },
     "tree": {
+      "subject_en": "Tree",
+      "subject_de": "Baum",
       "tree_1": [
         {
           "step_en": "Draw a tall, vertical trunk shape that is wider at the bottom than at the top, with some gentle curves to create a natural look.",
@@ -1219,7 +1251,11 @@
     }
   },
   "objects": {
+    "category_en": "Objects",
+    "category_de": "Objekte",
     "ball": {
+      "subject_en": "Ball",
+      "subject_de": "Ball",
       "ball_1": [
         {
           "step_en": "Draw a large perfect circle in the center of your page.",
@@ -1318,6 +1354,8 @@
       ]
     },
     "house": {
+      "subject_en": "House",
+      "subject_de": "Haus",
       "house_1": [
         {
           "step_en": "Draw a large square base in the center of the page to form the main structure of the house.",
@@ -1416,6 +1454,8 @@
       ]
     },
     "star": {
+      "subject_en": "Star",
+      "subject_de": "Stern",
       "star_1": [
         {
           "step_en": "Draw a simple five-pointed star shape in the center of your paper with equal lengths for each arm.",
@@ -1485,7 +1525,11 @@
     }
   },
   "vehicles": {
+    "category_en": "Vehicles",
+    "category_de": "Fahrzeuge",
     "airplane": {
+      "subject_en": "Airplane",
+      "subject_de": "Flugzeug",
       "airplane_1": [
         {
           "step_en": "Draw a wide, elongated oval shape horizontally for the airplane's body in the center of your paper.",
@@ -1594,6 +1638,8 @@
       ]
     },
     "car": {
+      "subject_en": "Car",
+      "subject_de": "Auto",
       "car_1": [
         {
           "step_en": "Draw a wide, horizontal rectangle for the main body of the car in the center of your page.",

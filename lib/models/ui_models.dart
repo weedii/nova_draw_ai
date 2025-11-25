@@ -42,15 +42,15 @@ class EditOption {
 
 /// UI model for drawings/subjects (used in the presentation layer)
 class Drawing {
-  final String nameEn;
-  final String nameDe;
+  final String subjectEn;
+  final String subjectDe;
   final String emoji;
   final int totalSteps;
   final String? thumbnailUrl;
 
   const Drawing({
-    required this.nameEn,
-    required this.nameDe,
+    required this.subjectEn,
+    required this.subjectDe,
     required this.emoji,
     required this.totalSteps,
     this.thumbnailUrl,
@@ -59,8 +59,8 @@ class Drawing {
 
 /// UI model for drawing categories (used in the presentation layer)
 class DrawingCategory {
-  final String titleEn;
-  final String titleDe;
+  final String categoryEn;
+  final String categoryDe;
   final String? descriptionEn;
   final String? descriptionDe;
   final String icon;
@@ -68,8 +68,8 @@ class DrawingCategory {
   final List<Drawing> drawings;
 
   const DrawingCategory({
-    required this.titleEn,
-    required this.titleDe,
+    required this.categoryEn,
+    required this.categoryDe,
     this.descriptionEn,
     this.descriptionDe,
     required this.icon,

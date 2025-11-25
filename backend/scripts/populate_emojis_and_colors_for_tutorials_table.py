@@ -140,12 +140,16 @@ async def populate_emojis_and_colors():
             updates_summary = []
 
             for tutorial in tutorials:
-                category = tutorial.category.lower() if tutorial.category else None
-                subject = tutorial.subject.lower() if tutorial.subject else None
+                category_en = (
+                    tutorial.category_en.lower() if tutorial.category_en else None
+                )
+                subject_en = (
+                    tutorial.subject_en.lower() if tutorial.subject_en else None
+                )
 
                 # Get category data
-                category_data = CATEGORY_DATA.get(category)
-                subject_emoji = SUBJECT_DATA.get(subject)
+                category_data = CATEGORY_DATA.get(category_en)
+                subject_emoji = SUBJECT_DATA.get(subject_en)
 
                 if category_data and subject_emoji:
                     # Update the tutorial
@@ -155,8 +159,10 @@ async def populate_emojis_and_colors():
 
                     updates_summary.append(
                         {
-                            "category": tutorial.category,
-                            "subject": tutorial.subject,
+                            "category_en": tutorial.category_en,
+                            "category_de": tutorial.category_de,
+                            "subject_en": tutorial.subject_en,
+                            "subject_de": tutorial.subject_de,
                             "category_emoji": category_data["emoji"],
                             "category_color": category_data["color"],
                             "subject_emoji": subject_emoji,
@@ -175,7 +181,7 @@ async def populate_emojis_and_colors():
 
                 for update_info in updates_summary:
                     print(
-                        f"  Category: {update_info['category']:15} | Subject: {update_info['subject']:15}"
+                        f"  Category: {update_info['category_en']:15} ({update_info['category_de']:15}) | Subject: {update_info['subject_en']:15} ({update_info['subject_de']:15})"
                     )
                     print(
                         f"    Category Emoji: {update_info['category_emoji']}  | Category Color: {update_info['category_color']}"

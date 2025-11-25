@@ -1,17 +1,18 @@
 """
 EditOption model for Nova Draw AI application.
 
-Represents AI editing options available for a specific subject (e.g., 'Make it colorful', 'Add sunglasses').
-Each edit option is linked to a category and subject, allowing kids to choose how they want their drawing edited.
+Represents AI editing options available for a specific tutorial (e.g., 'Make it colorful', 'Add sunglasses').
+Each edit option is linked to a tutorial via foreign key, allowing kids to choose how they want their drawing edited.
 
 Why this table exists:
-- Decouples edit options from tutorials (multiple tutorials can share the same edit options)
+- Provides reusable edit options for tutorials
 - Allows dynamic management of edit options without modifying tutorials
-- Enables category/subject-based filtering of available edits
+- Enables category/subject-based filtering of available edits via Tutorial relationship
 """
 
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 import uuid
 
 from src.database.db import Base
@@ -22,15 +23,16 @@ from src.utils import auditable, crud_enabled
 @auditable
 class EditOption(Base):
     """
-    EditOption model representing an AI editing option for a subject.
+    EditOption model representing an AI editing option for a tutorial.
 
     Each edit option contains:
-    - category: The category this option belongs to (e.g., 'Animals')
-    - subject: The subject this option is for (e.g., 'dog', 'cat')
+    - tutorial_id: Foreign key reference to Tutorial (provides category/subject context)
     - title_en/title_de: Localized titles for the edit option
     - description_en/description_de: Localized descriptions
     - prompt_en/prompt_de: Localized prompts to pass to the AI for image editing
     - icon: Emoji or icon identifier for UI display
+
+    Bilingual category and subject information is accessed through the Tutorial relationship.
 
     Decorators:
     - @auditable: Automatically adds created_at, updated_at for audit trail
@@ -38,8 +40,7 @@ class EditOption(Base):
 
     Example:
         edit_option = EditOption(
-            category="Animals",
-            subject="dog",
+            tutorial_id=tutorial.id,
             title_en="Make it colorful",
             title_de="Mach es farbig",
             description_en="Add vibrant colors to your drawing",
@@ -55,11 +56,11 @@ class EditOption(Base):
     # Primary key
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
 
-    # Foreign key reference (category + subject combination)
-    # Note: We use string columns instead of FK to maintain flexibility
-    # This allows edit options to exist independently of tutorials
-    category = Column(String(100), nullable=False, index=True)
-    subject = Column(String(100), nullable=False, index=True)
+    # Foreign key reference to Tutorial
+    # This links each edit option to a specific tutorial, which provides category/subject context
+    tutorial_id = Column(
+        UUID(as_uuid=True), ForeignKey("tutorials.id"), nullable=False, index=True
+    )
 
     # Localized titles and descriptions
     title_en = Column(String(100), nullable=False)
@@ -74,6 +75,9 @@ class EditOption(Base):
     # UI representation
     icon = Column(String(32), nullable=True)  # Emoji or icon name (e.g., "🎨", "✨")
 
+    # Relationships
+    tutorial = relationship("Tutorial", back_populates="edit_options")
+
     # Note: created_at, updated_at are automatically added by @auditable
     #
     # CRUD operations added by @crud_enabled decorator:
@@ -87,4 +91,4 @@ class EditOption(Base):
     # - EditOption.exists(db, id) -> bool
 
     def __repr__(self):
-        return f"<EditOption(id={self.id}, category={self.category}, subject={self.subject}, title_en={self.title_en})>"
+        return f"<EditOption(id={self.id}, tutorial_id={self.tutorial_id}, title_en={self.title_en}, title_de={self.title_de})>"

@@ -28,7 +28,7 @@ class _DrawingsScreenState extends State<DrawingsScreen>
   String _getCategoryTitle() {
     if (category == null) return '';
     final isGerman = context.locale.languageCode == 'de';
-    return isGerman ? category!.titleDe : category!.titleEn;
+    return isGerman ? category!.categoryDe : category!.categoryEn;
   }
 
   @override
@@ -64,10 +64,10 @@ class _DrawingsScreenState extends State<DrawingsScreen>
     // Update provider state
     context.read<DrawingProvider>().selectDrawing(
       widget.categoryId,
-      drawing.nameEn,
+      drawing.subjectEn,
     );
     // Navigate to drawing steps with both category and drawing IDs
-    context.push('/drawings/${widget.categoryId}/${drawing.nameEn}');
+    context.push('/drawings/${widget.categoryId}/${drawing.subjectEn}');
   }
 
   @override
@@ -186,7 +186,7 @@ class _DrawingCardState extends State<_DrawingCard>
 
   String _getDrawingName() {
     final isGerman = context.locale.languageCode == 'de';
-    return isGerman ? widget.drawing.nameDe : widget.drawing.nameEn;
+    return isGerman ? widget.drawing.subjectDe : widget.drawing.subjectEn;
   }
 
   String _getStepsDescription() {

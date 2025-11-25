@@ -18,14 +18,9 @@ class EditOptionCreate(BaseModel):
     All fields except optional ones are required.
     """
 
-    category: str = Field(
-        ..., min_length=1, max_length=100, description="Category name (e.g., 'Animals')"
-    )
-    subject: str = Field(
+    tutorial_id: str = Field(
         ...,
-        min_length=1,
-        max_length=100,
-        description="Subject name (e.g., 'dog', 'cat')",
+        description="UUID of the tutorial this edit option belongs to",
     )
     title_en: str = Field(
         ...,
@@ -61,8 +56,6 @@ class EditOptionUpdate(BaseModel):
     All fields are optional - only provided fields will be updated.
     """
 
-    category: Optional[str] = Field(None, min_length=1, max_length=100)
-    subject: Optional[str] = Field(None, min_length=1, max_length=100)
     title_en: Optional[str] = Field(None, min_length=1, max_length=100)
     title_de: Optional[str] = Field(None, max_length=100)
     description_en: Optional[str] = Field(None)
@@ -81,8 +74,7 @@ class EditOptionRead(BaseModel):
     """
 
     id: str = Field(..., description="Unique identifier (UUID)")
-    category: str = Field(..., description="Category name")
-    subject: str = Field(..., description="Subject name")
+    tutorial_id: str = Field(..., description="Tutorial UUID this option belongs to")
     title_en: str = Field(..., description="English title")
     title_de: str = Field(..., description="German title")
     description_en: str = Field(..., description="English description")

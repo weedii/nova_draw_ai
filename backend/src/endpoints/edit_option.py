@@ -158,7 +158,7 @@ async def get_edit_options_by_subject(
         HTTPException 500: If database error occurs
 
     Example:
-        GET /api/edit-options/Animals/dog
+        GET /api/edit-options/Animals/Dog
         Headers: Authorization: Bearer <token>
         Returns:
         {
@@ -166,12 +166,13 @@ async def get_edit_options_by_subject(
             "data": [
                 {
                     "id": "uuid-1",
-                    "category": "Animals",
-                    "subject": "dog",
+                    "tutorial_id": "tutorial-uuid",
                     "title_en": "Make it colorful",
                     "title_de": "Mach es farbig",
                     "description_en": "Add vibrant colors",
                     "description_de": "Füge lebendige Farben hinzu",
+                    "prompt_en": "Make the drawing colorful...",
+                    "prompt_de": "Mache die Zeichnung farbig...",
                     "icon": "🎨",
                     "created_at": "2024-01-01T00:00:00",
                     "updated_at": "2024-01-01T00:00:00"

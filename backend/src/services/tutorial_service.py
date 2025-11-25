@@ -91,7 +91,8 @@ class TutorialService:
             return FullTutorialResponse(
                 success="true",
                 metadata=TutorialMetadata(
-                    subject=tutorial.subject,
+                    subject_en=tutorial.subject_en,
+                    subject_de=tutorial.subject_de,
                     total_steps=tutorial.total_steps,
                 ),
                 steps=tutorial_steps,
@@ -146,40 +147,40 @@ class TutorialService:
             # Group tutorials by category and deduplicate drawings by subject
             categories_dict = {}
             for tutorial in tutorials:
-                category_name = tutorial.category
+                category_key = f"{tutorial.category_en}|{tutorial.category_de}"
 
-                if category_name not in categories_dict:
-                    categories_dict[category_name] = {
-                        "title_en": category_name,
-                        "title_de": category_name,  # Using same name for now
+                if category_key not in categories_dict:
+                    categories_dict[category_key] = {
+                        "category_en": tutorial.category_en,
+                        "category_de": tutorial.category_de,
                         "description_en": None,
                         "description_de": None,
-                        "emoji": tutorial.category_emoji,  # Get from first tutorial of this category
-                        "color": tutorial.category_color,  # Get from first tutorial of this category
+                        "emoji": tutorial.category_emoji,
+                        "color": tutorial.category_color,
                         "drawings": {},  # Use dict to track unique subjects
                         "drawings_list": [],  # Maintain order
                     }
 
                 # Add drawing to category only if subject not already present
-                subject = tutorial.subject
-                if subject not in categories_dict[category_name]["drawings"]:
+                subject_key = f"{tutorial.subject_en}|{tutorial.subject_de}"
+                if subject_key not in categories_dict[category_key]["drawings"]:
                     drawing = TutorialDrawingResponse(
-                        name_en=tutorial.subject,
-                        name_de=tutorial.subject,  # Using same name for now
-                        emoji=tutorial.subject_emoji,  # Get from tutorial model
+                        subject_en=tutorial.subject_en,
+                        subject_de=tutorial.subject_de,
+                        emoji=tutorial.subject_emoji,
                         total_steps=tutorial.total_steps,
                         thumbnail_url=tutorial.thumbnail_url,
                         description_en=tutorial.description_en,
                         description_de=tutorial.description_de,
                     )
-                    categories_dict[category_name]["drawings"][subject] = drawing
-                    categories_dict[category_name]["drawings_list"].append(drawing)
+                    categories_dict[category_key]["drawings"][subject_key] = drawing
+                    categories_dict[category_key]["drawings_list"].append(drawing)
 
             # Convert to response format
             categories_list = [
                 CategoryWithNestedDrawingsResponse(
-                    title_en=cat_data["title_en"],
-                    title_de=cat_data["title_de"],
+                    category_en=cat_data["category_en"],
+                    category_de=cat_data["category_de"],
                     description_en=cat_data["description_en"],
                     description_de=cat_data["description_de"],
                     emoji=cat_data["emoji"],
@@ -243,18 +244,19 @@ class TutorialService:
             seen_subjects = set()
             drawings = []
             for tutorial in tutorials:
-                if tutorial.subject not in seen_subjects:
+                subject_key = f"{tutorial.subject_en}|{tutorial.subject_de}"
+                if subject_key not in seen_subjects:
                     drawing = TutorialDrawingResponse(
-                        name_en=tutorial.subject,
-                        name_de=tutorial.subject,
-                        emoji=tutorial.subject_emoji,  # Get from tutorial model
+                        subject_en=tutorial.subject_en,
+                        subject_de=tutorial.subject_de,
+                        emoji=tutorial.subject_emoji,
                         total_steps=tutorial.total_steps,
                         thumbnail_url=tutorial.thumbnail_url,
                         description_en=tutorial.description_en,
                         description_de=tutorial.description_de,
                     )
                     drawings.append(drawing)
-                    seen_subjects.add(tutorial.subject)
+                    seen_subjects.add(subject_key)
 
             logger.info(
                 f"Returning {len(drawings)} unique drawings from {len(tutorials)} tutorials"

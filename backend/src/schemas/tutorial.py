@@ -7,7 +7,8 @@ from typing import List
 class TutorialMetadata(BaseModel):
     """Tutorial metadata."""
 
-    subject: str
+    subject_en: str
+    subject_de: str
     total_steps: int
 
 
@@ -36,8 +37,8 @@ class FullTutorialResponse(BaseModel):
 class TutorialDrawingResponse(BaseModel):
     """Schema for drawing/subject data in category responses."""
 
-    name_en: str
-    name_de: str
+    subject_en: str
+    subject_de: str
     emoji: str
     total_steps: int
     thumbnail_url: str | None = None
@@ -48,8 +49,8 @@ class TutorialDrawingResponse(BaseModel):
 class CategoryWithNestedDrawingsResponse(BaseModel):
     """Schema for category with nested drawings."""
 
-    title_en: str
-    title_de: str
+    category_en: str
+    category_de: str
     description_en: str | None = None
     description_de: str | None = None
     emoji: str

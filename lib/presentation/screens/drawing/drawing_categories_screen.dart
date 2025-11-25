@@ -48,9 +48,9 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
 
   void _onCategorySelected(DrawingCategory category) {
     // Update provider state
-    context.read<DrawingProvider>().selectCategory(category.titleEn);
+    context.read<DrawingProvider>().selectCategory(category.categoryEn);
     // Navigate to drawing items screen to select specific drawing
-    context.push('/drawings/${Uri.encodeComponent(category.titleEn)}');
+    context.push('/drawings/${Uri.encodeComponent(category.categoryEn)}');
   }
 
   @override
@@ -253,7 +253,7 @@ class _CategoryCardState extends State<_CategoryCard>
 
   String _getCategoryTitle() {
     final isGerman = context.locale.languageCode == 'de';
-    return isGerman ? widget.category.titleDe : widget.category.titleEn;
+    return isGerman ? widget.category.categoryDe : widget.category.categoryEn;
   }
 
   String _getCategoryDescription() {
