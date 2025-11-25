@@ -22,6 +22,10 @@ from src.schemas import (
     AuthResponse,
     TokenRefreshResponse,
     UserResponse,
+    PasswordResetRequest,
+    PasswordResetConfirm,
+    ChangePasswordRequest,
+    MessageResponse,
 )
 from src.models import User
 
@@ -121,3 +125,56 @@ async def get_current_user_profile(
     """
 
     return UserResponse.model_validate(current_user)
+
+
+@router.post(
+    "/forgot-password",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Request password reset",
+    description="Send a password reset link to the user's email.",
+)
+async def forgot_password(
+    request: PasswordResetRequest, db: AsyncSession = Depends(get_db)
+) -> MessageResponse:
+    """
+    Request password reset.
+    """
+    return await AuthService.forgot_password(db, request)
+
+
+@router.post(
+    "/reset-password",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Reset password",
+    description="Reset user password using the token received via email.",
+)
+async def reset_password(
+    request: PasswordResetConfirm, db: AsyncSession = Depends(get_db)
+) -> MessageResponse:
+    """
+    Reset password with token.
+    """
+    return await AuthService.reset_password(db, request)
+
+
+@router.post(
+    "/change-password",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Change password",
+    description="Change password for authenticated user. Requires current password verification.",
+)
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(AuthService.get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> MessageResponse:
+    """
+    Change password for authenticated user.
+
+    **Authentication Required:**
+    - Include access token in Authorization header: `Bearer <token>`
+    """
+    return await AuthService.change_password(db, current_user, request)

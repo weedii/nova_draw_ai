@@ -83,6 +83,33 @@
     "error_name_length": "Name muss mindestens 2 Zeichen lang sein",
     "error_confirm_password": "Bitte Passwort bestätigen",
     "error_passwords_mismatch": "Passwörter stimmen nicht überein",
+    "error_code_required": "Bitte gib den Reset-Code ein",
+    "error_code_length": "Code muss 6 Ziffern haben",
+    "error_confirm_password_required": "Bitte bestätige dein Passwort",
+    "error_passwords_not_match": "Passwörter stimmen nicht überein",
+    
+    "enter_code": "Reset-Code eingeben",
+    "code_sent_to": "Wir haben einen 6-stelligen Code gesendet an",
+    "reset_code": "Reset-Code",
+    "reset_code_hint": "6-stelligen Code eingeben",
+    "new_password": "Neues Passwort",
+    "new_password_hint": "Neues Passwort eingeben",
+    "confirm_new_password_hint": "Neues Passwort bestätigen",
+    "send_reset_code": "Reset-Code senden",
+    "resend_code": "Code erneut senden",
+    "change_email": "E-Mail ändern",
+    "code_resent": "Reset-Code erneut gesendet!",
+    "password_reset_success": "Passwort zurückgesetzt!",
+    "can_now_login": "Dein Passwort wurde erfolgreich zurückgesetzt.",
+    "password_changed_message": "Du kannst dich jetzt mit deinem neuen Passwort anmelden.",
+    "go_to_signin": "Zur Anmeldung",
+    "resetting_password": "Passwort wird zurückgesetzt...",
+    
+    "change_password": "Passwort ändern",
+    "current_password": "Aktuelles Passwort",
+    "current_password_hint": "Aktuelles Passwort eingeben",
+    "password_changed": "Passwort erfolgreich geändert!",
+    "changing_password": "Passwort wird geändert...",
 
     "errors": {
       "oops": "Hoppla!",
@@ -103,7 +130,13 @@
       "account_not_found_message": "Kein Konto mit dieser E-Mail gefunden. Versuche dich zu registrieren!",
       "server_error": "Serverfehler",
       "server_error_message": "Etwas ist auf unserer Seite schief gelaufen. Bitte versuche es später erneut!",
-      "ok": "OK"
+      "ok": "OK",
+      "current_password_incorrect": "Das aktuelle Passwort ist falsch.",
+      "new_password_same": "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden.",
+      "reset_user_not_found": "Benutzer nicht gefunden. Bitte überprüfe deine E-Mail-Adresse.",
+      "invalid_reset_code": "Ungültiger Reset-Code. Bitte überprüfe und versuche es erneut.",
+      "reset_code_expired": "Der Reset-Code ist abgelaufen. Bitte fordere einen neuen an.",
+      "session_expired": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an."
     }
   },
   
