@@ -181,7 +181,8 @@ def crud_enabled(cls: Type[Any]) -> Type[Any]:
 
         # Auto-update updated_at timestamp if field exists
         if hasattr(obj, "updated_at"):
-            obj.updated_at = datetime.now(timezone.utc)
+            # Use timezone-aware UTC datetime, then strip timezone for naive column
+            obj.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
         await db.commit()
         await db.refresh(obj)

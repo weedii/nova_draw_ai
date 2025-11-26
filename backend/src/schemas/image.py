@@ -13,6 +13,10 @@ class ImageProcessRequest(BaseModel):
         max_length=500,
         description="Custom text prompt for image processing (e.g., 'make it alive')",
     )
+    image_url: Optional[str] = Field(
+        None,
+        description="URL of an existing image from Spaces to edit (instead of uploading a new file). Must be a URL owned by the current user.",
+    )
     effect: Optional[str] = Field(
         None,
         description="Preset effect name (e.g., 'unicorn_magic', 'rainbow_blast'). If provided, this takes precedence over custom prompt.",
@@ -32,7 +36,8 @@ class ImageProcessResponse(BaseModel):
 
     success: str  # "true" or "false" as string
     prompt: str
-    result_image: str  # base64 encoded processed image
+    original_image_url: Optional[str] = None  # URL of the original uploaded image
+    edited_image_url: Optional[str] = None  # URL of the edited image
     processing_time: Optional[float] = None
     effect_used: Optional[str] = None  # The effect that was applied
     drawing_id: Optional[str] = None  # ID of the saved drawing in database

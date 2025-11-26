@@ -15,12 +15,16 @@ class DrawingStoryScreen extends StatefulWidget {
   final String categoryId;
   final String drawingId;
   final dynamic drawingImage; // Can be File or Uint8List
+  final String? imageUrl; // URL of the edited image from Spaces
+  final String? dbDrawingId; // Database Drawing record ID
 
   const DrawingStoryScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,
     this.drawingImage,
+    this.imageUrl,
+    this.dbDrawingId,
   });
 
   @override
@@ -38,6 +42,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   bool _storyGenerationFailed = false;
   String _generatedStory = '';
   String _storyTitle = '';
+  String? _storyImageUrl; // Image URL from the story response
 
   final FlutterTts _flutterTts = FlutterTts();
   Map? _currentVoice;
@@ -202,8 +207,8 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   }
 
   void _generateStory() async {
-    // Check if we have an image to generate story from
-    if (widget.drawingImage == null) {
+    // Check if we have an image URL or image data to generate story from
+    if (widget.imageUrl == null && widget.drawingImage == null) {
       if (mounted) {
         setState(() {
           _isGeneratingStory = false;
@@ -218,9 +223,12 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       String currentLanguage = context.locale.languageCode;
 
       // Call the API to generate story with the current language
+      // Pass imageUrl if available (from edited image), otherwise pass imageData
       final response = await DrawingApiService.createStory(
         imageData: widget.drawingImage,
+        imageUrl: widget.imageUrl,
         language: currentLanguage,
+        drawingId: widget.dbDrawingId,
       );
 
       if (mounted) {
@@ -229,6 +237,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
           _storyGenerationFailed = false;
           _generatedStory = response.story;
           _storyTitle = response.title;
+          _storyImageUrl = response.imageUrl; // Store image URL from response
         });
 
         _slideController.forward();
@@ -332,7 +341,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   }
 
   void _createAnotherStory() {
-    context.push('/drawings/categories');
+    context.pushReplacement('/drawings/categories');
   }
 
   @override
@@ -627,7 +636,21 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         ),
       ),
 
-      child: widget.drawingImage != null
+      child: _storyImageUrl != null && _storyImageUrl!.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.network(
+                _storyImageUrl!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback to local image if URL fails
+                  return _buildFallbackImage();
+                },
+              ),
+            )
+          : widget.drawingImage != null
           ? ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: widget.drawingImage is Uint8List
@@ -644,36 +667,33 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
                       height: double.infinity,
                     ),
             )
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.auto_fix_high,
-                    size: 60,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'story.enhanced_artwork'.tr(),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                      fontFamily: 'Comic Sans MS',
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'story.your_masterpiece'.tr(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                ],
-              ),
+          : _buildFallbackImage(),
+    );
+  }
+
+  Widget _buildFallbackImage() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.auto_fix_high, size: 60, color: AppColors.primary),
+          const SizedBox(height: 12),
+          Text(
+            'story.enhanced_artwork'.tr(),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+              fontFamily: 'Comic Sans MS',
             ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'story.your_masterpiece'.tr(),
+            style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+          ),
+        ],
+      ),
     );
   }
 }

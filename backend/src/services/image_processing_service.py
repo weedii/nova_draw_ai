@@ -9,8 +9,10 @@ from openai import OpenAI
 from typing import Tuple, Any
 from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import attributes
 from uuid import UUID
 from src.models import Drawing
+from src.services.storage_service import StorageService
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +36,14 @@ class ImageProcessingService:
         self.openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.gemini_model = "gemini-2.5-flash-image-preview"
         self.openai_model = "gpt-3.5-turbo"  # Cheap and fast for prompt enhancement
+
+        # Initialize storage service for DigitalOcean Spaces
+        try:
+            self.storage_service = StorageService()
+            logger.info("✅ StorageService initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ StorageService initialization failed: {e}")
+            self.storage_service = None
 
         logger.info(f"ImageProcessingService initialized successfully")
         logger.info(f"Using Gemini model: {self.gemini_model}")
@@ -390,92 +400,211 @@ class ImageProcessingService:
     async def edit_image_with_prompt(
         self,
         db: AsyncSession,
-        image_data: bytes,
         prompt: str,
         user_id: UUID,
         tutorial_id: UUID = None,
+        drawing_id: UUID = None,
+        image_data: bytes = None,
+        image_url: str = None,
     ) -> dict:
         """
-        Complete image editing flow: validate, process, and save to database.
+        Complete image editing flow: validate, process, and save to database and Spaces.
+        Supports both file upload and existing image URL from Spaces.
+        If drawing_id is provided, appends the edited image to the existing drawing's edited_images_urls.
 
         Args:
             db: Async database session
-            image_data: Raw image bytes
             prompt: Processing instruction
             user_id: UUID of the user editing the image
             tutorial_id: Optional UUID of the associated tutorial
+            drawing_id: Optional UUID of existing drawing to append edit to
+            image_data: Raw image bytes (for new uploads)
+            image_url: URL of existing image from Spaces (for re-editing)
 
         Returns:
-            Dictionary with drawing_id, result_image, and processing_time
+            Dictionary with drawing_id, original_image_url, edited_image_url, and processing_time
 
         Raises:
             ValueError: If image validation fails or processing fails
         """
 
-        # Validate image
-        if not self.validate_image(image_data):
-            raise ValueError("Invalid image or image too large (max 2048x2048)")
+        # Validate that either image_data or image_url is provided
+        if not image_data and not image_url:
+            raise ValueError("Either image_data or image_url must be provided")
+
+        original_image_url = None
+
+        # Step 1: Handle image source (file upload or existing URL)
+        if image_url:
+            # Re-editing: Use existing image from Spaces
+            logger.info(f"🔄 Re-editing existing image from URL: {image_url}")
+
+            # Validate URL and extract user_id
+            if self.storage_service:
+                try:
+                    url_user_id = self.storage_service.validate_and_extract_user_id(
+                        image_url
+                    )
+                    # Verify the URL belongs to the current user
+                    if url_user_id != user_id:
+                        raise ValueError(
+                            "Image URL does not belong to the current user"
+                        )
+                    logger.info("✅ URL validated and belongs to current user")
+                except Exception as e:
+                    raise ValueError(f"Invalid image URL: {str(e)}")
+
+            # Download image from Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📥 Downloading image from Spaces...")
+                    image_data = self.storage_service.download_image_as_bytes(image_url)
+                    logger.info(f"✅ Image downloaded: {len(image_data)} bytes")
+                    original_image_url = image_url  # Reuse existing URL
+                except Exception as e:
+                    raise ValueError(f"Failed to download image from Spaces: {str(e)}")
+        else:
+            # New upload: Upload original image to Spaces
+            logger.info("📤 Processing new image upload...")
+
+            # Validate image
+            if not self.validate_image(image_data):
+                raise ValueError("Invalid image or image too large (max 2048x2048)")
+
+            # Upload original image to Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📤 Uploading original image to Spaces...")
+                    original_image_url = self.storage_service.upload_image_from_bytes(
+                        image_data, user_id, image_type="original"
+                    )
+                    logger.info(f"✅ Original image uploaded: {original_image_url}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to upload original image: {e}")
+                    # Continue without storing original URL
 
         # Get image info for logging
         image_info = self.get_image_info(image_data)
         logger.info(f"Processing image: {image_info}")
 
-        # Process the image
+        # Step 2: Process the image
         result_base64, processing_time = self.process_image(image_data, prompt)
 
-        # Save drawing to database
-        saved_drawing = await Drawing.create(
-            db,
-            user_id=user_id,
-            tutorial_id=tutorial_id,
-            uploaded_image_url="",
-            edited_images_urls=[result_base64],
-        )
+        # Step 3: Upload edited image to Spaces
+        edited_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading edited image to Spaces...")
+                edited_image_url = self.storage_service.upload_image_from_base64(
+                    result_base64, user_id, image_type="edited"
+                )
+                logger.info(f"✅ Edited image uploaded: {edited_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload edited image: {e}")
+                # Continue with base64 as fallback
+
+        # Step 4: Save drawing to database with URLs
+        if drawing_id:
+            # Re-editing: Fetch existing drawing and append to edited_images_urls
+            logger.info(f"📝 Appending edit to existing drawing: {drawing_id}")
+
+            try:
+                # Fetch the existing drawing
+                existing_drawing = await Drawing.get_by_id(db, drawing_id)
+
+                if not existing_drawing:
+                    raise ValueError(f"Drawing with ID {drawing_id} not found")
+
+                # Verify the drawing belongs to the current user
+                if existing_drawing.user_id != user_id:
+                    raise ValueError("Drawing does not belong to the current user")
+
+                # Get current edited_images_urls or initialize as empty list
+                current_edits = existing_drawing.edited_images_urls or []
+
+                # Append the new edited image URL
+                new_edited_url = edited_image_url if edited_image_url else result_base64
+                current_edits.append(new_edited_url)
+
+                # Mark array as modified for PostgreSQL before updating
+                attributes.flag_modified(existing_drawing, "edited_images_urls")
+
+                # Update the drawing using the update method
+                saved_drawing = await Drawing.update(
+                    db, drawing_id, {"edited_images_urls": current_edits}
+                )
+
+                logger.info(
+                    f"✅ Edit appended to drawing. Total edits: {len(current_edits)}"
+                )
+
+            except Exception as e:
+                logger.error(f"❌ Failed to append edit to existing drawing: {str(e)}")
+                raise ValueError(f"Failed to append edit to drawing: {str(e)}")
+        else:
+            # New drawing: Create a new entry
+            logger.info("📝 Creating new drawing entry")
+            saved_drawing = await Drawing.create(
+                db,
+                user_id=user_id,
+                tutorial_id=tutorial_id,
+                uploaded_image_url=original_image_url,
+                edited_images_urls=(
+                    [edited_image_url] if edited_image_url else [result_base64]
+                ),
+            )
 
         return {
             "drawing_id": str(saved_drawing.id),
-            "result_image": result_base64,
+            "original_image_url": original_image_url,
+            "edited_image_url": edited_image_url,
             "processing_time": processing_time,
         }
 
     async def edit_image_with_audio(
         self,
         db: AsyncSession,
-        image_data: bytes,
         audio_data: bytes,
         audio_filename: str,
         language: str,
         user_id: UUID,
         tutorial_id: UUID = None,
+        drawing_id: UUID = None,
         audio_service=None,
+        image_data: bytes = None,
+        image_url: str = None,
     ) -> dict:
         """
-        Complete image editing flow with audio: transcribe, process, and save to database.
+        Complete image editing flow with audio: transcribe, process, and save to database and Spaces.
+        Supports both file upload and existing image URL from Spaces.
+        If drawing_id is provided, appends the edited image to the existing drawing's edited_images_urls.
 
         Args:
             db: Async database session
-            image_data: Raw image bytes
             audio_data: Raw audio bytes
             audio_filename: Audio file name
             language: Language code ('en' or 'de')
             user_id: UUID of the user editing the image
             tutorial_id: Optional UUID of the associated tutorial
+            drawing_id: Optional UUID of existing drawing to append edit to
             audio_service: AudioService instance for transcription
+            image_data: Raw image bytes (for new uploads)
+            image_url: URL of existing image from Spaces (for re-editing)
 
         Returns:
-            Dictionary with drawing_id, result_image, prompt, and processing_time
+            Dictionary with drawing_id, original_image_url, edited_image_url, prompt, and processing_time
 
         Raises:
             ValueError: If validation or processing fails
         """
 
+        # Validate that either image_data or image_url is provided
+        if not image_data and not image_url:
+            raise ValueError("Either image_data or image_url must be provided")
+
         # Validate language
         if language not in ["en", "de"]:
             raise ValueError("Invalid language. Please provide 'en' or 'de'.")
-
-        # Validate image
-        if not self.validate_image(image_data):
-            raise ValueError("Invalid image or image too large (max 2048x2048)")
 
         # Validate audio
         if not audio_service:
@@ -489,36 +618,143 @@ class ImageProcessingService:
                 f"Invalid audio file. Supported formats: {', '.join(supported['formats'])}. Max size: {supported['max_size_mb']}MB"
             )
 
+        original_image_url = None
+
+        # Step 1: Handle image source (file upload or existing URL)
+        if image_url:
+            # Re-editing: Use existing image from Spaces
+            logger.info(f"🔄 Re-editing existing image from URL: {image_url}")
+
+            # Validate URL and extract user_id
+            if self.storage_service:
+                try:
+                    url_user_id = self.storage_service.validate_and_extract_user_id(
+                        image_url
+                    )
+                    # Verify the URL belongs to the current user
+                    if url_user_id != user_id:
+                        raise ValueError(
+                            "Image URL does not belong to the current user"
+                        )
+                    logger.info("✅ URL validated and belongs to current user")
+                except Exception as e:
+                    raise ValueError(f"Invalid image URL: {str(e)}")
+
+            # Download image from Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📥 Downloading image from Spaces...")
+                    image_data = self.storage_service.download_image_as_bytes(image_url)
+                    logger.info(f"✅ Image downloaded: {len(image_data)} bytes")
+                    original_image_url = image_url  # Reuse existing URL
+                except Exception as e:
+                    raise ValueError(f"Failed to download image from Spaces: {str(e)}")
+        else:
+            # New upload: Upload original image to Spaces
+            logger.info("📤 Processing new image upload...")
+
+            # Validate image
+            if not self.validate_image(image_data):
+                raise ValueError("Invalid image or image too large (max 2048x2048)")
+
+            # Upload original image to Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📤 Uploading original image to Spaces...")
+                    original_image_url = self.storage_service.upload_image_from_bytes(
+                        image_data, user_id, image_type="original"
+                    )
+                    logger.info(f"✅ Original image uploaded: {original_image_url}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to upload original image: {e}")
+
         # Get file info for logging
         image_info = self.get_image_info(image_data)
         audio_info = audio_service.get_audio_info(audio_data, audio_filename)
         logger.info(f"Processing image: {image_info}")
         logger.info(f"Processing audio: {audio_info}")
 
-        # Step 1: Transcribe audio to text
+        # Step 2: Transcribe audio to text
         transcribed_text, transcription_time = audio_service.transcribe_audio(
             audio_data, language, audio_filename
         )
 
-        # Step 2: Process the image with the transcribed text
+        # Step 3: Process the image with the transcribed text
         result_base64, processing_time = self.process_image(
             image_data, transcribed_text
         )
 
-        # Step 3: Save drawing to database
-        saved_drawing = await Drawing.create(
-            db,
-            user_id=user_id,
-            tutorial_id=tutorial_id,
-            uploaded_image_url="",
-            edited_images_urls=[result_base64],
-        )
+        # Step 4: Upload edited image to Spaces
+        edited_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading edited image to Spaces...")
+                edited_image_url = self.storage_service.upload_image_from_base64(
+                    result_base64, user_id, image_type="edited"
+                )
+                logger.info(f"✅ Edited image uploaded: {edited_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload edited image: {e}")
+
+        # Step 5: Save drawing to database with URLs
+        if drawing_id:
+            # Re-editing: Fetch existing drawing and append to edited_images_urls
+            logger.info(f"📝 Appending audio edit to existing drawing: {drawing_id}")
+
+            try:
+                # Fetch the existing drawing
+                existing_drawing = await Drawing.get_by_id(db, drawing_id)
+
+                if not existing_drawing:
+                    raise ValueError(f"Drawing with ID {drawing_id} not found")
+
+                # Verify the drawing belongs to the current user
+                if existing_drawing.user_id != user_id:
+                    raise ValueError("Drawing does not belong to the current user")
+
+                # Get current edited_images_urls or initialize as empty list
+                current_edits = existing_drawing.edited_images_urls or []
+
+                # Append the new edited image URL
+                new_edited_url = edited_image_url if edited_image_url else result_base64
+                current_edits.append(new_edited_url)
+
+                # Mark array as modified for PostgreSQL before updating
+                attributes.flag_modified(existing_drawing, "edited_images_urls")
+
+                # Update the drawing using the update method
+                saved_drawing = await Drawing.update(
+                    db, drawing_id, {"edited_images_urls": current_edits}
+                )
+
+                logger.info(
+                    f"✅ Audio edit appended to drawing. Total edits: {len(current_edits)}"
+                )
+
+            except Exception as e:
+                logger.error(
+                    f"❌ Failed to append audio edit to existing drawing: {str(e)}"
+                )
+                raise ValueError(f"Failed to append edit to drawing: {str(e)}")
+        else:
+            # New drawing: Create a new entry
+            logger.info("📝 Creating new drawing entry with audio edit")
+            saved_drawing = await Drawing.create(
+                db,
+                user_id=user_id,
+                tutorial_id=tutorial_id,
+                uploaded_image_url=original_image_url,
+                edited_images_urls=(
+                    [edited_image_url] if edited_image_url else [result_base64]
+                ),
+            )
 
         total_time = transcription_time + processing_time
 
         return {
             "drawing_id": str(saved_drawing.id),
-            "result_image": result_base64,
+            "original_image_url": original_image_url,
+            "edited_image_url": edited_image_url,
             "prompt": transcribed_text,
             "processing_time": total_time,
         }

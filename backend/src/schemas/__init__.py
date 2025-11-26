@@ -54,6 +54,12 @@ from .edit_option import (
     EditOptionsListResponse,
     EditOptionResponse,
 )
+from .drawing import (
+    DrawingResponse,
+    DrawingListResponse,
+    DrawingCreateRequest,
+    DrawingUpdateRequest,
+)
 
 __all__ = [
     "HealthResponse",
@@ -88,4 +94,8 @@ __all__ = [
     "EditOptionRead",
     "EditOptionsListResponse",
     "EditOptionResponse",
+    "DrawingResponse",
+    "DrawingListResponse",
+    "DrawingCreateRequest",
+    "DrawingUpdateRequest",
 ]

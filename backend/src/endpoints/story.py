@@ -26,15 +26,20 @@ if settings.OPENAI_API_KEY:
 async def create_story(
     request: StoryRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(AuthService.get_current_user)
+    current_user: User = Depends(AuthService.get_current_user),
 ):
     """
-    Generate a children's story (ages 4-7) from an uploaded image.
+    Generate a children's story (ages 4-7) from an image.
+    Supports two modes:
+    1. Upload image as base64 (request.image provided)
+    2. Use image URL from Spaces (request.image_url provided)
+
     Supports English ('en') and German ('de') story generation.
-    Saves the generated story to the database.
-    
+    Saves the generated story to the database and links it to a drawing if drawing_id provided.
+
     **Authentication Required:** User must be logged in.
     """
+
     try:
         # Check if story service is available
         if not story_service:
@@ -63,6 +68,7 @@ async def create_story(
             title=result["title"],
             generation_time=result["generation_time"],
             story_id=result["story_id"],
+            image_url=request.image_url,
         )
 
     except ValueError as e:
