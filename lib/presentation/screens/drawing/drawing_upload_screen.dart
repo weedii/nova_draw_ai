@@ -231,7 +231,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
 
   void _uploadLater() {
     // Navigate back to categories
-    context.push('/drawings/categories');
+    context.pushReplacement('/home');
   }
 
   @override
