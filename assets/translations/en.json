@@ -29,7 +29,7 @@
     "compare": "Compare",
     "birthdate": "Birthdate"
   },
-  
+
   "app_bar": {
     "enhanced_drawing": "Enhanced Drawing",
     "processing_failed": "Processing Failed",
@@ -38,14 +38,14 @@
     "error_occurred": "Error Occurred",
     "drawing_steps": "Drawing Steps"
   },
-  
+
   "welcome_screen": {
     "welcome": "Welcome to",
     "app_description": "Draw, create, and watch your art come to life with magic!",
     "start_drawing": "Start Drawing!",
     "sign_in": "Sign In"
   },
-  
+
   "auth": {
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
@@ -88,7 +88,7 @@
     "error_code_length": "Code must be 6 digits",
     "error_confirm_password_required": "Please confirm your password",
     "error_passwords_not_match": "Passwords do not match",
-    
+
     "enter_code": "Enter Reset Code",
     "code_sent_to": "We sent a 6-digit code to",
     "reset_code": "Reset Code",
@@ -105,7 +105,7 @@
     "password_changed_message": "You can now sign in with your new password.",
     "go_to_signin": "Go to Sign In",
     "resetting_password": "Resetting password...",
-    
+
     "change_password": "Change Password",
     "current_password": "Current Password",
     "current_password_hint": "Enter current password",
@@ -140,7 +140,7 @@
       "session_expired": "Your session has expired. Please log in again."
     }
   },
-  
+
   "categories": {
     "choose_drawing": "Choose What to Draw",
     "select_category": "Select a category and start your creative journey!",
@@ -158,7 +158,7 @@
     "characters_description": "Create magical characters and people!",
     "loading_categories": "Loading Categories"
   },
-  
+
   "drawings": {
     "select_drawing": "Select a Drawing",
     "choose_what_to_draw": "Choose what you want to draw from this category!",
@@ -168,7 +168,7 @@
     "loading": "Loading categories...",
     "error": "Error loading categories"
   },
-  
+
   "drawing_items": {
     "dog": "Dog",
     "cat": "Cat",
@@ -187,7 +187,7 @@
     "princess": "Princess",
     "robot": "Robot"
   },
-  
+
   "drawing_steps": {
     "drawing_steps": "Drawing Steps",
     "next_step": "Next Step",
@@ -207,7 +207,7 @@
     "image_error": "Image Error",
     "previous": "Previous"
   },
-  
+
   "step_instructions": {
     "draw_circle_head": "Draw a Circle for the Head",
     "draw_circle_head_desc": "Start by drawing a big circle for the head",
@@ -304,7 +304,7 @@
     "add_robot_details": "Add Robot Details",
     "add_robot_details_desc": "Add buttons, lights, and robot features"
   },
-  
+
   "upload": {
     "upload_drawing": "Upload Your Drawing",
     "upload_subtitle": "Show us your amazing artwork!",
@@ -330,7 +330,7 @@
     "crop_image": "Crop Image",
     "crop_image_description": "Adjust your image to perfection"
   },
-  
+
   "ai_enhancement": {
     "ai_magic": "AI Magic",
     "ai_magic_subtitle": "Your drawing is getting magical!",
@@ -430,5 +430,10 @@
     "logout": "Logout",
     "logout_description": "Sign out of your account",
     "logout_confirmation": "Are you sure you want to logout?"
+  },
+
+  "navigation": {
+    "tutorials": "Tutorials",
+    "gallery": "Gallery"
   }
 }

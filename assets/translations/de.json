@@ -430,5 +430,10 @@
     "logout": "Abmelden",
     "logout_description": "Von deinem Konto abmelden",
     "logout_confirmation": "Bist du sicher, dass du dich abmelden möchtest?"
+  },
+
+  "navigation": {
+    "tutorials": "Anleitungen",
+    "gallery": "Galerie"
   }
 }
