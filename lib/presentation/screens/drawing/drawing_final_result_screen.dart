@@ -189,7 +189,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
     if (imageUrl != null) {
       context.push(
         '/drawings/${widget.categoryId}/${widget.drawingId}/story',
-        extra: imageUrl,
+        extra: {'imageUrl': imageUrl, 'dbDrawingId': widget.dbDrawingId},
       );
     }
   }

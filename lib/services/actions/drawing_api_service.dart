@@ -231,35 +231,62 @@ class DrawingApiService {
   }
 
   /// Create a story from an image
-  /// Takes either a File or Uint8List and generates a children's story
+  /// Supports two modes:
+  /// 1. Upload image data directly (imageData provided as File or Uint8List)
+  /// 2. Use image URL from Spaces (imageUrl provided)
   /// Language parameter: 'en' for English or 'de' for German
   static Future<ApiStoryResponse> createStory({
-    required dynamic imageData, // Can be File or Uint8List
+    dynamic
+    imageData, // Can be File or Uint8List (optional if imageUrl provided)
+    String?
+    imageUrl, // URL of image from Spaces (optional if imageData provided)
     required String language, // 'en' or 'de'
+    String? drawingId, // Optional drawing ID for linking story to drawing
   }) async {
     return await BaseApiService.handleApiCall<ApiStoryResponse>(() async {
       print('📖 Starting story creation...');
       print('   Language: $language');
 
-      // Convert image to base64
-      String base64Image;
-      if (imageData is File) {
-        print('📁 Converting File to base64...');
-        final bytes = await imageData.readAsBytes();
-        base64Image = base64Encode(bytes);
-      } else if (imageData is Uint8List) {
-        print('📦 Converting Uint8List to base64...');
-        base64Image = base64Encode(imageData);
+      // Prepare request body
+      final body = <String, dynamic>{'language': language};
+
+      // Add image data or URL
+      if (imageUrl != null) {
+        print('🔗 Using image URL from Spaces');
+        print('   URL: $imageUrl');
+        body['image_url'] = imageUrl;
+      } else if (imageData != null) {
+        // Convert image to base64
+        String base64Image;
+        if (imageData is File) {
+          print('📁 Converting File to base64...');
+          final bytes = await imageData.readAsBytes();
+          base64Image = base64Encode(bytes);
+        } else if (imageData is Uint8List) {
+          print('📦 Converting Uint8List to base64...');
+          base64Image = base64Encode(imageData);
+        } else {
+          throw Exception('Invalid image data type. Must be File or Uint8List');
+        }
+
+        print('📤 Image converted to base64');
+        print('   Image size: ${base64Image.length} characters');
+        body['image'] = base64Image;
       } else {
-        throw Exception('Invalid image data type. Must be File or Uint8List');
+        throw Exception('Either imageData or imageUrl must be provided');
+      }
+
+      // Add drawing ID if provided
+      if (drawingId != null) {
+        print('📝 Linking story to drawing: $drawingId');
+        body['drawing_id'] = drawingId;
       }
 
       print('📤 Sending story creation request...');
-      print('   Image size: ${base64Image.length} characters');
 
       final response = await BaseApiService.post(
         '/api/create-story',
-        body: {'image': base64Image, 'language': language},
+        body: body,
       );
 
       final jsonData = BaseApiService.handleResponse(response);

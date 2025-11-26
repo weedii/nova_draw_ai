@@ -130,12 +130,14 @@ class ApiStoryResponse {
   final String story;
   final String title;
   final double? generationTime;
+  final String? imageUrl;
 
   ApiStoryResponse({
     required this.success,
     required this.story,
     required this.title,
     this.generationTime,
+    this.imageUrl,
   });
 
   factory ApiStoryResponse.fromJson(Map<String, dynamic> json) {
@@ -146,6 +148,7 @@ class ApiStoryResponse {
       generationTime: json['generation_time'] != null
           ? (json['generation_time'] as num).toDouble()
           : null,
+      imageUrl: json['image_url'] as String?,
     );
   }
 
@@ -155,6 +158,7 @@ class ApiStoryResponse {
       'story': story,
       'title': title,
       'generation_time': generationTime,
+      'image_url': imageUrl,
     };
   }
 }

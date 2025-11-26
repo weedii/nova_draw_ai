@@ -186,11 +186,28 @@ GoRouter createAppRouter(UserProvider userProvider) {
         builder: (BuildContext context, GoRouterState state) {
           final categoryId = state.pathParameters['categoryId']!;
           final drawingId = state.pathParameters['drawingId']!;
-          final drawingImage = state.extra; // Can be File or Uint8List
+
+          // Handle both old format (File/Uint8List directly) and new format (Map with extras)
+          dynamic drawingImage;
+          String? imageUrl;
+          String? dbDrawingId;
+
+          if (state.extra is Map<String, dynamic>) {
+            final extra = state.extra as Map<String, dynamic>;
+            drawingImage = extra['drawingImage'];
+            imageUrl = extra['imageUrl'] as String?;
+            dbDrawingId = extra['dbDrawingId'] as String?;
+          } else {
+            // Old format: extra is File or Uint8List directly
+            drawingImage = state.extra;
+          }
+
           return DrawingStoryScreen(
             categoryId: categoryId,
             drawingId: drawingId,
             drawingImage: drawingImage,
+            imageUrl: imageUrl,
+            dbDrawingId: dbDrawingId,
           );
         },
       ),
