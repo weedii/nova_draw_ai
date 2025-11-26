@@ -341,7 +341,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   }
 
   void _createAnotherStory() {
-    context.pushReplacement('/drawings/categories');
+    context.pushReplacement('/home');
   }
 
   @override

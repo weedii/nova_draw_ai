@@ -215,16 +215,26 @@ class _SettingsScreenState extends State<SettingsScreen>
                           String errorMessage = e.message;
 
                           // Map backend errors to translations (matching login/register pattern)
-                          if (e.statusCode == 400 && e.message.contains('Current password is incorrect')) {
-                            errorMessage = 'auth.errors.current_password_incorrect'.tr();
-                          } else if (e.statusCode == 400 && e.message.contains('New password must be different')) {
+                          if (e.statusCode == 400 &&
+                              e.message.contains(
+                                'Current password is incorrect',
+                              )) {
+                            errorMessage =
+                                'auth.errors.current_password_incorrect'.tr();
+                          } else if (e.statusCode == 400 &&
+                              e.message.contains(
+                                'New password must be different',
+                              )) {
                             errorMessage = 'auth.errors.new_password_same'.tr();
-                          } else if (e.statusCode == 400 && e.message.contains('Password must be at least')) {
-                            errorMessage = 'auth.errors.weak_password_message'.tr();
+                          } else if (e.statusCode == 400 &&
+                              e.message.contains('Password must be at least')) {
+                            errorMessage = 'auth.errors.weak_password_message'
+                                .tr();
                           } else if (e.statusCode == 401) {
                             errorMessage = 'auth.errors.session_expired'.tr();
                           } else if (e.statusCode == 500) {
-                            errorMessage = 'auth.errors.server_error_message'.tr();
+                            errorMessage = 'auth.errors.server_error_message'
+                                .tr();
                           }
 
                           ErrorDialog.showError(dialogContext, errorMessage);
@@ -232,7 +242,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                       } catch (e) {
                         setDialogState(() => isLoading = false);
                         if (mounted) {
-                          ErrorDialog.showError(dialogContext, 'auth.errors.server_error_message'.tr());
+                          ErrorDialog.showError(
+                            dialogContext,
+                            'auth.errors.server_error_message'.tr(),
+                          );
                         }
                       }
                     },
@@ -263,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         ),
       ),
     );
-    
+
     // Dispose controllers after dialog is fully closed
     // Use Future.delayed to ensure dialog animation completes
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -336,7 +349,6 @@ class _SettingsScreenState extends State<SettingsScreen>
         // Router will automatically redirect to /signin
         // because of the auth state change
       } catch (e) {
-
         // Show error
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -349,7 +361,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -406,7 +417,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 'settings.select_language'.tr(),
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textDark.withValues(alpha: 0.7),
+                                  color: AppColors.textDark.withValues(
+                                    alpha: 0.7,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -415,58 +428,20 @@ class _SettingsScreenState extends State<SettingsScreen>
                                   Expanded(
                                     child: _LanguageButton(
                                       label: 'settings.english',
-                                      isSelected: context.locale.languageCode == 'en',
-                                      onTap: () => _changeLanguage(const Locale('en')),
+                                      isSelected:
+                                          context.locale.languageCode == 'en',
+                                      onTap: () =>
+                                          _changeLanguage(const Locale('en')),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: _LanguageButton(
                                       label: 'settings.german',
-                                      isSelected: context.locale.languageCode == 'de',
-                                      onTap: () => _changeLanguage(const Locale('de')),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // About Section
-                        _SettingsSectionCard(
-                          title: 'settings.about',
-                          icon: 'ℹ️',
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'settings.app_description'.tr(),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  height: 1.6,
-                                  color: AppColors.textDark,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Text(
-                                    'settings.version'.tr(),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.textDark.withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    '1.0.0',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.primary,
+                                      isSelected:
+                                          context.locale.languageCode == 'de',
+                                      onTap: () =>
+                                          _changeLanguage(const Locale('de')),
                                     ),
                                   ),
                                 ],
@@ -558,6 +533,50 @@ class _SettingsScreenState extends State<SettingsScreen>
                           ),
                         ),
 
+                        const SizedBox(height: 24),
+
+                        // About Section
+                        _SettingsSectionCard(
+                          title: 'settings.about',
+                          icon: 'ℹ️',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'settings.app_description'.tr(),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  height: 1.6,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Text(
+                                    'settings.version'.tr(),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.textDark.withValues(
+                                        alpha: 0.7,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    '1.0.0',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -571,7 +590,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 }
-
 
 class _SettingsSectionCard extends StatelessWidget {
   final String title;

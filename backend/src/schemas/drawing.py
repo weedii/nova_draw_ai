@@ -9,12 +9,31 @@ from datetime import datetime
 from uuid import UUID
 
 
+class TutorialInfoResponse(BaseModel):
+    """Response schema for tutorial info in gallery"""
+
+    id: UUID = Field(..., description="Tutorial ID")
+    category_en: str = Field(..., description="Category name in English")
+    category_de: str = Field(..., description="Category name in German")
+    category_emoji: str = Field(..., description="Emoji for category")
+    category_color: str = Field(..., description="Hex color for category")
+    subject_en: str = Field(..., description="Subject name in English")
+    subject_de: str = Field(..., description="Subject name in German")
+    subject_emoji: str = Field(..., description="Emoji for subject")
+
+    class Config:
+        from_attributes = True
+
+
 class DrawingResponse(BaseModel):
     """Response schema for a single drawing"""
 
     id: UUID = Field(..., description="Drawing ID")
     user_id: UUID = Field(..., description="User ID who created the drawing")
     tutorial_id: Optional[UUID] = Field(None, description="Associated tutorial ID")
+    tutorial: Optional[TutorialInfoResponse] = Field(
+        None, description="Tutorial information if associated"
+    )
     uploaded_image_url: Optional[str] = Field(
         None, description="URL of the original uploaded image"
     )

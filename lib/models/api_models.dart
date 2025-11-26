@@ -312,3 +312,149 @@ class ApiCategoryWithDrawings {
     };
   }
 }
+
+/// API model for tutorial info in gallery
+class ApiTutorialInfo {
+  final String id;
+  final String categoryEn;
+  final String categoryDe;
+  final String categoryEmoji;
+  final String categoryColor;
+  final String subjectEn;
+  final String subjectDe;
+  final String subjectEmoji;
+
+  const ApiTutorialInfo({
+    required this.id,
+    required this.categoryEn,
+    required this.categoryDe,
+    required this.categoryEmoji,
+    required this.categoryColor,
+    required this.subjectEn,
+    required this.subjectDe,
+    required this.subjectEmoji,
+  });
+
+  factory ApiTutorialInfo.fromJson(Map<String, dynamic> json) {
+    return ApiTutorialInfo(
+      id: json['id'] ?? '',
+      categoryEn: json['category_en'] ?? '',
+      categoryDe: json['category_de'] ?? '',
+      categoryEmoji: json['category_emoji'] ?? '🎨',
+      categoryColor: json['category_color'] ?? '#FF6B6B',
+      subjectEn: json['subject_en'] ?? '',
+      subjectDe: json['subject_de'] ?? '',
+      subjectEmoji: json['subject_emoji'] ?? '✏️',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category_en': categoryEn,
+      'category_de': categoryDe,
+      'category_emoji': categoryEmoji,
+      'category_color': categoryColor,
+      'subject_en': subjectEn,
+      'subject_de': subjectDe,
+      'subject_emoji': subjectEmoji,
+    };
+  }
+}
+
+/// API model for a user's gallery drawing
+class ApiGalleryDrawing {
+  final String id;
+  final String userId;
+  final String? tutorialId;
+  final ApiTutorialInfo? tutorial;
+  final String? uploadedImageUrl;
+  final List<String>? editedImagesUrls;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const ApiGalleryDrawing({
+    required this.id,
+    required this.userId,
+    this.tutorialId,
+    this.tutorial,
+    this.uploadedImageUrl,
+    this.editedImagesUrls,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory ApiGalleryDrawing.fromJson(Map<String, dynamic> json) {
+    return ApiGalleryDrawing(
+      id: json['id'] ?? '',
+      userId: json['user_id'] ?? '',
+      tutorialId: json['tutorial_id'],
+      tutorial: json['tutorial'] != null
+          ? ApiTutorialInfo.fromJson(json['tutorial'] as Map<String, dynamic>)
+          : null,
+      uploadedImageUrl: json['uploaded_image_url'],
+      editedImagesUrls: json['edited_images_urls'] != null
+          ? List<String>.from(json['edited_images_urls'] as List)
+          : null,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'tutorial_id': tutorialId,
+      'tutorial': tutorial?.toJson(),
+      'uploaded_image_url': uploadedImageUrl,
+      'edited_images_urls': editedImagesUrls,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}
+
+/// API response model for gallery list
+class ApiGalleryListResponse {
+  final bool success;
+  final List<ApiGalleryDrawing> data;
+  final int count;
+  final int? page;
+  final int? limit;
+
+  const ApiGalleryListResponse({
+    required this.success,
+    required this.data,
+    required this.count,
+    this.page,
+    this.limit,
+  });
+
+  factory ApiGalleryListResponse.fromJson(Map<String, dynamic> json) {
+    return ApiGalleryListResponse(
+      success: json['success'] == true || json['success'] == 'true',
+      data:
+          (json['data'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    ApiGalleryDrawing.fromJson(item as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+      count: json['count'] ?? 0,
+      page: json['page'],
+      limit: json['limit'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'data': data.map((d) => d.toJson()).toList(),
+      'count': count,
+      'page': page,
+      'limit': limit,
+    };
+  }
+}

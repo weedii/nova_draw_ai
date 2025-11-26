@@ -144,7 +144,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
               label: 'common.draw_another',
               onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
-                context.push('/drawings/categories');
+                context.pushReplacement('/home');
               },
               backgroundColor: AppColors.white,
               textColor: AppColors.primary,
@@ -417,7 +417,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () => context.push('/drawings/categories'),
+                  onPressed: () => context.pushReplacement('/home'),
                   child: Text('drawings.back_to_categories'.tr()),
                 ),
               ],

@@ -430,5 +430,37 @@
     "logout": "Abmelden",
     "logout_description": "Von deinem Konto abmelden",
     "logout_confirmation": "Bist du sicher, dass du dich abmelden möchtest?"
+  },
+
+  "navigation": {
+    "tutorials": "Anleitungen",
+    "gallery": "Galerie"
+  },
+
+  "gallery": {
+    "my_gallery": "Meine Galerie",
+    "your_creations": "Deine Kreationen",
+    "no_drawings_yet": "Noch keine Zeichnungen",
+    "start_drawing_message": "Beginne zu zeichnen, um deine Kreationen hier zu sehen!",
+    "loading_gallery": "Lade deine Galerie...",
+    "error_loading_gallery": "Galerie konnte nicht geladen werden",
+    "error_loading_message": "Ein Fehler ist beim Laden deiner Galerie aufgetreten. Bitte versuche es erneut.",
+    "retry": "Erneut versuchen",
+    "drawing_count": "Zeichnungen",
+    "created_on": "Erstellt am",
+    "edited_images": "Bearbeitete Bilder",
+    "original_image": "Originalbild",
+    "no_edited_images": "Keine bearbeiteten Bilder",
+    "delete_drawing": "Zeichnung löschen",
+    "delete_confirmation": "Bist du sicher, dass du diese Zeichnung löschen möchtest?",
+    "delete_success": "Zeichnung erfolgreich gelöscht",
+    "delete_error": "Fehler beim Löschen der Zeichnung",
+    "loading_more": "Lade mehr...",
+    "no_more_drawings": "Keine weiteren Zeichnungen zum Laden",
+    "image": "Bild",
+    "images": "Bilder",
+    "view_all": "Alle anzeigen",
+    "image_count": "Bilder",
+    "edit_label": "Bearbeitung"
   }
 }

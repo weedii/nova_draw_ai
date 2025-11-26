@@ -6,6 +6,7 @@ Handles retrieving, listing, and deleting user drawings.
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
+from sqlalchemy.orm import selectinload
 from uuid import UUID
 import logging
 
@@ -53,10 +54,11 @@ async def get_user_gallery(
         count_result = await db.execute(count_query)
         total_count = len(count_result.scalars().all())
 
-        # Query paginated drawings (most recent first)
+        # Query paginated drawings (most recent first) with tutorial eager loading
         query = (
             select(Drawing)
             .where(Drawing.user_id == current_user.id)
+            .options(selectinload(Drawing.tutorial))
             .order_by(desc(Drawing.created_at))
             .offset(offset)
             .limit(limit)
@@ -108,8 +110,12 @@ async def get_drawing(
     try:
         logger.info(f"📸 Fetching drawing: {drawing_id}")
 
-        # Query drawing
-        query = select(Drawing).where(Drawing.id == drawing_id)
+        # Query drawing with tutorial eager loading
+        query = (
+            select(Drawing)
+            .where(Drawing.id == drawing_id)
+            .options(selectinload(Drawing.tutorial))
+        )
         result = await db.execute(query)
         drawing = result.scalar_one_or_none()
 
