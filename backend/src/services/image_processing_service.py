@@ -13,6 +13,7 @@ from sqlalchemy.orm import attributes
 from uuid import UUID
 from src.models import Drawing
 from src.services.storage_service import StorageService
+from src.models import Drawing, Tutorial
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -49,145 +50,86 @@ class ImageProcessingService:
         logger.info(f"Using Gemini model: {self.gemini_model}")
         logger.info(f"Using OpenAI model: {self.openai_model}")
 
-    def enhance_prompt(self, user_prompt: str) -> str:
+    def enhance_voice_prompt(self, user_request: str, subject: str = None) -> str:
         """
-        Use GPT-3.5-turbo to enhance a simple user prompt into a detailed, professional prompt for Gemini.
+        Use GPT-3.5-turbo to create a focused prompt from voice input.
+        
+        This is simpler than the old enhance_prompt - it creates short, 
+        preservation-focused prompts that won't lose the drawing's identity.
 
         Args:
-            user_prompt: Simple user request (e.g., "make it alive")
+            user_request: Transcribed voice request (e.g., "put it in Paris")
+            subject: What the child drew (e.g., "dog", "cat") - from tutorial
 
         Returns:
-            Enhanced, detailed prompt for better Gemini results
+            Short, focused prompt for Gemini
         """
-        logger.info(f"🔄 Starting prompt enhancement for: '{user_prompt}'")
+        logger.info(f"🎤 Enhancing voice prompt: '{user_request}' (subject: {subject})")
         enhancement_start = time.time()
 
         try:
-            enhancement_prompt = f"""
-            You are an EXPERT creative director for a magical children's art app (ages 4-8). Your job is to transform simple requests into INCREDIBLY DETAILED, VIVID, and IMAGINATIVE prompts that will blow kids' minds with amazing visual transformations!
+            # Build context about what was drawn
+            subject_context = f"a {subject}" if subject else "their picture"
+            
+            enhancement_prompt = f"""A child just drew {subject_context} and said: "{user_request}"
 
-            The child's request: "{user_prompt}"
+Generate a SHORT prompt (2-3 sentences max) for an image editing AI.
 
-            ⚠️ IMPORTANT - UNDERSTAND CHILD LANGUAGE VARIATIONS:
-            Kids use imperfect grammar and different words to express the same idea. Treat these as IDENTICAL:
-            - "put in paris" = "make on paris" = "place in paris" = "put to paris" = "make in paris"
-            - "make it alive" = "make this alive" = "bring to life" = "make living"
-            - "add colors" = "make colorful" = "put colors" = "color this"
-            - "make big" = "make bigger" = "make this big"
-            
-            Focus on the INTENT, not the exact words. Ignore grammar mistakes with prepositions (in/on/to/at).
+RULES:
+- The child's original drawing must stay recognizable
+- Don't change the main shape, lines, or proportions  
+- Only add or enhance what the child asked for
+- Keep it kid-friendly and fun
+- Add vibrant colors if needed
+- Understand child language: "put in paris" = "place in Paris", "make alive" = "bring to life"
 
-            CREATE AN ULTRA-DETAILED, CREATIVE PROMPT that will produce STUNNING, MAGICAL results!
+IMPORTANT: Output ONLY the prompt text. Do NOT include any prefix like "Child drew X, said Y →". Just the actual editing instructions.
 
-            🎨 CREATIVE ENHANCEMENT RULES:
-            
-            1. BE WILDLY IMAGINATIVE & SPECIFIC:
-               - Don't just say "add sparkles" - describe "thousands of tiny rainbow sparkles that swirl and dance around like fireflies, leaving trails of glittering stardust"
-               - Don't just say "bright colors" - specify "vibrant neon pink, electric blue, sunshine yellow, and lime green that glow and pulse with energy"
-               - Add unexpected, delightful details that surprise and amaze
-               - Think like a Pixar or Disney artist - every detail matters!
-            
-            2. LAYER MULTIPLE EFFECTS:
-               - Combine 4-6 different visual elements
-               - Add depth: foreground effects, mid-ground transformations, background magic
-               - Include lighting effects (glows, shimmers, rays of light)
-               - Add motion suggestions (swirling, floating, dancing, sparkling)
-               - Include atmospheric effects (magical mist, glowing particles, energy waves)
-            
-            3. USE POWERFUL, DESCRIPTIVE LANGUAGE:
-               - Instead of "nice" use: dazzling, mesmerizing, enchanting, breathtaking
-               - Instead of "pretty" use: stunning, gorgeous, spectacular, magnificent
-               - Instead of "colorful" use: vibrant, luminous, radiant, iridescent
-               - Paint a picture with words!
-            
-            4. MAKE IT FEEL ALIVE & DYNAMIC:
-               - Suggest movement and energy
-               - Add emotional elements (joyful, playful, friendly, excited)
-               - Create a sense of magic happening right now
-               - Make it feel interactive and responsive
-            
-            5. ALWAYS KEEP IT KID-SAFE:
-               - Only happy, positive, uplifting content
-               - Friendly, cute, and welcoming vibes
-               - No scary, dark, or frightening elements
-               - Cartoon/animated style, never realistic in a scary way
-            
-            📚 ULTRA-CREATIVE EXAMPLES (showing how to interpret child language):
-            
-            Child says: "put this house in paris" OR "make this house on paris" (SAME INTENT!)
-            → Enhanced: "Transport this into the heart of MAGICAL PARIS! Place the subject on a charming cobblestone street with the magnificent Eiffel Tower rising majestically in the background, its iron lattice structure gleaming in golden sunset light. Add a dreamy Parisian atmosphere with soft pink and lavender clouds floating in the sky. Include classic French elements: colorful flower boxes overflowing with red geraniums and purple petunias on wrought-iron balconies, a quaint café with striped awnings and small round tables, vintage lampposts with warm glowing lights, and a romantic bridge over the Seine River in the distance. Scatter rose petals gently floating through the air. Add the Arc de Triomphe visible on the horizon. Include a cheerful French bakery with a red-and-white striped awning displaying fresh croissants and baguettes in the window. Paint the sky in beautiful sunset hues of peach, coral, and soft purple. Add twinkling fairy lights strung between buildings. Include a friendly artist with an easel painting the scene. Make the Eiffel Tower sparkle with thousands of golden lights. Add fluffy white clouds shaped like hearts drifting by. The entire scene should feel like stepping into a magical storybook version of Paris - romantic, charming, and absolutely enchanting!"
-            
-            Child says: "make it alive" OR "bring to life" (SAME INTENT!)
-            → Enhanced: "Transform this into a LIVING, BREATHING character with enormous sparkling eyes that gleam with curiosity and joy, with bright highlights and twinkling star reflections dancing inside them. Add a huge delighted smile showing pure happiness, rosy pink cheeks that glow warmly, and expressive eyebrows that show emotion. Surround it with swirling magical energy - ribbons of shimmering turquoise and golden light that spiral around like living aurora borealis. Add floating heart-shaped sparkles, tiny glowing orbs of rainbow light that orbit around it, and a subtle aura of radiant energy. Make the colors more vibrant and saturated - like they're glowing from within. Add gentle motion blur to suggest it's alive and moving, with strands of hair or edges that seem to flutter in a magical breeze. Include particle effects of stardust that trail behind any movement, creating a sense of magic and life force. The overall effect should be like a beloved Pixar character coming to life before your eyes!"
-            
-            Child says: "add colors" OR "make colorful" (SAME INTENT!)
-            → Enhanced: "EXPLODE this image with an INSANE rainbow of colors! Transform it into a psychedelic wonderland where every pixel bursts with vibrant, saturated hues. Start with a gradient background that transitions through all rainbow colors - hot pink melting into electric purple, flowing into sky blue, merging with lime green, blazing into sunshine yellow, and burning into fiery orange. Overlay the main subject with iridescent color shifts that shimmer and change like oil on water or butterfly wings. Add floating, translucent butterflies in neon colors that seem to glow from within. Scatter thousands of tiny colorful sparkles - each one a different color of the rainbow, twinkling and pulsing with light. Paint rainbow beams shooting out from behind the subject like cosmic rays. Include colorful paint splashes and drips that look like liquid light. Add holographic effects that shimmer with rainbow reflections. Make flowers burst into bloom with petals of every color imaginable. Include glowing particles of colored light floating through the air like fireflies. Add chromatic aberration effects around edges for that dreamy, magical look. The result should look like a rainbow exploded in the most beautiful way possible - like stepping into a magical world made entirely of living color!"
+GOOD OUTPUT EXAMPLES:
+"Add a colorful Parisian background with the Eiffel Tower behind this child's dog drawing. Keep the dog's shape but add warm brown and golden fur colors. Add sunset sky colors."
 
-            💡 YOUR TURN: Now transform "{user_prompt}" into an INCREDIBLY DETAILED, WILDLY CREATIVE prompt that will create absolutely STUNNING results! Use at least 150-250 words. Be specific, be imaginative, be AMAZING!
-            
-            REMEMBER: Interpret the child's INTENT first (ignore grammar mistakes), then create your magical enhancement based on what they really mean!
+"Transform this child's cat drawing with beautiful rainbow colors flowing through the fur. Keep the cat's shape and lines intact. Make it bright and cheerful."
 
-            Return ONLY your enhanced creative prompt - no labels, no explanations, just pure creative magic!
-            """
-
-            logger.info(f"📤 Sending enhancement request to {self.openai_model}")
+"Add sparkles and a soft magical glow around this child's flower drawing. Color the petals in vibrant pinks and purples. Add some floating golden stars."
+"""
 
             response = self.openai_client.chat.completions.create(
                 model=self.openai_model,
                 messages=[{"role": "user", "content": enhancement_prompt}],
-                max_tokens=500,  # More tokens for detailed creative descriptions
-                temperature=0.9,  # Higher creativity for more imaginative results
+                max_tokens=150,  # Short output
+                temperature=0.6,  # More controlled
             )
 
             enhancement_time = time.time() - enhancement_start
-            logger.info(f"⚡ GPT enhancement completed in {enhancement_time:.2f}s")
+            logger.info(f"⚡ Voice prompt enhancement completed in {enhancement_time:.2f}s")
 
             if not response.choices or not response.choices[0].message.content:
-                logger.warning(
-                    "⚠️ Empty response from OpenAI API, using original prompt"
-                )
-                return user_prompt
+                logger.warning("⚠️ Empty response from OpenAI, using original")
+                return user_request
 
-            enhanced_prompt = response.choices[0].message.content.strip()
-
-            # Log the enhancement results
-            logger.info(f"✅ Prompt enhancement successful!")
-            logger.info(f"📝 Original: '{user_prompt}'")
-            logger.info(
-                f"🚀 Enhanced (preview): '{enhanced_prompt[:100]}{'...' if len(enhanced_prompt) > 100 else ''}'"
-            )
-            logger.info(
-                f"📊 Enhancement ratio: {len(enhanced_prompt)}/{len(user_prompt)} characters"
-            )
-
-            # Log the full enhanced prompt for debugging
-            logger.info("=" * 50)
-            logger.info("🎯 FULL ENHANCED PROMPT FOR GEMINI:")
-            logger.info(f"'{enhanced_prompt}'")
-            logger.info("=" * 50)
-
-            return enhanced_prompt
+            enhanced = response.choices[0].message.content.strip()
+            logger.info(f"✅ Enhanced voice prompt: '{enhanced}'")
+            return enhanced
 
         except Exception as e:
-            enhancement_time = time.time() - enhancement_start
-            logger.error(
-                f"❌ Prompt enhancement failed after {enhancement_time:.2f}s: {e}"
-            )
-            logger.info(f"🔄 Falling back to original prompt: '{user_prompt}'")
-            return user_prompt
+            logger.error(f"❌ Voice prompt enhancement failed: {e}")
+            return user_request
 
     def process_image(self, image_data: bytes, prompt: str) -> Tuple[str, float]:
         """
         Process an image with a text prompt using Gemini.
+        
+        For predefined edit options, the prompt already contains detailed instructions
+        from the database, so we skip GPT enhancement and send directly to Gemini.
 
         Args:
             image_data: Raw image bytes
-            prompt: Text prompt for processing (e.g., "make it alive")
+            prompt: Text prompt for processing (detailed prompt from edit_options table)
 
         Returns:
             Tuple of (base64_result_image, processing_time)
         """
-        logger.info(f"🎨 Starting image processing with prompt: '{prompt}'")
+        logger.info(f"🎨 Starting image processing with prompt: '{prompt[:100]}...'")
         start_time = time.time()
 
         try:
@@ -206,52 +148,27 @@ class ImageProcessingService:
                 logger.info(f"🔄 Converting image from {input_image.mode} to RGB")
                 input_image = input_image.convert("RGB")
 
-            # Step 1: Enhance the user's simple prompt using GPT-3.5-turbo
-            logger.info("🚀 Step 1: Enhancing user prompt with GPT-3.5-turbo...")
-            enhanced_prompt = self.enhance_prompt(prompt)
-
-            # Step 2: Create the final prompt for Gemini using the enhanced version
-            logger.info("🎯 Step 2: Preparing final prompt for Gemini...")
+            # Create the final prompt for Gemini
+            # The prompt from edit_options already contains detailed instructions,
+            # so we just wrap it with preservation guidelines
+            logger.info("🎯 Preparing prompt for Gemini (no GPT enhancement)...")
             full_prompt = f"""
-            You are a MASTER digital artist and visual effects wizard working for a premium children's creativity app. Your transformations must be SPECTACULAR, MAGICAL, and absolutely BREATHTAKING!
-            
-            🎨 TRANSFORMATION MISSION:
-            {enhanced_prompt}
-            
-            🚀 EXECUTION GUIDELINES:
-            
-            1. MAKE IT BOLD & DRAMATIC:
-               - Create changes that are IMMEDIATELY OBVIOUS and WOW-WORTHY
-               - Don't be subtle - kids love BIG, IMPRESSIVE transformations
-               - Push the visual effects to the MAX while staying beautiful
-               - Make it look like professional movie-quality VFX
-            
-            2. PRESERVE THE CORE:
-               - Keep the main subject recognizable
-               - Transform it dramatically but don't lose its identity
-               - Enhance what's there, don't replace it completely
-            
-            3. VISUAL EXCELLENCE:
-               - Use cinema-quality rendering and effects
-               - Make colors vibrant, saturated, and eye-catching
-               - Add depth with layers, lighting, and atmospheric effects
-               - Create a polished, professional final result
-               - Ensure everything is sharp, clear, and high-quality
-            
-            4. MAGICAL ATMOSPHERE:
-               - Add that "Disney/Pixar magic" feeling
-               - Make it feel alive and full of wonder
-               - Create a sense of movement and energy
-               - Infuse every pixel with creativity and joy
-            
-            5. TECHNICAL PERFECTION:
-               - Return ONLY the transformed image
-               - No text, watermarks, signatures, or labels
-               - Maintain proper resolution and quality
-               - Ensure smooth blending of all effects
-            
-            🌟 CREATE PURE MAGIC! Transform this image into something INCREDIBLE that will make kids gasp with delight!
-            """
+You are editing a child's hand-drawn picture for a kids' creativity app.
+
+CRITICAL RULES:
+1. PRESERVE THE ORIGINAL DRAWING - Keep the child's original lines, shapes, and proportions intact
+2. DO NOT redraw or replace the main subject - only enhance/add to it
+3. The child's drawing style must remain recognizable
+4. Keep it kid-friendly, fun, and magical
+
+YOUR TASK:
+{prompt}
+
+TECHNICAL REQUIREMENTS:
+- Return ONLY the edited image
+- No text, watermarks, or labels
+- Maintain image quality
+"""
 
             # Prepare content for Gemini
             contents = [full_prompt, input_image]
@@ -678,10 +595,14 @@ class ImageProcessingService:
         transcribed_text, transcription_time = audio_service.transcribe_audio(
             audio_data, language, audio_filename
         )
+        logger.info(f"🎤 Transcribed: '{transcribed_text}'")
+
+        # Step 2: Enhance the transcribed text with GPT (short, preservation-focused)
+        enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
         # Step 3: Process the image with the transcribed text
         result_base64, processing_time = self.process_image(
-            image_data, transcribed_text
+            image_data, enhanced_prompt
         )
 
         # Step 4: Upload edited image to Spaces
