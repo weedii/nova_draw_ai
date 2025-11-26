@@ -19,12 +19,14 @@ class DrawingEditOptionsScreen extends StatefulWidget {
   final String categoryId;
   final String drawingId;
   final File? uploadedImage;
+  final String? originalImageUrl; // URL of the original image for re-editing
 
   const DrawingEditOptionsScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,
     this.uploadedImage,
+    this.originalImageUrl,
   });
 
   @override
@@ -184,18 +186,20 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       final prompt = _selectedEditOption!.promptEn;
 
       // Call the API to edit the image
+      // If originalImageUrl is provided (re-editing), use it; otherwise use the uploaded file
       final response = await DrawingApiService.editImage(
-        imageFile: widget.uploadedImage!,
+        imageFile: widget.uploadedImage,
+        imageUrl: widget.originalImageUrl,
         prompt: prompt,
       );
 
       if (mounted && response.success) {
-        // Navigate to the final result screen with the edited image URL
+        // Navigate to the final result screen with the edited image URLs
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
-            'uploadedImage': widget.uploadedImage,
-            'editedImageUrl': response.resultImage,
+            'originalImageUrl': response.originalImageUrl,
+            'editedImageUrl': response.editedImageUrl,
             'selectedEditOption': _selectedEditOption,
           },
         );
@@ -439,8 +443,10 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
       // Call the API service to send both image and audio
       // The audio bytes are sent directly to memory without saving to disk
+      // If originalImageUrl is provided (re-editing), use it; otherwise use the uploaded file
       final response = await DrawingApiService.editImageWithVoice(
-        imageFile: widget.uploadedImage!,
+        imageFile: widget.uploadedImage,
+        imageUrl: widget.originalImageUrl,
         audioBytes: _recordingBytes!, // Send audio bytes directly
         language: language, // Send current app language
       );
@@ -461,12 +467,12 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           promptDe: 'Sprachbasierte Bearbeitung',
         );
 
-        // Navigate to the final result screen with the edited image URL
+        // Navigate to the final result screen with the edited image URLs
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
-            'uploadedImage': widget.uploadedImage,
-            'editedImageUrl': response.resultImage,
+            'originalImageUrl': response.originalImageUrl,
+            'editedImageUrl': response.editedImageUrl,
             'selectedEditOption': voiceEditOption,
           },
         );
@@ -657,6 +663,32 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
                         fit: BoxFit.contain,
                         width: double.infinity,
                         height: double.infinity,
+                      )
+                    : widget.originalImageUrl != null
+                    ? Image.network(
+                        widget.originalImageUrl!,
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        height: double.infinity,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: AppColors.error.withValues(alpha: 0.2),
+                            child: const Center(
+                              child: Icon(Icons.broken_image, size: 64),
+                            ),
+                          );
+                        },
                       )
                     : Container(
                         decoration: BoxDecoration(

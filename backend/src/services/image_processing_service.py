@@ -399,48 +399,89 @@ class ImageProcessingService:
     async def edit_image_with_prompt(
         self,
         db: AsyncSession,
-        image_data: bytes,
         prompt: str,
         user_id: UUID,
         tutorial_id: UUID = None,
+        image_data: bytes = None,
+        image_url: str = None,
     ) -> dict:
         """
         Complete image editing flow: validate, process, and save to database and Spaces.
+        Supports both file upload and existing image URL from Spaces.
 
         Args:
             db: Async database session
-            image_data: Raw image bytes
             prompt: Processing instruction
             user_id: UUID of the user editing the image
             tutorial_id: Optional UUID of the associated tutorial
+            image_data: Raw image bytes (for new uploads)
+            image_url: URL of existing image from Spaces (for re-editing)
 
         Returns:
-            Dictionary with drawing_id, result_image, and processing_time
+            Dictionary with drawing_id, original_image_url, edited_image_url, and processing_time
 
         Raises:
             ValueError: If image validation fails or processing fails
         """
 
-        # Validate image
-        if not self.validate_image(image_data):
-            raise ValueError("Invalid image or image too large (max 2048x2048)")
+        # Validate that either image_data or image_url is provided
+        if not image_data and not image_url:
+            raise ValueError("Either image_data or image_url must be provided")
+
+        original_image_url = None
+
+        # Step 1: Handle image source (file upload or existing URL)
+        if image_url:
+            # Re-editing: Use existing image from Spaces
+            logger.info(f"🔄 Re-editing existing image from URL: {image_url}")
+
+            # Validate URL and extract user_id
+            if self.storage_service:
+                try:
+                    url_user_id = self.storage_service.validate_and_extract_user_id(
+                        image_url
+                    )
+                    # Verify the URL belongs to the current user
+                    if url_user_id != user_id:
+                        raise ValueError(
+                            "Image URL does not belong to the current user"
+                        )
+                    logger.info("✅ URL validated and belongs to current user")
+                except Exception as e:
+                    raise ValueError(f"Invalid image URL: {str(e)}")
+
+            # Download image from Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📥 Downloading image from Spaces...")
+                    image_data = self.storage_service.download_image_as_bytes(image_url)
+                    logger.info(f"✅ Image downloaded: {len(image_data)} bytes")
+                    original_image_url = image_url  # Reuse existing URL
+                except Exception as e:
+                    raise ValueError(f"Failed to download image from Spaces: {str(e)}")
+        else:
+            # New upload: Upload original image to Spaces
+            logger.info("📤 Processing new image upload...")
+
+            # Validate image
+            if not self.validate_image(image_data):
+                raise ValueError("Invalid image or image too large (max 2048x2048)")
+
+            # Upload original image to Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📤 Uploading original image to Spaces...")
+                    original_image_url = self.storage_service.upload_image_from_bytes(
+                        image_data, user_id, image_type="original"
+                    )
+                    logger.info(f"✅ Original image uploaded: {original_image_url}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to upload original image: {e}")
+                    # Continue without storing original URL
 
         # Get image info for logging
         image_info = self.get_image_info(image_data)
         logger.info(f"Processing image: {image_info}")
-
-        # Step 1: Upload original image to Spaces
-        original_image_url = None
-        if self.storage_service:
-            try:
-                logger.info("📤 Uploading original image to Spaces...")
-                original_image_url = self.storage_service.upload_image_from_bytes(
-                    image_data, user_id, image_type="original"
-                )
-                logger.info(f"✅ Original image uploaded: {original_image_url}")
-            except Exception as e:
-                logger.warning(f"⚠️ Failed to upload original image: {e}")
-                # Continue without storing original URL
 
         # Step 2: Process the image
         result_base64, processing_time = self.process_image(image_data, prompt)
@@ -479,41 +520,44 @@ class ImageProcessingService:
     async def edit_image_with_audio(
         self,
         db: AsyncSession,
-        image_data: bytes,
         audio_data: bytes,
         audio_filename: str,
         language: str,
         user_id: UUID,
         tutorial_id: UUID = None,
         audio_service=None,
+        image_data: bytes = None,
+        image_url: str = None,
     ) -> dict:
         """
         Complete image editing flow with audio: transcribe, process, and save to database and Spaces.
+        Supports both file upload and existing image URL from Spaces.
 
         Args:
             db: Async database session
-            image_data: Raw image bytes
             audio_data: Raw audio bytes
             audio_filename: Audio file name
             language: Language code ('en' or 'de')
             user_id: UUID of the user editing the image
             tutorial_id: Optional UUID of the associated tutorial
             audio_service: AudioService instance for transcription
+            image_data: Raw image bytes (for new uploads)
+            image_url: URL of existing image from Spaces (for re-editing)
 
         Returns:
-            Dictionary with drawing_id, result_image, prompt, and processing_time
+            Dictionary with drawing_id, original_image_url, edited_image_url, prompt, and processing_time
 
         Raises:
             ValueError: If validation or processing fails
         """
 
+        # Validate that either image_data or image_url is provided
+        if not image_data and not image_url:
+            raise ValueError("Either image_data or image_url must be provided")
+
         # Validate language
         if language not in ["en", "de"]:
             raise ValueError("Invalid language. Please provide 'en' or 'de'.")
-
-        # Validate image
-        if not self.validate_image(image_data):
-            raise ValueError("Invalid image or image too large (max 2048x2048)")
 
         # Validate audio
         if not audio_service:
@@ -527,23 +571,61 @@ class ImageProcessingService:
                 f"Invalid audio file. Supported formats: {', '.join(supported['formats'])}. Max size: {supported['max_size_mb']}MB"
             )
 
+        original_image_url = None
+
+        # Step 1: Handle image source (file upload or existing URL)
+        if image_url:
+            # Re-editing: Use existing image from Spaces
+            logger.info(f"🔄 Re-editing existing image from URL: {image_url}")
+
+            # Validate URL and extract user_id
+            if self.storage_service:
+                try:
+                    url_user_id = self.storage_service.validate_and_extract_user_id(
+                        image_url
+                    )
+                    # Verify the URL belongs to the current user
+                    if url_user_id != user_id:
+                        raise ValueError(
+                            "Image URL does not belong to the current user"
+                        )
+                    logger.info("✅ URL validated and belongs to current user")
+                except Exception as e:
+                    raise ValueError(f"Invalid image URL: {str(e)}")
+
+            # Download image from Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📥 Downloading image from Spaces...")
+                    image_data = self.storage_service.download_image_as_bytes(image_url)
+                    logger.info(f"✅ Image downloaded: {len(image_data)} bytes")
+                    original_image_url = image_url  # Reuse existing URL
+                except Exception as e:
+                    raise ValueError(f"Failed to download image from Spaces: {str(e)}")
+        else:
+            # New upload: Upload original image to Spaces
+            logger.info("📤 Processing new image upload...")
+
+            # Validate image
+            if not self.validate_image(image_data):
+                raise ValueError("Invalid image or image too large (max 2048x2048)")
+
+            # Upload original image to Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📤 Uploading original image to Spaces...")
+                    original_image_url = self.storage_service.upload_image_from_bytes(
+                        image_data, user_id, image_type="original"
+                    )
+                    logger.info(f"✅ Original image uploaded: {original_image_url}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to upload original image: {e}")
+
         # Get file info for logging
         image_info = self.get_image_info(image_data)
         audio_info = audio_service.get_audio_info(audio_data, audio_filename)
         logger.info(f"Processing image: {image_info}")
         logger.info(f"Processing audio: {audio_info}")
-
-        # Step 1: Upload original image to Spaces
-        original_image_url = None
-        if self.storage_service:
-            try:
-                logger.info("📤 Uploading original image to Spaces...")
-                original_image_url = self.storage_service.upload_image_from_bytes(
-                    image_data, user_id, image_type="original"
-                )
-                logger.info(f"✅ Original image uploaded: {original_image_url}")
-            except Exception as e:
-                logger.warning(f"⚠️ Failed to upload original image: {e}")
 
         # Step 2: Transcribe audio to text
         transcribed_text, transcription_time = audio_service.transcribe_audio(

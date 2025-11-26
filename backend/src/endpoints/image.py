@@ -32,9 +32,15 @@ if settings.OPENAI_API_KEY:
 
 @router.post("/edit-image", response_model=ImageProcessResponse)
 async def edit_image(
-    file: UploadFile = File(..., description="Image file to process"),
     prompt: str = Form(
         ..., description="Processing instruction (e.g., 'make it alive')"
+    ),
+    image: UploadFile = File(
+        None, description="Image file to process (optional if image_url is provided)"
+    ),
+    image_url: str = Form(
+        None,
+        description="URL of existing image from Spaces to edit (optional if file is provided)",
     ),
     tutorial_id: str = Form(
         None, description="UUID of the tutorial associated with this drawing"
@@ -43,7 +49,11 @@ async def edit_image(
     current_user: User = Depends(AuthService.get_current_user),
 ):
     """
-    Edit an uploaded image with AI using a text prompt.
+    Edit an image with AI using a text prompt.
+    Supports two modes:
+    1. Upload a new image file to process
+    2. Provide a URL of an existing image from Spaces to re-edit
+
     Supports prompts like 'make it alive', 'make it colorful', etc.
     Saves the edited image to the database.
 
@@ -58,14 +68,25 @@ async def edit_image(
                 detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
             )
 
-        # Validate file type
-        if not file.content_type or not file.content_type.startswith("image/"):
+        # Validate that either image file or image_url is provided
+        if not image and not image_url:
             raise HTTPException(
-                status_code=400, detail="File must be an image (JPEG, PNG, etc.)"
+                status_code=400,
+                detail="Either 'image file' or 'image_url' must be provided",
             )
 
-        # Read image data
-        image_data = await file.read()
+        image_data = None
+
+        # If image file is provided, read and validate it
+        if image:
+            # Validate file type
+            if not image.content_type or not image.content_type.startswith("image/"):
+                raise HTTPException(
+                    status_code=400, detail="File must be an image (JPEG, PNG, etc.)"
+                )
+
+            # Read image data
+            image_data = await image.read()
 
         # Use authenticated user's ID
         user_id = current_user.id
@@ -73,10 +94,11 @@ async def edit_image(
         # Delegate all business logic to the service layer
         result = await image_processing_service.edit_image_with_prompt(
             db=db,
-            image_data=image_data,
             prompt=prompt,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
+            image_data=image_data,
+            image_url=image_url,
         )
 
         return ImageProcessResponse(
@@ -102,12 +124,18 @@ async def edit_image(
 
 @router.post("/edit-image-with-audio", response_model=EditImageWithAudioResponse)
 async def edit_image_with_audio(
-    image: UploadFile = File(..., description="Image file to edit"),
     audio: UploadFile = File(
         ...,
         description="Audio file (mp3, wav, m4a, aac, webm, ogg, flac) with editing instructions",
     ),
     language: str = Form(..., description="Language code: 'en' or 'de'"),
+    image: UploadFile = File(
+        None, description="Image file to edit (optional if image_url is provided)"
+    ),
+    image_url: str = Form(
+        None,
+        description="URL of existing image from Spaces to edit (optional if image is provided)",
+    ),
     tutorial_id: str = Form(
         None, description="UUID of the tutorial associated with this drawing"
     ),
@@ -115,7 +143,10 @@ async def edit_image_with_audio(
     current_user: User = Depends(AuthService.get_current_user),
 ):
     """
-    Edit an uploaded image using voice instructions from an audio file.
+    Edit an image using voice instructions from an audio file.
+    Supports two modes:
+    1. Upload a new image file to process
+    2. Provide a URL of an existing image from Spaces to re-edit
 
     Process:
     1. Transcribe audio to text using OpenAI Whisper
@@ -144,10 +175,11 @@ async def edit_image_with_audio(
                 detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
             )
 
-        # Validate image file type
-        if not image.content_type or not image.content_type.startswith("image/"):
+        # Validate that either image or image_url is provided
+        if not image and not image_url:
             raise HTTPException(
-                status_code=400, detail="Image file must be an image (JPEG, PNG, etc.)"
+                status_code=400,
+                detail="Either 'image' or 'image_url' must be provided",
             )
 
         # Validate audio file type
@@ -156,8 +188,21 @@ async def edit_image_with_audio(
                 status_code=400, detail="Could not determine audio file type"
             )
 
-        # Read both files
-        image_data = await image.read()
+        image_data = None
+
+        # If image file is provided, read and validate it
+        if image:
+            # Validate image file type
+            if not image.content_type or not image.content_type.startswith("image/"):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Image file must be an image (JPEG, PNG, etc.)",
+                )
+
+            # Read image data
+            image_data = await image.read()
+
+        # Read audio data
         audio_data = await audio.read()
 
         # Use authenticated user's ID
@@ -166,13 +211,14 @@ async def edit_image_with_audio(
         # Delegate all business logic to the service layer
         result = await image_processing_service.edit_image_with_audio(
             db=db,
-            image_data=image_data,
             audio_data=audio_data,
             audio_filename=audio.filename or "audio.mp3",
             language=language,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
             audio_service=audio_service,
+            image_data=image_data,
+            image_url=image_url,
         )
 
         return EditImageWithAudioResponse(

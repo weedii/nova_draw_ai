@@ -137,11 +137,24 @@ GoRouter createAppRouter(UserProvider userProvider) {
         builder: (BuildContext context, GoRouterState state) {
           final categoryId = state.pathParameters['categoryId']!;
           final drawingId = state.pathParameters['drawingId']!;
-          final uploadedImage = state.extra as File?;
+
+          // Handle both old format (File directly) and new format (Map with extras)
+          File? uploadedImage;
+          String? originalImageUrl;
+
+          if (state.extra is Map<String, dynamic>) {
+            final extra = state.extra as Map<String, dynamic>;
+            uploadedImage = extra['uploadedImage'] as File?;
+            originalImageUrl = extra['originalImageUrl'] as String?;
+          } else if (state.extra is File) {
+            uploadedImage = state.extra as File?;
+          }
+
           return DrawingEditOptionsScreen(
             categoryId: categoryId,
             drawingId: drawingId,
             uploadedImage: uploadedImage,
+            originalImageUrl: originalImageUrl,
           );
         },
       ),
@@ -151,14 +164,14 @@ GoRouter createAppRouter(UserProvider userProvider) {
           final categoryId = state.pathParameters['categoryId']!;
           final drawingId = state.pathParameters['drawingId']!;
           final extra = state.extra as Map<String, dynamic>?;
-          final uploadedImage = extra?['uploadedImage'] as File?;
-          final editedImageBytes = extra?['editedImageBytes'];
+          final originalImageUrl = extra?['originalImageUrl'] as String?;
+          final editedImageUrl = extra?['editedImageUrl'] as String?;
           final selectedEditOption = extra?['selectedEditOption'];
           return DrawingFinalResultScreen(
             categoryId: categoryId,
             drawingId: drawingId,
-            uploadedImage: uploadedImage,
-            editedImageBytes: editedImageBytes,
+            originalImageUrl: originalImageUrl,
+            editedImageUrl: editedImageUrl,
             selectedEditOption: selectedEditOption,
           );
         },

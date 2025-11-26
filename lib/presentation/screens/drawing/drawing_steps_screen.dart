@@ -472,7 +472,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                     CustomAppBar(
                       title: 'app_bar.drawing_steps',
                       subtitle:
-                          '${'common.step'.tr()} ${currentStepIndex + 1} of ${steps.length}',
+                          '${'common.step'.tr()} ${currentStepIndex + 1} ${'common.of'.tr()} ${steps.length}',
                       emoji: '✨',
                       showAnimation: true,
                     ),

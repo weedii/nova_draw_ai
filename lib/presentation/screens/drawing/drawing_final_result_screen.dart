@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,17 +12,15 @@ import '../../widgets/custom_button.dart';
 class DrawingFinalResultScreen extends StatefulWidget {
   final String categoryId;
   final String drawingId;
-  final File? uploadedImage;
-  final Uint8List? editedImageBytes;
-  final String? editedImageUrl; // Image URL from API
+  final String? originalImageUrl; // URL of the original uploaded image
+  final String? editedImageUrl; // URL of the edited image
   final EditOption? selectedEditOption;
 
   const DrawingFinalResultScreen({
     super.key,
     required this.categoryId,
     required this.drawingId,
-    this.uploadedImage,
-    this.editedImageBytes,
+    this.originalImageUrl,
     this.editedImageUrl,
     this.selectedEditOption,
   });
@@ -91,21 +87,39 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
         ),
       );
 
-      // Get the image to save
-      Uint8List? imageBytes;
-      if (widget.editedImageUrl != null) {
-        // Download image from URL
-        final response = await http.get(Uri.parse(widget.editedImageUrl!));
-        if (response.statusCode == 200) {
-          imageBytes = response.bodyBytes;
+      // Get the image to save (prefer edited image if available)
+      String? imageUrl = widget.editedImageUrl ?? widget.originalImageUrl;
+
+      if (imageUrl == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('final_result.no_image_to_save'.tr()),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 3),
+            ),
+          );
         }
-      } else if (widget.editedImageBytes != null) {
-        imageBytes = widget.editedImageBytes;
-      } else if (widget.uploadedImage != null) {
-        imageBytes = await widget.uploadedImage!.readAsBytes();
+        return;
       }
 
-      if (imageBytes == null || imageBytes.isEmpty) {
+      // Download image from URL
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode != 200) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('final_result.failed_to_save_drawing'.tr()),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
+      final imageBytes = response.bodyBytes;
+      if (imageBytes.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -167,17 +181,27 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   }
 
   void _createStory() {
-    // Pass edited image if available, otherwise pass uploaded image
-    final imageToPass = widget.editedImageBytes ?? widget.uploadedImage;
+    // Pass the edited image URL if available, otherwise the original URL
+    final imageUrl = widget.editedImageUrl ?? widget.originalImageUrl;
 
-    context.push(
-      '/drawings/${widget.categoryId}/${widget.drawingId}/story',
-      extra: imageToPass,
-    );
+    if (imageUrl != null) {
+      context.push(
+        '/drawings/${widget.categoryId}/${widget.drawingId}/story',
+        extra: imageUrl,
+      );
+    }
   }
 
   void _drawAnother() {
     context.push('/drawings/categories');
+  }
+
+  void _editDrawingAgain() {
+    // Pass the original image URL for re-editing
+    context.pushReplacement(
+      '/drawings/${widget.categoryId}/${widget.drawingId}/edit-options',
+      extra: {'originalImageUrl': widget.originalImageUrl},
+    );
   }
 
   String _getResultTitle() {
@@ -270,9 +294,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
 
   Widget _buildImageDisplay() {
     // Single image view with switcher at bottom
-    return widget.uploadedImage != null ||
-            widget.editedImageBytes != null ||
-            widget.editedImageUrl != null
+    return widget.editedImageUrl != null || widget.originalImageUrl != null
         ? Stack(
             children: [
               // Show edited image if available and selected, otherwise show original
@@ -302,19 +324,31 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                     );
                   },
                 )
-              else if (_showEditedImage && widget.editedImageBytes != null)
-                Image.memory(
-                  widget.editedImageBytes!,
+              else if (!_showEditedImage && widget.originalImageUrl != null)
+                Image.network(
+                  widget.originalImageUrl!,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity,
-                )
-              else if (widget.uploadedImage != null)
-                Image.file(
-                  widget.uploadedImage!,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: AppColors.error.withValues(alpha: 0.2),
+                      child: const Center(
+                        child: Icon(Icons.broken_image, size: 64),
+                      ),
+                    );
+                  },
                 ),
 
               // Edit option emoji overlay (always displayed when edit is applied)
@@ -324,10 +358,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                   right: 16,
                   child: GestureDetector(
                     onTap: () {
-                      context.pushReplacement(
-                        '/drawings/${widget.categoryId}/${widget.drawingId}/edit-options',
-                        extra: widget.uploadedImage,
-                      );
+                      _editDrawingAgain();
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),

@@ -83,22 +83,31 @@ class ApiDrawingStep {
 class ApiImageEditResponse {
   final bool success;
   final String prompt;
-  final String resultImage; // Image URL (public URL or link)
+  final String? originalImageUrl; // URL of the original uploaded image
+  final String? editedImageUrl; // URL of the edited image
   final double processingTime;
+  final String? drawingId; // ID of the saved drawing in database
+  final String? userId; // ID of the user who created the drawing
 
   const ApiImageEditResponse({
     required this.success,
     required this.prompt,
-    required this.resultImage,
+    this.originalImageUrl,
+    this.editedImageUrl,
     required this.processingTime,
+    this.drawingId,
+    this.userId,
   });
 
   factory ApiImageEditResponse.fromJson(Map<String, dynamic> json) {
     return ApiImageEditResponse(
       success: json['success'] == 'true' || json['success'] == true,
       prompt: json['prompt'] ?? '',
-      resultImage: json['result_image'] ?? '',
+      originalImageUrl: json['original_image_url'],
+      editedImageUrl: json['edited_image_url'],
       processingTime: (json['processing_time'] ?? 0.0).toDouble(),
+      drawingId: json['drawing_id'],
+      userId: json['user_id'],
     );
   }
 
@@ -106,8 +115,11 @@ class ApiImageEditResponse {
     return {
       'success': success.toString(),
       'prompt': prompt,
-      'result_image': resultImage,
+      'original_image_url': originalImageUrl,
+      'edited_image_url': editedImageUrl,
       'processing_time': processingTime,
+      'drawing_id': drawingId,
+      'user_id': userId,
     };
   }
 }

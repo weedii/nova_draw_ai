@@ -234,3 +234,50 @@ class StorageService:
             error_code = e.response["Error"]["Code"]
             logger.error(f"❌ Failed to get bucket info: {error_code}")
             return {}
+
+    def validate_and_extract_user_id(self, image_url: str) -> UUID:
+        """
+        Validate that a URL is a valid Spaces URL and extract the user_id from it.
+
+        URL format: https://bucket.region.cdn.digitaloceanspaces.com/users/{user_id}/...
+
+        Args:
+            image_url: URL to validate
+
+        Returns:
+            UUID of the user who owns the image
+
+        Raises:
+            ValueError: If URL is invalid or doesn't belong to Spaces
+        """
+
+        try:
+            # Check if URL contains the bucket name
+            if self.bucket_name not in image_url:
+                raise ValueError(f"URL does not belong to {self.bucket_name} bucket")
+
+            # Extract the key from URL
+            key = image_url.split(f"{self.bucket_name}/", 1)[1]
+
+            # Parse the key to extract user_id
+            # Key format: users/{user_id}/original/... or users/{user_id}/edited/...
+            parts = key.split("/")
+
+            if len(parts) < 2 or parts[0] != "users":
+                raise ValueError("Invalid image URL format")
+
+            user_id_str = parts[1]
+
+            # Validate that it's a valid UUID
+            user_id = UUID(user_id_str)
+
+            logger.info(f"✅ URL validated. User ID: {user_id}")
+
+            return user_id
+
+        except ValueError as e:
+            logger.error(f"❌ URL validation failed: {str(e)}")
+            raise ValueError(f"Invalid image URL: {str(e)}")
+        except Exception as e:
+            logger.error(f"❌ Unexpected error during URL validation: {str(e)}")
+            raise ValueError(f"Failed to validate image URL: {str(e)}")
