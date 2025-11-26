@@ -73,31 +73,32 @@ class ImageProcessingService:
             
             enhancement_prompt = f"""A child just drew {subject_context} and said: "{user_request}"
 
-Generate a SHORT prompt (2-3 sentences max) for an image editing AI.
+Generate a prompt (3-4 sentences) for an image editing AI.
+
+CRITICAL: You MUST follow exactly what the child asked for. Do NOT make up your own ideas.
 
 RULES:
-- The child's original drawing must stay recognizable
-- Don't change the main shape, lines, or proportions  
-- Only add or enhance what the child asked for
-- Keep it kid-friendly and fun
-- Add vibrant colors if needed
+- FOLLOW THE CHILD'S REQUEST - do exactly what they asked, not something else
+- Keep the child's original drawing recognizable
+- Add vibrant colors, sparkles, and fun details to make it magical
+- Keep it kid-friendly and full of wonder
 - Understand child language: "put in paris" = "place in Paris", "make alive" = "bring to life"
 
-IMPORTANT: Output ONLY the prompt text. Do NOT include any prefix like "Child drew X, said Y →". Just the actual editing instructions.
+IMPORTANT: Output ONLY the prompt text. No prefixes or labels.
 
-GOOD OUTPUT EXAMPLES:
-"Add a colorful Parisian background with the Eiffel Tower behind this child's dog drawing. Keep the dog's shape but add warm brown and golden fur colors. Add sunset sky colors."
+EXAMPLES:
+Child says "make cat chasing mouse" → "Show this child's cat in an exciting chase scene with a cute little mouse! Add motion lines to show speed. Give the cat bright playful eyes and the mouse a funny scared expression. Add colorful background."
 
-"Transform this child's cat drawing with beautiful rainbow colors flowing through the fur. Keep the cat's shape and lines intact. Make it bright and cheerful."
+Child says "put dog in paris" → "Transport this child's dog to magical Paris! Add the sparkling Eiffel Tower in the background. Give the dog warm golden fur. Add pink sunset clouds."
 
-"Add sparkles and a soft magical glow around this child's flower drawing. Color the petals in vibrant pinks and purples. Add some floating golden stars."
+Child says "make flower rainbow" → "Transform this child's flower with beautiful rainbow colors! Flow vibrant colors through the petals. Add sparkles and a soft magical glow."
 """
 
             response = self.openai_client.chat.completions.create(
                 model=self.openai_model,
                 messages=[{"role": "user", "content": enhancement_prompt}],
-                max_tokens=150,  # Short output
-                temperature=0.6,  # More controlled
+                max_tokens=170,  # Balanced output
+                temperature=0.65,  # Balanced creativity
             )
 
             enhancement_time = time.time() - enhancement_start
@@ -591,13 +592,21 @@ TECHNICAL REQUIREMENTS:
         logger.info(f"Processing image: {image_info}")
         logger.info(f"Processing audio: {audio_info}")
 
+        # Fetch tutorial subject if tutorial_id is provided
+        subject = None
+        if tutorial_id:
+            tutorial = await Tutorial.get_by_id(db, tutorial_id)
+            if tutorial:
+                subject = tutorial.subject_en
+                logger.info(f"📚 Tutorial subject: {subject}")
+
         # Step 2: Transcribe audio to text
         transcribed_text, transcription_time = audio_service.transcribe_audio(
             audio_data, language, audio_filename
         )
         logger.info(f"🎤 Transcribed: '{transcribed_text}'")
 
-        # Step 2: Enhance the transcribed text with GPT (short, preservation-focused)
+        # Step 3: Enhance the transcribed text with GPT (short, preservation-focused)
         enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
         # Step 3: Process the image with the transcribed text
