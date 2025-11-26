@@ -26,6 +26,9 @@ from src.schemas import (
     AuthResponse,
     UserResponse,
     TokenRefreshResponse,
+    PasswordResetRequest,
+    PasswordResetConfirm,
+    ChangePasswordRequest,
 )
 from src.utils import (
     hash_password,
@@ -36,6 +39,7 @@ from src.utils import (
     verify_token,
 )
 from src.database.db import get_db
+from src.services.email_service import EmailService
 
 logger = logging.getLogger(__name__)
 
@@ -376,3 +380,176 @@ class AuthService:
         except Exception as e:
             logger.warning(f"Token verification failed: {str(e)}")
             return None
+
+    @staticmethod
+    async def forgot_password(db: AsyncSession, request: PasswordResetRequest):
+        """
+        Initiate password reset process with OTP.
+
+        1. Check if user exists
+        2. Generate 6-digit code
+        3. Save code to DB
+        4. Send email with code
+        """
+        try:
+            user = await UserRepository.find_by_email(db, request.email)
+            if not user:
+                logger.info(
+                    f"Password reset requested for non-existent email: {request.email}"
+                )
+                return {"message": "If an account exists, a reset code has been sent."}
+
+            # Generate 6-digit code using cryptographically secure random
+            import secrets
+            from datetime import datetime, timedelta
+
+            code = str(secrets.randbelow(900000) + 100000)
+            # Use utcnow() for naive datetime (compatible with default SQLAlchemy DateTime)
+            expires_at = datetime.utcnow() + timedelta(minutes=15)
+
+            # Save to DB
+            user.reset_code = code
+            user.reset_code_expires_at = expires_at
+            await db.commit()
+
+            # Send email
+            email_service = EmailService()
+            await email_service.send_password_reset_email(user.email, code)
+
+            logger.info(f"Password reset code sent to: {user.email}")
+            return {"message": "If an account exists, a reset code has been sent."}
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Forgot password failed: {str(e)}")
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Oops! Something went wrong. Please try again.",
+            )
+
+    @staticmethod
+    async def reset_password(db: AsyncSession, request: PasswordResetConfirm):
+        """
+        Reset user password using OTP code.
+
+        1. Find user by email
+        2. Verify code matches and not expired
+        3. Update password
+        4. Clear code
+        """
+        try:
+            user = await UserRepository.find_by_email(db, request.email)
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, 
+                    detail="User not found. Please check your email address."
+                )
+
+            # Verify code
+            from datetime import datetime, timezone
+
+            if not user.reset_code or user.reset_code != request.code:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid reset code.",
+                )
+
+            # Check expiration (ensure both are timezone-aware)
+            now = datetime.now(timezone.utc)
+            # Ensure user.reset_code_expires_at is timezone-aware
+            if user.reset_code_expires_at.tzinfo is None:
+                user.reset_code_expires_at = user.reset_code_expires_at.replace(
+                    tzinfo=timezone.utc
+                )
+
+            if now > user.reset_code_expires_at:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Reset code has expired. Please request a new one.",
+                )
+
+            # Validate new password strength
+            is_valid, message = validate_password_strength(request.new_password)
+            if not is_valid:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=message,
+                )
+
+            # Hash new password
+            hashed_password = hash_password(request.new_password)
+
+            # Update user
+            user.password = hashed_password
+            user.reset_code = None
+            user.reset_code_expires_at = None
+            await db.commit()
+
+            logger.info(f"Password reset successful for user: {user.email}")
+            return {
+                "message": "Password has been reset successfully. You can now login."
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Reset password failed: {str(e)}")
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Oops! Something went wrong. Please try again.",
+            )
+
+    @staticmethod
+    async def change_password(
+        db: AsyncSession, user: User, request: ChangePasswordRequest
+    ):
+        """
+        Change password for authenticated user.
+
+        1. Verify current password
+        2. Validate new password strength
+        3. Ensure new password is different from current
+        4. Update password
+        """
+        try:
+            # Verify current password
+            if not verify_password(request.current_password, user.password):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Current password is incorrect.",
+                )
+
+            # Ensure new password is different
+            if verify_password(request.new_password, user.password):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="New password must be different from current password.",
+                )
+
+            # Validate new password strength
+            is_valid, message = validate_password_strength(request.new_password)
+            if not is_valid:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=message,
+                )
+
+            # Hash and update password
+            user.password = hash_password(request.new_password)
+            await db.commit()
+
+            logger.info(f"Password changed successfully for user: {user.email}")
+            return {"message": "Password has been changed successfully."}
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Change password failed: {str(e)}")
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Oops! Something went wrong. Please try again.",
+            )

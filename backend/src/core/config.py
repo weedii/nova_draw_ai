@@ -84,6 +84,16 @@ class Settings(BaseSettings):
     SPACES_KEY: str = os.getenv("SPACES_KEY")
     SPACES_SECRET: str = os.getenv("SPACES_SECRET")
     STORAGE_ENDPOINT_URL: str = os.getenv("STORAGE_ENDPOINT_URL")
+    # Email Configuration
+    MAIL_USERNAME: str = os.getenv("MAIL_USERNAME", "")
+    MAIL_PASSWORD: str = os.getenv("MAIL_PASSWORD", "")
+    MAIL_FROM: str = os.getenv("MAIL_FROM", "")
+    MAIL_PORT: int = int(os.getenv("MAIL_PORT", "587"))
+    MAIL_SERVER: str = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    MAIL_STARTTLS: bool = os.getenv("MAIL_STARTTLS", "True").lower() == "true"
+    MAIL_SSL_TLS: bool = os.getenv("MAIL_SSL_TLS", "False").lower() == "true"
+    USE_CREDENTIALS: bool = os.getenv("USE_CREDENTIALS", "True").lower() == "true"
+    VALIDATE_CERTS: bool = os.getenv("VALIDATE_CERTS", "True").lower() == "true"
 
     class Config:
         """Pydantic configuration"""

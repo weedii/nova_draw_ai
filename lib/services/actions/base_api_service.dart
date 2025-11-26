@@ -15,10 +15,14 @@ abstract class BaseApiService {
   static String? _authToken;
 
   /// Get the base URL for API requests from .env file
-  /// Falls back to default URL if not configured
-  static String? get baseUrl {
+  static String get baseUrl {
     final url = dotenv.env['API_BASE_URL'];
-    // final url = "https://novadraw-o47gf.ondigitalocean.app"; uncomment this for produnction
+    if (url == null || url.isEmpty) {
+      throw ApiException(
+        'API_BASE_URL not configured in .env file',
+        errorCode: 'CONFIG_ERROR',
+      );
+    }
     return url;
   }
 
