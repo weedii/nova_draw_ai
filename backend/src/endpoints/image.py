@@ -46,9 +46,10 @@ async def edit_image(
     Edit an uploaded image with AI using a text prompt.
     Supports prompts like 'make it alive', 'make it colorful', etc.
     Saves the edited image to the database.
-    
+
     **Authentication Required:** User must be logged in.
     """
+
     try:
         # Check if image processing service is available
         if not image_processing_service:
@@ -81,7 +82,8 @@ async def edit_image(
         return ImageProcessResponse(
             success="true",
             prompt=prompt,
-            result_image=result["result_image"],
+            original_image_url=result["original_image_url"],
+            edited_image_url=result["edited_image_url"],
             processing_time=result["processing_time"],
             drawing_id=result["drawing_id"],
             user_id=str(user_id),
@@ -124,9 +126,10 @@ async def edit_image_with_audio(
 
     Supports multiple audio formats: mp3, wav, m4a, aac, webm, ogg, flac
     Languages: English ('en') and German ('de')
-    
+
     **Authentication Required:** User must be logged in.
     """
+
     try:
         # Check if both services are available
         if not audio_service:
@@ -175,7 +178,8 @@ async def edit_image_with_audio(
         return EditImageWithAudioResponse(
             success="true",
             prompt=result["prompt"],
-            result_image=result["result_image"],
+            original_image_url=result["original_image_url"],
+            edited_image_url=result["edited_image_url"],
             processing_time=result["processing_time"],
             drawing_id=result["drawing_id"],
             user_id=str(user_id),

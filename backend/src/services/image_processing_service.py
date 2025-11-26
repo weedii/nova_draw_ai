@@ -11,6 +11,7 @@ from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from src.models import Drawing
+from src.services.storage_service import StorageService
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +35,14 @@ class ImageProcessingService:
         self.openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.gemini_model = "gemini-2.5-flash-image-preview"
         self.openai_model = "gpt-3.5-turbo"  # Cheap and fast for prompt enhancement
+
+        # Initialize storage service for DigitalOcean Spaces
+        try:
+            self.storage_service = StorageService()
+            logger.info("✅ StorageService initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ StorageService initialization failed: {e}")
+            self.storage_service = None
 
         logger.info(f"ImageProcessingService initialized successfully")
         logger.info(f"Using Gemini model: {self.gemini_model}")
@@ -396,7 +405,7 @@ class ImageProcessingService:
         tutorial_id: UUID = None,
     ) -> dict:
         """
-        Complete image editing flow: validate, process, and save to database.
+        Complete image editing flow: validate, process, and save to database and Spaces.
 
         Args:
             db: Async database session
@@ -420,21 +429,50 @@ class ImageProcessingService:
         image_info = self.get_image_info(image_data)
         logger.info(f"Processing image: {image_info}")
 
-        # Process the image
+        # Step 1: Upload original image to Spaces
+        original_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading original image to Spaces...")
+                original_image_url = self.storage_service.upload_image_from_bytes(
+                    image_data, user_id, image_type="original"
+                )
+                logger.info(f"✅ Original image uploaded: {original_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload original image: {e}")
+                # Continue without storing original URL
+
+        # Step 2: Process the image
         result_base64, processing_time = self.process_image(image_data, prompt)
 
-        # Save drawing to database
+        # Step 3: Upload edited image to Spaces
+        edited_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading edited image to Spaces...")
+                edited_image_url = self.storage_service.upload_image_from_base64(
+                    result_base64, user_id, image_type="edited"
+                )
+                logger.info(f"✅ Edited image uploaded: {edited_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload edited image: {e}")
+                # Continue with base64 as fallback
+
+        # Step 4: Save drawing to database with URLs
         saved_drawing = await Drawing.create(
             db,
             user_id=user_id,
             tutorial_id=tutorial_id,
-            uploaded_image_url="",
-            edited_images_urls=[result_base64],
+            uploaded_image_url=original_image_url,
+            edited_images_urls=(
+                [edited_image_url] if edited_image_url else [result_base64]
+            ),
         )
 
         return {
             "drawing_id": str(saved_drawing.id),
-            "result_image": result_base64,
+            "original_image_url": original_image_url,
+            "edited_image_url": edited_image_url,
             "processing_time": processing_time,
         }
 
@@ -450,7 +488,7 @@ class ImageProcessingService:
         audio_service=None,
     ) -> dict:
         """
-        Complete image editing flow with audio: transcribe, process, and save to database.
+        Complete image editing flow with audio: transcribe, process, and save to database and Spaces.
 
         Args:
             db: Async database session
@@ -495,30 +533,57 @@ class ImageProcessingService:
         logger.info(f"Processing image: {image_info}")
         logger.info(f"Processing audio: {audio_info}")
 
-        # Step 1: Transcribe audio to text
+        # Step 1: Upload original image to Spaces
+        original_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading original image to Spaces...")
+                original_image_url = self.storage_service.upload_image_from_bytes(
+                    image_data, user_id, image_type="original"
+                )
+                logger.info(f"✅ Original image uploaded: {original_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload original image: {e}")
+
+        # Step 2: Transcribe audio to text
         transcribed_text, transcription_time = audio_service.transcribe_audio(
             audio_data, language, audio_filename
         )
 
-        # Step 2: Process the image with the transcribed text
+        # Step 3: Process the image with the transcribed text
         result_base64, processing_time = self.process_image(
             image_data, transcribed_text
         )
 
-        # Step 3: Save drawing to database
+        # Step 4: Upload edited image to Spaces
+        edited_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading edited image to Spaces...")
+                edited_image_url = self.storage_service.upload_image_from_base64(
+                    result_base64, user_id, image_type="edited"
+                )
+                logger.info(f"✅ Edited image uploaded: {edited_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload edited image: {e}")
+
+        # Step 5: Save drawing to database with URLs
         saved_drawing = await Drawing.create(
             db,
             user_id=user_id,
             tutorial_id=tutorial_id,
-            uploaded_image_url="",
-            edited_images_urls=[result_base64],
+            uploaded_image_url=original_image_url,
+            edited_images_urls=(
+                [edited_image_url] if edited_image_url else [result_base64]
+            ),
         )
 
         total_time = transcription_time + processing_time
 
         return {
             "drawing_id": str(saved_drawing.id),
-            "result_image": result_base64,
+            "original_image_url": original_image_url,
+            "edited_image_url": edited_image_url,
             "prompt": transcribed_text,
             "processing_time": total_time,
         }

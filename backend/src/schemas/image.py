@@ -32,7 +32,8 @@ class ImageProcessResponse(BaseModel):
 
     success: str  # "true" or "false" as string
     prompt: str
-    result_image: str  # base64 encoded processed image
+    original_image_url: Optional[str] = None  # URL of the original uploaded image
+    edited_image_url: Optional[str] = None  # URL of the edited image
     processing_time: Optional[float] = None
     effect_used: Optional[str] = None  # The effect that was applied
     drawing_id: Optional[str] = None  # ID of the saved drawing in database

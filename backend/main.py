@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from src.core.config import settings
-from src.endpoints import auth, health, tutorial, image, story, edit_option
+from src.endpoints import auth, health, tutorial, image, story, edit_option, drawing
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -29,6 +29,7 @@ app.include_router(tutorial.router)
 app.include_router(image.router)
 app.include_router(story.router)
 app.include_router(edit_option.router)
+app.include_router(drawing.router)  # Drawing gallery endpoints
 
 
 # Run the application
