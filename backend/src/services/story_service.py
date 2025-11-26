@@ -1,5 +1,6 @@
 import time
 import base64
+import logging
 from io import BytesIO
 from PIL import Image
 from openai import OpenAI
@@ -8,6 +9,9 @@ from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from src.models import Story
+from src.services.storage_service import StorageService
+
+logger = logging.getLogger(__name__)
 
 
 class StoryService:
@@ -19,6 +23,14 @@ class StoryService:
 
         self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.model = "gpt-4o"  # GPT-4 with vision capabilities
+
+        # Initialize storage service for downloading images from Spaces
+        try:
+            self.storage_service = StorageService()
+            logger.info("✅ StorageService initialized for story generation")
+        except Exception as e:
+            logger.warning(f"⚠️ StorageService initialization failed: {e}")
+            self.storage_service = None
 
     def generate_story(
         self, image_base64: str, language: str = "en"
@@ -247,13 +259,17 @@ class StoryService:
         """
         Complete story creation flow: generate and save to database.
 
+        Supports two modes:
+        1. Direct base64 image (image_base64 provided)
+        2. Image URL from Spaces (image_url provided)
+
         Args:
             db: Async database session
-            image_base64: Base64 encoded image
+            image_base64: Base64 encoded image (optional if image_url provided)
             language: Language for story generation ('en' or 'de')
             user_id: UUID of the user creating the story
             drawing_id: Optional UUID of the associated drawing
-            image_url: Optional URL of the image
+            image_url: Optional URL of the image from Spaces
 
         Returns:
             Dictionary with story_id, title, story, and generation_time
@@ -262,8 +278,49 @@ class StoryService:
             ValueError: If image validation fails or generation fails
         """
 
+        # Determine which image source to use
+        final_image_base64 = image_base64
+
+        # If image_url is provided, download and convert to base64
+        if image_url and not image_base64:
+            logger.info(f"🔄 Re-using existing image from URL: {image_url}")
+
+            # Validate URL and extract user_id
+            if self.storage_service:
+                try:
+                    url_user_id = self.storage_service.validate_and_extract_user_id(
+                        image_url
+                    )
+                    # Verify the URL belongs to the current user
+                    if url_user_id != user_id:
+                        raise ValueError(
+                            "Image URL does not belong to the current user"
+                        )
+                    logger.info("✅ URL validated and belongs to current user")
+                except Exception as e:
+                    raise ValueError(f"Invalid image URL: {str(e)}")
+
+            # Download image from Spaces
+            if self.storage_service:
+                try:
+                    logger.info("📥 Downloading image from Spaces...")
+                    image_bytes = self.storage_service.download_image_as_bytes(
+                        image_url
+                    )
+                    logger.info(f"✅ Image downloaded: {len(image_bytes)} bytes")
+                    # Convert to base64
+                    final_image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+                    logger.info("✅ Image converted to base64")
+                except Exception as e:
+                    raise ValueError(f"Failed to download image from Spaces: {str(e)}")
+            else:
+                raise ValueError("Storage service not available for downloading images")
+
+        elif not image_base64 and not image_url:
+            raise ValueError("Either image_base64 or image_url must be provided")
+
         # Validate image
-        if not self.validate_image_base64(image_base64):
+        if not self.validate_image_base64(final_image_base64):
             raise ValueError(
                 "Invalid image data. Please provide a valid base64 encoded image."
             )
@@ -273,7 +330,9 @@ class StoryService:
             raise ValueError("Invalid language. Please provide 'en' or 'de'.")
 
         # Generate story
-        title, story, generation_time = self.generate_story(image_base64, language)
+        title, story, generation_time = self.generate_story(
+            final_image_base64, language
+        )
 
         # Prepare story data for database
         story_text_en = story if language == "en" else ""

@@ -3,6 +3,7 @@
     "app_name": "NovaDraw ✨",
     "hello": "Hello!",
     "step": "Step",
+    "of": "of",
     "retry": "Retry",
     "back": "Back",
     "next": "Next",
@@ -154,7 +155,8 @@
     "nature_description": "Create beautiful nature scenes and plants!",
     "vehicles_description": "Draw cars, planes, and other vehicles!",
     "food_description": "Draw delicious food and treats!",
-    "characters_description": "Create magical characters and people!"
+    "characters_description": "Create magical characters and people!",
+    "loading_categories": "Loading Categories"
   },
   
   "drawings": {

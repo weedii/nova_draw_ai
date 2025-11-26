@@ -9,6 +9,8 @@ from . import health
 from . import tutorial
 from . import image
 from . import story
+from . import edit_option
+from . import drawing
 
 __all__ = [
     "auth",
@@ -16,4 +18,6 @@ __all__ = [
     "tutorial",
     "image",
     "story",
+    "edit_option",
+    "drawing",
 ]

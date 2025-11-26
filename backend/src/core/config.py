@@ -80,6 +80,10 @@ class Settings(BaseSettings):
     # Refresh token expires in 30 days
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "30"))
 
+    # Digitalocean Settings
+    SPACES_KEY: str = os.getenv("SPACES_KEY")
+    SPACES_SECRET: str = os.getenv("SPACES_SECRET")
+    STORAGE_ENDPOINT_URL: str = os.getenv("STORAGE_ENDPOINT_URL")
     # Email Configuration
     MAIL_USERNAME: str = os.getenv("MAIL_USERNAME", "")
     MAIL_PASSWORD: str = os.getenv("MAIL_PASSWORD", "")

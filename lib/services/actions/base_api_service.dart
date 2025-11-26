@@ -41,6 +41,9 @@ abstract class BaseApiService {
     print('🔓 Auth token cleared from BaseApiService');
   }
 
+  /// Get the current authentication token (for internal use)
+  static String? getAuthToken() => _authToken;
+
   /// Get default headers with optional auth token
   static Map<String, String> _getHeaders({
     Map<String, String>? additionalHeaders,
@@ -123,8 +126,98 @@ abstract class BaseApiService {
         .timeout(timeout ?? _timeout);
   }
 
-  /// Make a multipart POST request with file upload
+  /// Make a multipart POST request with optional file upload
+  /// Can be used for file upload, form fields only, or both
   static Future<http.Response> postMultipart(
+    String endpoint, {
+    File? file,
+    String? fileFieldName,
+    Map<String, String>? fields,
+    Duration? timeout,
+  }) async {
+    // Validate that either file or fields is provided
+    if (file == null && (fields == null || fields.isEmpty)) {
+      throw ArgumentError('Either file or fields must be provided');
+    }
+
+    // If file is provided, fileFieldName is required
+    if (file != null && fileFieldName == null) {
+      throw ArgumentError('fileFieldName is required when file is provided');
+    }
+
+    final url = Uri.parse('$baseUrl$endpoint');
+    final request = http.MultipartRequest('POST', url);
+
+    // Add auth token if available
+    if (_authToken != null) {
+      request.headers['Authorization'] = 'Bearer $_authToken';
+    }
+
+    // Add file if provided
+    if (file != null && fileFieldName != null) {
+      // Determine content type from file extension
+      String? contentType;
+      final extension = file.path.toLowerCase().split('.').last;
+      switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+          contentType = 'image/jpeg';
+          break;
+        case 'png':
+          contentType = 'image/png';
+          break;
+        case 'gif':
+          contentType = 'image/gif';
+          break;
+        case 'webp':
+          contentType = 'image/webp';
+          break;
+        default:
+          contentType = 'image/jpeg'; // Default fallback
+      }
+
+      print('📤 Uploading file: ${file.path}');
+      print('📝 Content-Type: $contentType');
+      print('📊 File size: ${file.lengthSync()} bytes');
+
+      // Add file with explicit content type
+      final multipartFile = await http.MultipartFile.fromPath(
+        fileFieldName,
+        file.path,
+        contentType: MediaType.parse(contentType),
+      );
+
+      request.files.add(multipartFile);
+      print('✅ File added to request: ${multipartFile.filename}');
+    }
+
+    // Add additional fields
+    if (fields != null) {
+      request.fields.addAll(fields);
+      print('📋 Fields: $fields');
+    }
+
+    print('🚀 Sending request to: $url');
+
+    // Send request
+    final streamedResponse = await request.send().timeout(timeout ?? _timeout);
+
+    print('📥 Response status: ${streamedResponse.statusCode}');
+
+    // Convert streamed response to regular response
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode >= 400) {
+      print('❌ Error response: ${response.body}');
+    } else {
+      print('✅ Success response received');
+    }
+
+    return response;
+  }
+
+  /// Make a multipart POST request with file upload (legacy method)
+  static Future<http.Response> postMultipartWithFile(
     String endpoint, {
     required File file,
     required String fileFieldName,

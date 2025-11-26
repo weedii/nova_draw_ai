@@ -11,6 +11,7 @@ from .image_service import ImageService
 from .drawing_service import DrawingService
 from .audio_service import AudioService
 from .image_processing_service import ImageProcessingService
+from .storage_service import StorageService
 from .email_service import EmailService
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     "DrawingService",
     "AudioService",
     "ImageProcessingService",
+    "StorageService",
     "EmailService",
 ]
