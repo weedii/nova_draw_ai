@@ -591,13 +591,21 @@ TECHNICAL REQUIREMENTS:
         logger.info(f"Processing image: {image_info}")
         logger.info(f"Processing audio: {audio_info}")
 
+        # Fetch tutorial subject if tutorial_id is provided
+        subject = None
+        if tutorial_id:
+            tutorial = await Tutorial.get_by_id(db, tutorial_id)
+            if tutorial:
+                subject = tutorial.subject_en
+                logger.info(f"📚 Tutorial subject: {subject}")
+
         # Step 2: Transcribe audio to text
         transcribed_text, transcription_time = audio_service.transcribe_audio(
             audio_data, language, audio_filename
         )
         logger.info(f"🎤 Transcribed: '{transcribed_text}'")
 
-        # Step 2: Enhance the transcribed text with GPT (short, preservation-focused)
+        # Step 3: Enhance the transcribed text with GPT (short, preservation-focused)
         enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
         # Step 3: Process the image with the transcribed text
