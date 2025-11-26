@@ -169,15 +169,18 @@ class ImageProcessingService:
     def process_image(self, image_data: bytes, prompt: str) -> Tuple[str, float]:
         """
         Process an image with a text prompt using Gemini.
+        
+        For predefined edit options, the prompt already contains detailed instructions
+        from the database, so we skip GPT enhancement and send directly to Gemini.
 
         Args:
             image_data: Raw image bytes
-            prompt: Text prompt for processing (e.g., "make it alive")
+            prompt: Text prompt for processing (detailed prompt from edit_options table)
 
         Returns:
             Tuple of (base64_result_image, processing_time)
         """
-        logger.info(f"🎨 Starting image processing with prompt: '{prompt}'")
+        logger.info(f"🎨 Starting image processing with prompt: '{prompt[:100]}...'")
         start_time = time.time()
 
         try:
@@ -196,52 +199,27 @@ class ImageProcessingService:
                 logger.info(f"🔄 Converting image from {input_image.mode} to RGB")
                 input_image = input_image.convert("RGB")
 
-            # Step 1: Enhance the user's simple prompt using GPT-3.5-turbo
-            logger.info("🚀 Step 1: Enhancing user prompt with GPT-3.5-turbo...")
-            enhanced_prompt = self.enhance_prompt(prompt)
-
-            # Step 2: Create the final prompt for Gemini using the enhanced version
-            logger.info("🎯 Step 2: Preparing final prompt for Gemini...")
+            # Create the final prompt for Gemini
+            # The prompt from edit_options already contains detailed instructions,
+            # so we just wrap it with preservation guidelines
+            logger.info("🎯 Preparing prompt for Gemini (no GPT enhancement)...")
             full_prompt = f"""
-            You are a MASTER digital artist and visual effects wizard working for a premium children's creativity app. Your transformations must be SPECTACULAR, MAGICAL, and absolutely BREATHTAKING!
-            
-            🎨 TRANSFORMATION MISSION:
-            {enhanced_prompt}
-            
-            🚀 EXECUTION GUIDELINES:
-            
-            1. MAKE IT BOLD & DRAMATIC:
-               - Create changes that are IMMEDIATELY OBVIOUS and WOW-WORTHY
-               - Don't be subtle - kids love BIG, IMPRESSIVE transformations
-               - Push the visual effects to the MAX while staying beautiful
-               - Make it look like professional movie-quality VFX
-            
-            2. PRESERVE THE CORE:
-               - Keep the main subject recognizable
-               - Transform it dramatically but don't lose its identity
-               - Enhance what's there, don't replace it completely
-            
-            3. VISUAL EXCELLENCE:
-               - Use cinema-quality rendering and effects
-               - Make colors vibrant, saturated, and eye-catching
-               - Add depth with layers, lighting, and atmospheric effects
-               - Create a polished, professional final result
-               - Ensure everything is sharp, clear, and high-quality
-            
-            4. MAGICAL ATMOSPHERE:
-               - Add that "Disney/Pixar magic" feeling
-               - Make it feel alive and full of wonder
-               - Create a sense of movement and energy
-               - Infuse every pixel with creativity and joy
-            
-            5. TECHNICAL PERFECTION:
-               - Return ONLY the transformed image
-               - No text, watermarks, signatures, or labels
-               - Maintain proper resolution and quality
-               - Ensure smooth blending of all effects
-            
-            🌟 CREATE PURE MAGIC! Transform this image into something INCREDIBLE that will make kids gasp with delight!
-            """
+You are editing a child's hand-drawn picture for a kids' creativity app.
+
+CRITICAL RULES:
+1. PRESERVE THE ORIGINAL DRAWING - Keep the child's original lines, shapes, and proportions intact
+2. DO NOT redraw or replace the main subject - only enhance/add to it
+3. The child's drawing style must remain recognizable
+4. Keep it kid-friendly, fun, and magical
+
+YOUR TASK:
+{prompt}
+
+TECHNICAL REQUIREMENTS:
+- Return ONLY the edited image
+- No text, watermarks, or labels
+- Maintain image quality
+"""
 
             # Prepare content for Gemini
             contents = [full_prompt, input_image]
