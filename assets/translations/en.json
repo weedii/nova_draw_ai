@@ -435,5 +435,32 @@
   "navigation": {
     "tutorials": "Tutorials",
     "gallery": "Gallery"
+  },
+
+  "gallery": {
+    "my_gallery": "My Gallery",
+    "your_creations": "Your Creations",
+    "no_drawings_yet": "No Drawings Yet",
+    "start_drawing_message": "Start drawing to see your creations here!",
+    "loading_gallery": "Loading your gallery...",
+    "error_loading_gallery": "Failed to Load Gallery",
+    "error_loading_message": "An error occurred while loading your gallery. Please try again.",
+    "retry": "Retry",
+    "drawing_count": "drawings",
+    "created_on": "Created on",
+    "edited_images": "Edited Images",
+    "original_image": "Original Image",
+    "no_edited_images": "No edited images",
+    "delete_drawing": "Delete Drawing",
+    "delete_confirmation": "Are you sure you want to delete this drawing?",
+    "delete_success": "Drawing deleted successfully",
+    "delete_error": "Failed to delete drawing",
+    "loading_more": "Loading more...",
+    "no_more_drawings": "No more drawings to load",
+    "image": "image",
+    "images": "images",
+    "view_all": "View all",
+    "image_count": "images",
+    "edit_label": "Edit"
   }
 }

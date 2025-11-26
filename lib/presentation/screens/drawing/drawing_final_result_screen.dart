@@ -195,7 +195,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   }
 
   void _drawAnother() {
-    context.push('/drawings/categories');
+    context.pushReplacement('/home');
   }
 
   void _editDrawingAgain() {
