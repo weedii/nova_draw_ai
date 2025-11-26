@@ -20,6 +20,7 @@ class DrawingEditOptionsScreen extends StatefulWidget {
   final String drawingId;
   final File? uploadedImage;
   final String? originalImageUrl; // URL of the original image for re-editing
+  final String? dbDrawingId; // Database Drawing record ID for appending edits
 
   const DrawingEditOptionsScreen({
     super.key,
@@ -27,6 +28,7 @@ class DrawingEditOptionsScreen extends StatefulWidget {
     required this.drawingId,
     this.uploadedImage,
     this.originalImageUrl,
+    this.dbDrawingId,
   });
 
   @override
@@ -175,7 +177,9 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   }
 
   void _applyEditOption() async {
-    if (_selectedEditOption == null || widget.uploadedImage == null) return;
+    if (_selectedEditOption == null ||
+        (widget.uploadedImage == null && widget.originalImageUrl == null))
+      return;
 
     setState(() {
       _isApplyingEdit = true;
@@ -187,20 +191,24 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
       // Call the API to edit the image
       // If originalImageUrl is provided (re-editing), use it; otherwise use the uploaded file
+      // Only pass dbDrawingId when re-editing (dbDrawingId is provided)
       final response = await DrawingApiService.editImage(
         imageFile: widget.uploadedImage,
         imageUrl: widget.originalImageUrl,
         prompt: prompt,
+        drawingId: widget.dbDrawingId,
       );
 
       if (mounted && response.success) {
-        // Navigate to the final result screen with the edited image URLs
+        // Navigate to the final result screen with the edited image URLs and drawing ID
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
             'originalImageUrl': response.originalImageUrl,
             'editedImageUrl': response.editedImageUrl,
             'selectedEditOption': _selectedEditOption,
+            'drawing_id':
+                response.drawingId, // Store DB drawing ID for re-editing
           },
         );
       }
@@ -424,8 +432,8 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         return;
       }
 
-      // Validate that we have an image to edit
-      if (widget.uploadedImage == null) {
+      // Validate that we have an image to edit (either file or URL)
+      if (widget.uploadedImage == null && widget.originalImageUrl == null) {
         print('❌ No image available');
         throw ApiException('Image is required');
       }
@@ -444,11 +452,13 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       // Call the API service to send both image and audio
       // The audio bytes are sent directly to memory without saving to disk
       // If originalImageUrl is provided (re-editing), use it; otherwise use the uploaded file
+      // Only pass dbDrawingId when re-editing (dbDrawingId is provided)
       final response = await DrawingApiService.editImageWithVoice(
         imageFile: widget.uploadedImage,
         imageUrl: widget.originalImageUrl,
         audioBytes: _recordingBytes!, // Send audio bytes directly
         language: language, // Send current app language
+        drawingId: widget.dbDrawingId,
       );
 
       if (mounted && response.success) {
@@ -467,13 +477,15 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           promptDe: 'Sprachbasierte Bearbeitung',
         );
 
-        // Navigate to the final result screen with the edited image URLs
+        // Navigate to the final result screen with the edited image URLs and drawing ID
         context.pushReplacement(
           '/drawings/${widget.categoryId}/${widget.drawingId}/result',
           extra: {
             'originalImageUrl': response.originalImageUrl,
             'editedImageUrl': response.editedImageUrl,
             'selectedEditOption': voiceEditOption,
+            'drawing_id':
+                response.drawingId, // Store DB drawing ID for re-editing
           },
         );
       }

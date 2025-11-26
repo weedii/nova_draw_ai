@@ -45,6 +45,10 @@ async def edit_image(
     tutorial_id: str = Form(
         None, description="UUID of the tutorial associated with this drawing"
     ),
+    drawing_id: str = Form(
+        None,
+        description="UUID of existing drawing to append edit to (optional for re-editing)",
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(AuthService.get_current_user),
 ):
@@ -97,6 +101,7 @@ async def edit_image(
             prompt=prompt,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
+            drawing_id=UUID(drawing_id) if drawing_id else None,
             image_data=image_data,
             image_url=image_url,
         )
@@ -112,9 +117,11 @@ async def edit_image(
         )
 
     except ValueError as e:
+        logger.error(f"Failed to edit image: {str(e)}")
         # Handle validation errors
         raise HTTPException(status_code=400, detail=str(e))
-    except HTTPException:
+    except HTTPException as e:
+        logger.error(f"Failed to edit image: {str(e)}")
         # Re-raise HTTP exceptions
         raise
     except Exception as e:
@@ -138,6 +145,10 @@ async def edit_image_with_audio(
     ),
     tutorial_id: str = Form(
         None, description="UUID of the tutorial associated with this drawing"
+    ),
+    drawing_id: str = Form(
+        None,
+        description="UUID of existing drawing to append edit to (optional for re-editing)",
     ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(AuthService.get_current_user),
@@ -216,6 +227,7 @@ async def edit_image_with_audio(
             language=language,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
+            drawing_id=UUID(drawing_id) if drawing_id else None,
             audio_service=audio_service,
             image_data=image_data,
             image_url=image_url,

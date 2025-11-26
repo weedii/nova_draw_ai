@@ -141,11 +141,13 @@ GoRouter createAppRouter(UserProvider userProvider) {
           // Handle both old format (File directly) and new format (Map with extras)
           File? uploadedImage;
           String? originalImageUrl;
+          String? dbDrawingId;
 
           if (state.extra is Map<String, dynamic>) {
             final extra = state.extra as Map<String, dynamic>;
             uploadedImage = extra['uploadedImage'] as File?;
             originalImageUrl = extra['originalImageUrl'] as String?;
+            dbDrawingId = extra['dbDrawingId'] as String?;
           } else if (state.extra is File) {
             uploadedImage = state.extra as File?;
           }
@@ -155,6 +157,7 @@ GoRouter createAppRouter(UserProvider userProvider) {
             drawingId: drawingId,
             uploadedImage: uploadedImage,
             originalImageUrl: originalImageUrl,
+            dbDrawingId: dbDrawingId,
           );
         },
       ),
@@ -167,12 +170,14 @@ GoRouter createAppRouter(UserProvider userProvider) {
           final originalImageUrl = extra?['originalImageUrl'] as String?;
           final editedImageUrl = extra?['editedImageUrl'] as String?;
           final selectedEditOption = extra?['selectedEditOption'];
+          final dbDrawingId = extra?['drawing_id'] as String?;
           return DrawingFinalResultScreen(
             categoryId: categoryId,
             drawingId: drawingId,
             originalImageUrl: originalImageUrl,
             editedImageUrl: editedImageUrl,
             selectedEditOption: selectedEditOption,
+            dbDrawingId: dbDrawingId,
           );
         },
       ),

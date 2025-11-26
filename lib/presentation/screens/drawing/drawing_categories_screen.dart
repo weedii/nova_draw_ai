@@ -60,7 +60,7 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
         // Handle loading state
         if (drawingProvider.isLoadingCategories) {
           return CustomLoadingWidget(
-            message: 'categories.loading',
+            message: 'categories.loading_categories',
             subtitle: 'common.please_wait',
             showBackButton: false,
           );

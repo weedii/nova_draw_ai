@@ -9,6 +9,7 @@ from openai import OpenAI
 from typing import Tuple, Any
 from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import attributes
 from uuid import UUID
 from src.models import Drawing
 from src.services.storage_service import StorageService
@@ -402,18 +403,21 @@ class ImageProcessingService:
         prompt: str,
         user_id: UUID,
         tutorial_id: UUID = None,
+        drawing_id: UUID = None,
         image_data: bytes = None,
         image_url: str = None,
     ) -> dict:
         """
         Complete image editing flow: validate, process, and save to database and Spaces.
         Supports both file upload and existing image URL from Spaces.
+        If drawing_id is provided, appends the edited image to the existing drawing's edited_images_urls.
 
         Args:
             db: Async database session
             prompt: Processing instruction
             user_id: UUID of the user editing the image
             tutorial_id: Optional UUID of the associated tutorial
+            drawing_id: Optional UUID of existing drawing to append edit to
             image_data: Raw image bytes (for new uploads)
             image_url: URL of existing image from Spaces (for re-editing)
 
@@ -500,15 +504,55 @@ class ImageProcessingService:
                 # Continue with base64 as fallback
 
         # Step 4: Save drawing to database with URLs
-        saved_drawing = await Drawing.create(
-            db,
-            user_id=user_id,
-            tutorial_id=tutorial_id,
-            uploaded_image_url=original_image_url,
-            edited_images_urls=(
-                [edited_image_url] if edited_image_url else [result_base64]
-            ),
-        )
+        if drawing_id:
+            # Re-editing: Fetch existing drawing and append to edited_images_urls
+            logger.info(f"📝 Appending edit to existing drawing: {drawing_id}")
+
+            try:
+                # Fetch the existing drawing
+                existing_drawing = await Drawing.get_by_id(db, drawing_id)
+
+                if not existing_drawing:
+                    raise ValueError(f"Drawing with ID {drawing_id} not found")
+
+                # Verify the drawing belongs to the current user
+                if existing_drawing.user_id != user_id:
+                    raise ValueError("Drawing does not belong to the current user")
+
+                # Get current edited_images_urls or initialize as empty list
+                current_edits = existing_drawing.edited_images_urls or []
+
+                # Append the new edited image URL
+                new_edited_url = edited_image_url if edited_image_url else result_base64
+                current_edits.append(new_edited_url)
+
+                # Mark array as modified for PostgreSQL before updating
+                attributes.flag_modified(existing_drawing, "edited_images_urls")
+
+                # Update the drawing using the update method
+                saved_drawing = await Drawing.update(
+                    db, drawing_id, {"edited_images_urls": current_edits}
+                )
+
+                logger.info(
+                    f"✅ Edit appended to drawing. Total edits: {len(current_edits)}"
+                )
+
+            except Exception as e:
+                logger.error(f"❌ Failed to append edit to existing drawing: {str(e)}")
+                raise ValueError(f"Failed to append edit to drawing: {str(e)}")
+        else:
+            # New drawing: Create a new entry
+            logger.info("📝 Creating new drawing entry")
+            saved_drawing = await Drawing.create(
+                db,
+                user_id=user_id,
+                tutorial_id=tutorial_id,
+                uploaded_image_url=original_image_url,
+                edited_images_urls=(
+                    [edited_image_url] if edited_image_url else [result_base64]
+                ),
+            )
 
         return {
             "drawing_id": str(saved_drawing.id),
@@ -525,6 +569,7 @@ class ImageProcessingService:
         language: str,
         user_id: UUID,
         tutorial_id: UUID = None,
+        drawing_id: UUID = None,
         audio_service=None,
         image_data: bytes = None,
         image_url: str = None,
@@ -532,6 +577,7 @@ class ImageProcessingService:
         """
         Complete image editing flow with audio: transcribe, process, and save to database and Spaces.
         Supports both file upload and existing image URL from Spaces.
+        If drawing_id is provided, appends the edited image to the existing drawing's edited_images_urls.
 
         Args:
             db: Async database session
@@ -540,6 +586,7 @@ class ImageProcessingService:
             language: Language code ('en' or 'de')
             user_id: UUID of the user editing the image
             tutorial_id: Optional UUID of the associated tutorial
+            drawing_id: Optional UUID of existing drawing to append edit to
             audio_service: AudioService instance for transcription
             image_data: Raw image bytes (for new uploads)
             image_url: URL of existing image from Spaces (for re-editing)
@@ -650,15 +697,57 @@ class ImageProcessingService:
                 logger.warning(f"⚠️ Failed to upload edited image: {e}")
 
         # Step 5: Save drawing to database with URLs
-        saved_drawing = await Drawing.create(
-            db,
-            user_id=user_id,
-            tutorial_id=tutorial_id,
-            uploaded_image_url=original_image_url,
-            edited_images_urls=(
-                [edited_image_url] if edited_image_url else [result_base64]
-            ),
-        )
+        if drawing_id:
+            # Re-editing: Fetch existing drawing and append to edited_images_urls
+            logger.info(f"📝 Appending audio edit to existing drawing: {drawing_id}")
+
+            try:
+                # Fetch the existing drawing
+                existing_drawing = await Drawing.get_by_id(db, drawing_id)
+
+                if not existing_drawing:
+                    raise ValueError(f"Drawing with ID {drawing_id} not found")
+
+                # Verify the drawing belongs to the current user
+                if existing_drawing.user_id != user_id:
+                    raise ValueError("Drawing does not belong to the current user")
+
+                # Get current edited_images_urls or initialize as empty list
+                current_edits = existing_drawing.edited_images_urls or []
+
+                # Append the new edited image URL
+                new_edited_url = edited_image_url if edited_image_url else result_base64
+                current_edits.append(new_edited_url)
+
+                # Mark array as modified for PostgreSQL before updating
+                attributes.flag_modified(existing_drawing, "edited_images_urls")
+
+                # Update the drawing using the update method
+                saved_drawing = await Drawing.update(
+                    db, drawing_id, {"edited_images_urls": current_edits}
+                )
+
+                logger.info(
+                    f"✅ Audio edit appended to drawing. Total edits: {len(current_edits)}"
+                )
+
+            except Exception as e:
+                logger.error(
+                    f"❌ Failed to append audio edit to existing drawing: {str(e)}"
+                )
+                raise ValueError(f"Failed to append edit to drawing: {str(e)}")
+        else:
+            # New drawing: Create a new entry
+            logger.info("📝 Creating new drawing entry with audio edit")
+            saved_drawing = await Drawing.create(
+                db,
+                user_id=user_id,
+                tutorial_id=tutorial_id,
+                uploaded_image_url=original_image_url,
+                edited_images_urls=(
+                    [edited_image_url] if edited_image_url else [result_base64]
+                ),
+            )
 
         total_time = transcription_time + processing_time
 

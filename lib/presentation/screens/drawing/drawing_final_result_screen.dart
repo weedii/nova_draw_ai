@@ -15,6 +15,7 @@ class DrawingFinalResultScreen extends StatefulWidget {
   final String? originalImageUrl; // URL of the original uploaded image
   final String? editedImageUrl; // URL of the edited image
   final EditOption? selectedEditOption;
+  final String? dbDrawingId; // Database Drawing record ID for re-editing
 
   const DrawingFinalResultScreen({
     super.key,
@@ -23,6 +24,7 @@ class DrawingFinalResultScreen extends StatefulWidget {
     this.originalImageUrl,
     this.editedImageUrl,
     this.selectedEditOption,
+    this.dbDrawingId,
   });
 
   @override
@@ -197,10 +199,13 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   }
 
   void _editDrawingAgain() {
-    // Pass the original image URL for re-editing
+    // Pass the original image URL and database drawing ID for re-editing
     context.pushReplacement(
       '/drawings/${widget.categoryId}/${widget.drawingId}/edit-options',
-      extra: {'originalImageUrl': widget.originalImageUrl},
+      extra: {
+        'originalImageUrl': widget.originalImageUrl,
+        'dbDrawingId': widget.dbDrawingId,
+      },
     );
   }
 

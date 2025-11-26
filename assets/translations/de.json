@@ -122,7 +122,8 @@
     "nature_description": "Erschaffe wunderschöne Naturszenen und Pflanzen!",
     "vehicles_description": "Zeichne Autos, Flugzeuge und andere Fahrzeuge!",
     "food_description": "Zeichne leckeres Essen und Süßigkeiten!",
-    "characters_description": "Erschaffe magische Charaktere und Menschen!"
+    "characters_description": "Erschaffe magische Charaktere und Menschen!",
+    "loading_categories": "Kategorien werden geladen"
   },
   
   "drawings": {

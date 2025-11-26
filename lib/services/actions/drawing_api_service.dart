@@ -138,6 +138,7 @@ class DrawingApiService {
   /// [imageFile] - The image file to edit (optional if imageUrl is provided)
   /// [imageUrl] - URL of existing image from Spaces to re-edit (optional if imageFile is provided)
   /// [prompt] - The editing instruction (e.g., "make it alive", "make it colorful")
+  /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
   /// Throws [ApiException] on error
@@ -145,6 +146,7 @@ class DrawingApiService {
     File? imageFile,
     String? imageUrl,
     required String prompt,
+    String? drawingId,
   }) async {
     return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
       print('🎨 Starting image edit request');
@@ -168,6 +170,12 @@ class DrawingApiService {
 
       // Prepare request fields
       final fields = {'prompt': prompt.trim()};
+
+      // Add drawingId if provided (for appending to existing drawing)
+      if (drawingId != null) {
+        fields['drawing_id'] = drawingId;
+        print('📝 Drawing ID: $drawingId (appending to existing drawing)');
+      }
 
       // Make multipart API request
       if (imageFile != null) {
@@ -278,6 +286,7 @@ class DrawingApiService {
   /// [imageUrl] - URL of existing image from Spaces to re-edit (optional if imageFile is provided)
   /// [audioBytes] - Raw audio data (AAC format recommended, no disk I/O needed)
   /// [language] - Language code: 'en' for English or 'de' for German
+  /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
   /// Throws [ApiException] on error
@@ -286,6 +295,7 @@ class DrawingApiService {
     String? imageUrl,
     required Uint8List audioBytes,
     required String language,
+    String? drawingId,
   }) async {
     return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
       print('🎨 Starting image edit with voice request');
@@ -315,6 +325,12 @@ class DrawingApiService {
       final fields = {
         'language': language, // Language ('en' or 'de')
       };
+
+      // Add drawingId if provided (for appending to existing drawing)
+      if (drawingId != null) {
+        fields['drawing_id'] = drawingId;
+        print('📝 Drawing ID: $drawingId (appending to existing drawing)');
+      }
 
       // Make multipart API request with audio and either image file or URL
       late final http.Response response;
