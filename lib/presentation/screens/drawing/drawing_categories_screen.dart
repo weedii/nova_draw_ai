@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/drawing_data.dart';
+import '../../../models/ui_models.dart';
 import '../../../providers/drawing_provider.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_loading_widget.dart';
 
 class DrawingCategoriesScreen extends StatefulWidget {
   const DrawingCategoriesScreen({super.key});
@@ -32,6 +33,11 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
     );
 
     _fadeController.forward();
+
+    // Load categories from API
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DrawingProvider>().loadCategoriesWithDrawingsFromApi();
+    });
   }
 
   @override
@@ -42,15 +48,34 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
 
   void _onCategorySelected(DrawingCategory category) {
     // Update provider state
-    context.read<DrawingProvider>().selectCategory(category.id);
+    context.read<DrawingProvider>().selectCategory(category.categoryEn);
     // Navigate to drawing items screen to select specific drawing
-    context.push('/drawings/${category.id}');
+    context.push('/drawings/${Uri.encodeComponent(category.categoryEn)}');
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<DrawingProvider>(
       builder: (context, drawingProvider, child) {
+        // Handle loading state
+        if (drawingProvider.isLoadingCategories) {
+          return CustomLoadingWidget(
+            message: 'categories.loading_categories',
+            subtitle: 'common.please_wait',
+            showBackButton: false,
+          );
+        }
+
+        // Handle error state
+        if (drawingProvider.categoriesState == CategoriesState.error) {
+          return _buildErrorScreen(drawingProvider);
+        }
+
+        // Handle empty state
+        if (drawingProvider.categoriesState == CategoriesState.empty) {
+          return _buildEmptyScreen();
+        }
+
         final categories = drawingProvider.categories;
 
         return Scaffold(
@@ -115,6 +140,95 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
       },
     );
   }
+
+  Widget _buildErrorScreen(DrawingProvider provider) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'categories.error'.tr(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    provider.categoriesError ?? 'Unknown error',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.textDark.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton.icon(
+                    onPressed: () => provider.retryLoadCategories(),
+                    icon: const Icon(Icons.refresh),
+                    label: Text('categories.retry'.tr()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyScreen() {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.inbox_outlined,
+                  size: 64,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'categories.no_data'.tr(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _CategoryCard extends StatefulWidget {
@@ -139,14 +253,15 @@ class _CategoryCardState extends State<_CategoryCard>
 
   String _getCategoryTitle() {
     final isGerman = context.locale.languageCode == 'de';
-    return isGerman ? widget.category.titleDe : widget.category.titleEn;
+    return isGerman ? widget.category.categoryDe : widget.category.categoryEn;
   }
 
   String _getCategoryDescription() {
     final isGerman = context.locale.languageCode == 'de';
-    return isGerman
-        ? widget.category.descriptionDe
-        : widget.category.descriptionEn;
+    return (isGerman
+            ? widget.category.descriptionDe
+            : widget.category.descriptionEn) ??
+        '';
   }
 
   @override

@@ -1,10 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../../services/actions/api_exceptions.dart';
 import '../../../core/constants/colors.dart';
+import '../../../providers/user_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
+import '../../widgets/error_dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -20,7 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
+  DateTime? _selectedBirthdate;
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -50,35 +54,121 @@ class _SignUpScreenState extends State<SignUpScreen>
 
   void _signUp() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        print('🎯 Sign up button pressed!');
+        print('📧 Email: ${_emailController.text.trim()}');
+        print('👤 Name: ${_nameController.text.trim()}');
 
-      setState(() {
-        _isLoading = false;
-      });
+        // Test connection first
+        print('🧪 Testing backend connection...');
+        final isConnected = await userProvider.testConnection();
+        if (!isConnected) {
+          throw Exception(
+            'Cannot connect to server. Please check if the backend is running.',
+          );
+        }
+        print('✅ Backend connection successful!');
 
-      // TODO: Implement actual sign up logic
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('auth.account_created'.tr()),
-            backgroundColor: AppColors.success,
-          ),
+        // Call the user provider to register
+        print('📝 Calling register...');
+        print('🎂 Birthdate: $_selectedBirthdate');
+        await userProvider.register(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          name: _nameController.text.trim().isEmpty
+              ? null
+              : _nameController.text.trim(),
+          birthdate: _selectedBirthdate,
         );
+
+        print('🎉 Registration completed successfully!');
+
+        if (mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('auth.account_created'.tr()),
+              backgroundColor: AppColors.success,
+            ),
+          );
+
+          // Router will automatically redirect to /drawings/categories
+          // because of the auth state change
+        }
+      } on ApiException catch (e) {
+        print('💥 Error during sign up: ${e.message}');
+
+        if (mounted) {
+          String errorMessage = e.message;
+
+          // Map specific error messages to translations
+          if (e.statusCode == 400 &&
+              errorMessage.contains("Password must be at least")) {
+            errorMessage = "auth.errors.weak_password_message".tr();
+          } else if (e.statusCode == 400 &&
+              errorMessage.contains("Email already exists")) {
+            errorMessage = "auth.errors.email_already_used_message".tr();
+          } else {
+            errorMessage = "auth.errors.server_error_message".tr();
+          }
+
+          ErrorDialog.showError(context, errorMessage);
+        }
+      } catch (e) {
+        print('💥 Unexpected error during sign up: $e');
+
+        if (mounted) {
+          ErrorDialog.showError(
+            context,
+            "auth.errors.server_error_message".tr(),
+          );
+        }
       }
+    } else {
+      print('❌ Form validation failed');
     }
   }
 
   void _navigateToSignIn() {
-    context.push("/signin");
+    context.pushReplacement("/signin");
+  }
+
+  Future<void> _selectBirthdate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2010, 1, 1), // Default to 2010 for kids
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: AppColors.white,
+              surface: AppColors.white,
+              onSurface: AppColors.textDark,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != _selectedBirthdate) {
+      setState(() {
+        _selectedBirthdate = picked;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch user provider for loading state
+    final userProvider = context.watch<UserProvider>();
+    final isLoading = userProvider.isLoading;
+
     return Stack(
       children: [
         Scaffold(
@@ -184,7 +274,9 @@ class _SignUpScreenState extends State<SignUpScreen>
                                   return null;
                                 },
                               ),
+
                               const SizedBox(height: 20),
+
                               AuthTextField(
                                 labelText: 'auth.email'.tr(),
                                 hintText: 'auth.email_hint'.tr(),
@@ -206,7 +298,104 @@ class _SignUpScreenState extends State<SignUpScreen>
                                   return null;
                                 },
                               ),
+
                               const SizedBox(height: 20),
+
+                              // Birthdate Field
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'common.birthdate'.tr(),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  GestureDetector(
+                                    onTap: _selectBirthdate,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: AppColors.border,
+                                          width: 1,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.primary.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 14,
+                                      ),
+
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.cake_outlined,
+                                            color: AppColors.primary,
+                                          ),
+
+                                          const SizedBox(width: 12),
+
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  _selectedBirthdate != null
+                                                      ? DateFormat(
+                                                          'MMM dd, yyyy',
+                                                        ).format(
+                                                          _selectedBirthdate!,
+                                                        )
+                                                      : 'Select your birthdate',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color:
+                                                        _selectedBirthdate !=
+                                                            null
+                                                        ? AppColors.textDark
+                                                        : AppColors.textDark
+                                                              .withValues(
+                                                                alpha: 0.5,
+                                                              ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.calendar_today,
+                                            color: AppColors.primary.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                            size: 20,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 20),
+
                               AuthTextField(
                                 labelText: 'auth.password'.tr(),
                                 hintText: 'auth.password_hint'.tr(),
@@ -250,7 +439,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                               AuthButton(
                                 text: 'auth.create_account'.tr(),
                                 onPressed: _signUp,
-                                isLoading: _isLoading,
+                                isLoading: isLoading,
                                 icon: const Icon(Icons.person_add, size: 20),
                               ),
                             ],
@@ -297,7 +486,7 @@ class _SignUpScreenState extends State<SignUpScreen>
         ),
 
         // Full-screen loading overlay
-        if (_isLoading)
+        if (isLoading)
           CustomLoadingWidget(
             message: 'auth.creating_account',
             subtitle: 'common.please_wait',

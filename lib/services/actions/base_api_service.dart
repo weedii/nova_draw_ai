@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'api_exceptions.dart';
@@ -8,18 +9,62 @@ import 'api_exceptions.dart';
 /// Base class for all API services providing common functionality
 abstract class BaseApiService {
   /// Timeout duration for API requests
-  static const Duration _timeout = Duration(seconds: 180);
+  static const Duration _timeout = Duration(seconds: 120);
+
+  /// Authentication token for API requests
+  static String? _authToken;
 
   /// Get the base URL for API requests from .env file
-  /// Falls back to default URL if not configured
-  static String? get baseUrl {
-    // final url = dotenv.env['API_BASE_URL'];
-    final url = "https://novadraw-o47gf.ondigitalocean.app";
+  static String get baseUrl {
+    final url = dotenv.env['API_BASE_URL'];
+    if (url == null || url.isEmpty) {
+      throw ApiException(
+        'API_BASE_URL not configured in .env file',
+        errorCode: 'CONFIG_ERROR',
+      );
+    }
     return url;
   }
 
   /// Get the timeout duration for API requests
   static Duration get timeout => _timeout;
+
+  /// Set authentication token for API requests
+  static void setAuthToken(String token) {
+    _authToken = token;
+    print('🔑 Auth token set in BaseApiService');
+  }
+
+  /// Clear authentication token
+  static void clearAuthToken() {
+    _authToken = null;
+    print('🔓 Auth token cleared from BaseApiService');
+  }
+
+  /// Get the current authentication token (for internal use)
+  static String? getAuthToken() => _authToken;
+
+  /// Get default headers with optional auth token
+  static Map<String, String> _getHeaders({
+    Map<String, String>? additionalHeaders,
+  }) {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    // Add auth token if available
+    if (_authToken != null) {
+      headers['Authorization'] = 'Bearer $_authToken';
+    }
+
+    // Add any additional headers
+    if (additionalHeaders != null) {
+      headers.addAll(additionalHeaders);
+    }
+
+    return headers;
+  }
 
   /// Make a GET request to the specified endpoint
   static Future<http.Response> get(
@@ -28,17 +73,10 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
 
     return await http
-        .get(url, headers: defaultHeaders)
+        .get(url, headers: requestHeaders)
         .timeout(timeout ?? _timeout);
   }
 
@@ -50,19 +88,11 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
-
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
     final requestBody = body != null ? jsonEncode(body) : null;
 
     return await http
-        .post(url, headers: defaultHeaders, body: requestBody)
+        .post(url, headers: requestHeaders, body: requestBody)
         .timeout(timeout ?? _timeout);
   }
 
@@ -74,19 +104,11 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
-
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
     final requestBody = body != null ? jsonEncode(body) : null;
 
     return await http
-        .put(url, headers: defaultHeaders, body: requestBody)
+        .put(url, headers: requestHeaders, body: requestBody)
         .timeout(timeout ?? _timeout);
   }
 
@@ -97,22 +119,105 @@ abstract class BaseApiService {
     Duration? timeout,
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    final defaultHeaders = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (headers != null) {
-      defaultHeaders.addAll(headers);
-    }
+    final requestHeaders = _getHeaders(additionalHeaders: headers);
 
     return await http
-        .delete(url, headers: defaultHeaders)
+        .delete(url, headers: requestHeaders)
         .timeout(timeout ?? _timeout);
   }
 
-  /// Make a multipart POST request with file upload
+  /// Make a multipart POST request with optional file upload
+  /// Can be used for file upload, form fields only, or both
   static Future<http.Response> postMultipart(
+    String endpoint, {
+    File? file,
+    String? fileFieldName,
+    Map<String, String>? fields,
+    Duration? timeout,
+  }) async {
+    // Validate that either file or fields is provided
+    if (file == null && (fields == null || fields.isEmpty)) {
+      throw ArgumentError('Either file or fields must be provided');
+    }
+
+    // If file is provided, fileFieldName is required
+    if (file != null && fileFieldName == null) {
+      throw ArgumentError('fileFieldName is required when file is provided');
+    }
+
+    final url = Uri.parse('$baseUrl$endpoint');
+    final request = http.MultipartRequest('POST', url);
+
+    // Add auth token if available
+    if (_authToken != null) {
+      request.headers['Authorization'] = 'Bearer $_authToken';
+    }
+
+    // Add file if provided
+    if (file != null && fileFieldName != null) {
+      // Determine content type from file extension
+      String? contentType;
+      final extension = file.path.toLowerCase().split('.').last;
+      switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+          contentType = 'image/jpeg';
+          break;
+        case 'png':
+          contentType = 'image/png';
+          break;
+        case 'gif':
+          contentType = 'image/gif';
+          break;
+        case 'webp':
+          contentType = 'image/webp';
+          break;
+        default:
+          contentType = 'image/jpeg'; // Default fallback
+      }
+
+      print('📤 Uploading file: ${file.path}');
+      print('📝 Content-Type: $contentType');
+      print('📊 File size: ${file.lengthSync()} bytes');
+
+      // Add file with explicit content type
+      final multipartFile = await http.MultipartFile.fromPath(
+        fileFieldName,
+        file.path,
+        contentType: MediaType.parse(contentType),
+      );
+
+      request.files.add(multipartFile);
+      print('✅ File added to request: ${multipartFile.filename}');
+    }
+
+    // Add additional fields
+    if (fields != null) {
+      request.fields.addAll(fields);
+      print('📋 Fields: $fields');
+    }
+
+    print('🚀 Sending request to: $url');
+
+    // Send request
+    final streamedResponse = await request.send().timeout(timeout ?? _timeout);
+
+    print('📥 Response status: ${streamedResponse.statusCode}');
+
+    // Convert streamed response to regular response
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode >= 400) {
+      print('❌ Error response: ${response.body}');
+    } else {
+      print('✅ Success response received');
+    }
+
+    return response;
+  }
+
+  /// Make a multipart POST request with file upload (legacy method)
+  static Future<http.Response> postMultipartWithFile(
     String endpoint, {
     required File file,
     required String fileFieldName,
@@ -121,6 +226,11 @@ abstract class BaseApiService {
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final request = http.MultipartRequest('POST', url);
+
+    // Add auth token if available
+    if (_authToken != null) {
+      request.headers['Authorization'] = 'Bearer $_authToken';
+    }
 
     // Determine content type from file extension
     String? contentType;
@@ -206,6 +316,11 @@ abstract class BaseApiService {
   }) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final request = http.MultipartRequest('POST', url);
+
+    // Add auth token if available
+    if (_authToken != null) {
+      request.headers['Authorization'] = 'Bearer $_authToken';
+    }
 
     // Determine image content type from file extension
     String imageContentType;
@@ -310,11 +425,12 @@ abstract class BaseApiService {
       try {
         final errorData = jsonDecode(response.body);
         final errorMessage = errorData['detail'] ?? 'Unknown error occurred';
-        throw ApiException('API Error (${response.statusCode}): $errorMessage');
+        throw ApiException(errorMessage, statusCode: response.statusCode);
       } catch (e) {
         if (e is ApiException) rethrow;
         throw ApiException(
-          'HTTP Error (${response.statusCode}): ${response.reasonPhrase}',
+          response.reasonPhrase ?? 'Unknown error',
+          statusCode: response.statusCode,
         );
       }
     }
@@ -332,27 +448,5 @@ abstract class BaseApiService {
       if (e is ApiException) rethrow;
       throw ApiException('Unexpected error: ${e.toString()}');
     }
-  }
-}
-
-/// API configuration class for easy customization
-class ApiConfig {
-  static String _baseUrl = 'http://192.168.0.26:8000';
-  static Duration _timeout = const Duration(seconds: 180);
-
-  /// Get the current base URL
-  static String get baseUrl => _baseUrl;
-
-  /// Get the current timeout duration
-  static Duration get timeout => _timeout;
-
-  /// Update the base URL (useful for different environments)
-  static void setBaseUrl(String url) {
-    _baseUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
-  }
-
-  /// Update the timeout duration
-  static void setTimeout(Duration duration) {
-    _timeout = duration;
   }
 }

@@ -3,6 +3,7 @@
     "app_name": "NovaDraw ✨",
     "hello": "Hello!",
     "step": "Step",
+    "of": "of",
     "retry": "Retry",
     "back": "Back",
     "next": "Next",
@@ -25,9 +26,10 @@
     "upload": "Upload",
     "draw_another": "Draw Another",
     "create_story": "Create a Story",
-    "compare": "Compare"
+    "compare": "Compare",
+    "birthdate": "Birthdate"
   },
-  
+
   "app_bar": {
     "enhanced_drawing": "Enhanced Drawing",
     "processing_failed": "Processing Failed",
@@ -36,14 +38,14 @@
     "error_occurred": "Error Occurred",
     "drawing_steps": "Drawing Steps"
   },
-  
+
   "welcome_screen": {
     "welcome": "Welcome to",
     "app_description": "Draw, create, and watch your art come to life with magic!",
     "start_drawing": "Start Drawing!",
     "sign_in": "Sign In"
   },
-  
+
   "auth": {
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
@@ -81,9 +83,64 @@
     "error_name_required": "Please enter your full name",
     "error_name_length": "Name must be at least 2 characters",
     "error_confirm_password": "Please confirm your password",
-    "error_passwords_mismatch": "Passwords do not match"
+    "error_passwords_mismatch": "Passwords do not match",
+    "error_code_required": "Please enter the reset code",
+    "error_code_length": "Code must be 6 digits",
+    "error_confirm_password_required": "Please confirm your password",
+    "error_passwords_not_match": "Passwords do not match",
+
+    "enter_code": "Enter Reset Code",
+    "code_sent_to": "We sent a 6-digit code to",
+    "reset_code": "Reset Code",
+    "reset_code_hint": "Enter 6-digit code",
+    "new_password": "New Password",
+    "new_password_hint": "Enter new password",
+    "confirm_new_password_hint": "Confirm new password",
+    "send_reset_code": "Send Reset Code",
+    "resend_code": "Resend Code",
+    "change_email": "Change Email",
+    "code_resent": "Reset code sent again!",
+    "password_reset_success": "Password Reset!",
+    "can_now_login": "Your password has been reset successfully.",
+    "password_changed_message": "You can now sign in with your new password.",
+    "go_to_signin": "Go to Sign In",
+    "resetting_password": "Resetting password...",
+
+    "change_password": "Change Password",
+    "current_password": "Current Password",
+    "current_password_hint": "Enter current password",
+    "password_changed": "Password changed successfully!",
+    "changing_password": "Changing password...",
+
+    "errors": {
+      "oops": "Oops!",
+      "email_already_used": "Email Already Used",
+      "email_already_used_message": "This email is already registered. Try logging in instead!",
+      "login_failed": "Login Failed",
+      "login_failed_user_not_found": "User not found. Create an account first!",
+      "login_failed_invalid_credentials": "Invalid Credentials",
+      "connection_problem": "Connection Problem",
+      "connection_problem_message": "Cannot connect to the server. Please check your internet connection!",
+      "taking_too_long": "Taking Too Long",
+      "taking_too_long_message": "The request is taking too long. Please try again!",
+      "weak_password": "Weak Password",
+      "weak_password_message": "Please use a stronger password with at least 6 characters!",
+      "invalid_email": "Invalid Email",
+      "invalid_email_message": "Please enter a valid email address!",
+      "account_not_found": "Account Not Found",
+      "account_not_found_message": "No account found with this email. Try signing up!",
+      "server_error": "Server Error",
+      "server_error_message": "Something went wrong on our end. Please try again later!",
+      "ok": "OK",
+      "current_password_incorrect": "Current password is incorrect.",
+      "new_password_same": "New password must be different from current password.",
+      "reset_user_not_found": "User not found. Please check your email address.",
+      "invalid_reset_code": "Invalid reset code. Please check and try again.",
+      "reset_code_expired": "Reset code has expired. Please request a new one.",
+      "session_expired": "Your session has expired. Please log in again."
+    }
   },
-  
+
   "categories": {
     "choose_drawing": "Choose What to Draw",
     "select_category": "Select a category and start your creative journey!",
@@ -98,16 +155,20 @@
     "nature_description": "Create beautiful nature scenes and plants!",
     "vehicles_description": "Draw cars, planes, and other vehicles!",
     "food_description": "Draw delicious food and treats!",
-    "characters_description": "Create magical characters and people!"
+    "characters_description": "Create magical characters and people!",
+    "loading_categories": "Loading Categories"
   },
-  
+
   "drawings": {
     "select_drawing": "Select a Drawing",
     "choose_what_to_draw": "Choose what you want to draw from this category!",
     "back_to_categories": "Back to Categories",
-    "category_not_found": "Category not found"
+    "category_not_found": "Category not found",
+    "steps": "Steps",
+    "loading": "Loading categories...",
+    "error": "Error loading categories"
   },
-  
+
   "drawing_items": {
     "dog": "Dog",
     "cat": "Cat",
@@ -126,7 +187,7 @@
     "princess": "Princess",
     "robot": "Robot"
   },
-  
+
   "drawing_steps": {
     "drawing_steps": "Drawing Steps",
     "next_step": "Next Step",
@@ -146,7 +207,7 @@
     "image_error": "Image Error",
     "previous": "Previous"
   },
-  
+
   "step_instructions": {
     "draw_circle_head": "Draw a Circle for the Head",
     "draw_circle_head_desc": "Start by drawing a big circle for the head",
@@ -243,7 +304,7 @@
     "add_robot_details": "Add Robot Details",
     "add_robot_details_desc": "Add buttons, lights, and robot features"
   },
-  
+
   "upload": {
     "upload_drawing": "Upload Your Drawing",
     "upload_subtitle": "Show us your amazing artwork!",
@@ -269,7 +330,7 @@
     "crop_image": "Crop Image",
     "crop_image_description": "Adjust your image to perfection"
   },
-  
+
   "ai_enhancement": {
     "ai_magic": "AI Magic",
     "ai_magic_subtitle": "Your drawing is getting magical!",
@@ -312,9 +373,9 @@
     "no_story_to_read": "No story available to read",
     "save_story": "Save Story",
     "share_story": "Share Story",
-    "read_aloud_coming_soon": "Read aloud functionality coming soon! 🔊",
-    "save_coming_soon": "Save story functionality coming soon! 💾",
-    "share_coming_soon": "Share story functionality coming soon! 📤"
+    "read_aloud_coming_soon": "Read aloud functionality coming soon! ",
+    "save_coming_soon": "Save story functionality coming soon! ",
+    "share_coming_soon": "Share story functionality coming soon! "
   },
 
   "edit_options": {
@@ -334,13 +395,17 @@
     "recording_complete": "Got It!",
     "restart_recording": "Restart Recording",
     "send_with_voice": "Send My Story",
-    "no_recording": "Nothing yet"
+    "no_recording": "Nothing yet",
+    "loading_options": "Loading Options",
+    "fetching_from_server": "Fetching editing options from server...",
+    "loading_failed": "Failed to Load Options",
+    "loading_error": "An error occurred while loading the editing options. Please try again."
   },
 
   "final_result": {
     "your_amazing_drawing": "Your Amazing Drawing!",
     "great_job_drawing": "Great job! Your drawing looks fantastic!",
-    "save_functionality_coming": "Save functionality will be implemented soon! 💾",
+    "save_functionality_coming": "Save functionality will be implemented soon! ",
     "saving_drawing": "Saving your drawing...",
     "no_image_to_save": "No image to save...",
     "drawing_saved_successfully": "Drawing saved to your gallery! 🎉",
@@ -360,6 +425,42 @@
     "language_changed": "Language changed successfully!",
     "about": "About",
     "version": "Version",
-    "app_description": "NovaDraw AI - Draw, create, and watch your art come to life with magic!"
+    "app_description": "NovaDraw AI - Draw, create, and watch your art come to life with magic!",
+    "account": "Account",
+    "logout": "Logout",
+    "logout_description": "Sign out of your account",
+    "logout_confirmation": "Are you sure you want to logout?"
+  },
+
+  "navigation": {
+    "tutorials": "Tutorials",
+    "gallery": "Gallery"
+  },
+
+  "gallery": {
+    "my_gallery": "My Gallery",
+    "your_creations": "Your Creations",
+    "no_drawings_yet": "No Drawings Yet",
+    "start_drawing_message": "Start drawing to see your creations here!",
+    "loading_gallery": "Loading your gallery...",
+    "error_loading_gallery": "Failed to Load Gallery",
+    "error_loading_message": "An error occurred while loading your gallery. Please try again.",
+    "retry": "Retry",
+    "drawing_count": "drawings",
+    "created_on": "Created on",
+    "edited_images": "Edited Images",
+    "original_image": "Original Image",
+    "no_edited_images": "No edited images",
+    "delete_drawing": "Delete Drawing",
+    "delete_confirmation": "Are you sure you want to delete this drawing?",
+    "delete_success": "Drawing deleted successfully",
+    "delete_error": "Failed to delete drawing",
+    "loading_more": "Loading more...",
+    "no_more_drawings": "No more drawings to load",
+    "image": "image",
+    "images": "images",
+    "view_all": "View all",
+    "image_count": "images",
+    "edit_label": "Edit"
   }
 }
