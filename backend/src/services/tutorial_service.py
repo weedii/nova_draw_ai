@@ -4,7 +4,6 @@ TutorialService for managing tutorial operations.
 Provides business logic for fetching tutorials and their steps.
 """
 
-import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List, Optional
@@ -19,8 +18,7 @@ from src.schemas import (
     CategoryWithNestedDrawingsResponse,
     AllCategoriesWithDrawingsResponse,
 )
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class TutorialService:

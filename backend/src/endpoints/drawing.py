@@ -8,14 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
 from uuid import UUID
-import logging
 
 from src.database import get_db
 from src.models import Drawing, User
 from src.services import AuthService
 from src.schemas import DrawingResponse, DrawingListResponse
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 router = APIRouter(prefix="/api/drawings", tags=["drawings"])
 

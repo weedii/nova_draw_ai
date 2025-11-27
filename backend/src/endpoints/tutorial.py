@@ -5,9 +5,7 @@ from src.database import get_db
 from src.services.tutorial_service import TutorialService
 from src.services import AuthService
 from src.models import User
-import logging
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 router = APIRouter(prefix="/api", tags=["tutorials"])
 

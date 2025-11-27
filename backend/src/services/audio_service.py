@@ -1,6 +1,5 @@
 import time
 import base64
-import logging
 from pathlib import Path
 from openai import OpenAI
 from typing import Tuple, Any
@@ -10,10 +9,12 @@ from uuid import UUID
 import io
 import subprocess
 import tempfile
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
+from src.prompts import (
+    get_prompt_enhancement_prompt_de,
+    get_prompt_enhancement_prompt_en,
+    get_prompt_enhancement_user_message,
+)
 
 
 class AudioService:
@@ -52,6 +53,7 @@ class AudioService:
         Returns:
             Tuple of (converted_audio_data, new_filename)
         """
+
         file_ext = Path(original_filename).suffix.lower().replace(".", "")
 
         # Whisper supported formats
@@ -165,6 +167,7 @@ class AudioService:
         Returns:
             Tuple of (transcribed_text, transcription_time)
         """
+
         logger.info(
             f"🎤 Starting audio transcription for: '{filename}' (language: {language})"
         )
@@ -229,73 +232,20 @@ class AudioService:
         Returns:
             Tuple of (enhanced_prompt, enhancement_time)
         """
+
         logger.info(f"🔄 Starting prompt enhancement for: '{transcribed_text}'")
         start_time = time.time()
 
         try:
-            # Create enhancement prompt based on language
+            # Get prompts from centralized prompt module
             if language == "de":
-                system_prompt = """
-                Du bist ein Experte darin, natürliche Sprache in klare, detaillierte Zeichenaufforderungen für ein Kinder-Zeichen-App umzuwandeln.
-                
-                Deine Aufgabe ist es, die vom Benutzer gesprochene Eingabe in eine präzise, beschreibende Zeichenaufforderung zu verwandeln, die:
-                - Klar und spezifisch ist
-                - Für Kinder im Alter von 4-7 Jahren geeignet ist
-                - Visuell beschreibend ist
-                - Einfache, zeichenbare Objekte fokussiert
-                - Positiv und ermutigend ist
-                
-                REGELN:
-                - Wenn der Benutzer ein Objekt oder Tier erwähnt, mache es zu einer klaren Zeichenaufforderung
-                - Füge hilfreiche visuelle Details hinzu (z.B. "glücklich", "bunt", "groß")
-                - Halte es einfach - vermeide zu komplexe Szenen
-                - Wenn die Eingabe unklar ist, wähle die wahrscheinlichste kinderfreundliche Interpretation
-                - Gib NUR die verbesserte Aufforderung zurück, keine Erklärungen
-                
-                BEISPIELE:
-                Eingabe: "Ich möchte einen Hund zeichnen"
-                Ausgabe: "Ein freundlicher Hund mit einem wedelnden Schwanz"
-                
-                Eingabe: "Katze die spielt"
-                Ausgabe: "Eine verspielte Katze mit einem Ball"
-                
-                Eingabe: "Haus mit Baum"
-                Ausgabe: "Ein gemütliches Haus mit einem großen Baum daneben"
-                """
-
-                user_message = (
-                    f"Verwandle dies in eine Zeichenaufforderung: {transcribed_text}"
-                )
+                system_prompt = get_prompt_enhancement_prompt_de()
             else:
-                system_prompt = """
-                You are an expert at converting natural speech into clear, detailed drawing prompts for a children's drawing app.
-                
-                Your task is to transform the user's spoken input into a precise, descriptive drawing prompt that is:
-                - Clear and specific
-                - Appropriate for children aged 4-7
-                - Visually descriptive
-                - Focused on simple, drawable objects
-                - Positive and encouraging
-                
-                RULES:
-                - If the user mentions an object or animal, make it a clear drawing prompt
-                - Add helpful visual details (e.g., "happy", "colorful", "big")
-                - Keep it simple - avoid overly complex scenes
-                - If the input is unclear, choose the most likely child-friendly interpretation
-                - Return ONLY the enhanced prompt, no explanations
-                
-                EXAMPLES:
-                Input: "I want to draw a dog"
-                Output: "A friendly dog with a wagging tail"
-                
-                Input: "cat playing"
-                Output: "A playful cat with a ball"
-                
-                Input: "house with tree"
-                Output: "A cozy house with a big tree next to it"
-                """
+                system_prompt = get_prompt_enhancement_prompt_en()
 
-                user_message = f"Convert this into a drawing prompt: {transcribed_text}"
+            user_message = get_prompt_enhancement_user_message(
+                transcribed_text, language
+            )
 
             # Call OpenAI API for enhancement
             logger.info(f"🔄 Calling OpenAI API (model: {self.enhancement_model})...")
@@ -337,6 +287,7 @@ class AudioService:
         Returns:
             Formatted string with audio info
         """
+
         size_kb = len(audio_data) / 1024
         size_mb = size_kb / 1024
 
@@ -361,6 +312,7 @@ class AudioService:
         Returns:
             Tuple of (transcribed_text, enhanced_prompt, total_processing_time)
         """
+
         logger.info(f"🎯 Starting complete audio-to-prompt pipeline")
         pipeline_start = time.time()
 
@@ -392,6 +344,7 @@ class AudioService:
         Returns:
             True if valid, False otherwise
         """
+
         # Check file size (max 25MB for Whisper API)
         max_size = 25 * 1024 * 1024  # 25MB
         if len(audio_data) > max_size:
@@ -430,6 +383,7 @@ class AudioService:
         Returns:
             Dictionary with supported formats info
         """
+
         return {
             "formats": ["mp3", "wav", "m4a", "aac", "webm", "ogg", "flac"],
             "max_size_mb": 25,

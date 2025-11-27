@@ -24,9 +24,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 from jose import JWTError, jwt
 from src.core.config import settings
-import logging
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 def create_access_token(

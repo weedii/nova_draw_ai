@@ -15,15 +15,13 @@ Why this service exists:
 - Makes testing easier
 """
 
-import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
 from src.models import EditOption
 from src.repositories import EditOptionRepository
 from src.schemas import EditOptionRead, EditOptionsListResponse
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class EditOptionService:
@@ -61,6 +59,7 @@ class EditOptionService:
                 db, "Animals", "dog"
             )
         """
+
         try:
             # Step 1: Validate that the category/subject combination exists
             exists = await EditOptionRepository.subject_exists_in_category(
@@ -141,6 +140,7 @@ class EditOptionService:
         Example:
             response = await EditOptionService.get_categories(db)
         """
+
         try:
             logger.info("Fetching all categories")
 
@@ -188,6 +188,7 @@ class EditOptionService:
         Example:
             response = await EditOptionService.get_subjects_by_category(db, "Animals")
         """
+
         try:
             logger.info(f"Fetching subjects for category '{category}'")
 

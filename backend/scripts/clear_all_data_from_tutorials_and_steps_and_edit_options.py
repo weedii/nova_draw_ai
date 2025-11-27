@@ -15,7 +15,6 @@ Usage:
 """
 
 import asyncio
-import logging
 import sys
 from pathlib import Path
 
@@ -29,12 +28,7 @@ from sqlalchemy import delete
 
 from src.core.config import settings
 from src.models import Tutorial, TutorialStep, EditOption
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 async def clear_all_data():
