@@ -10,6 +10,7 @@ from uuid import UUID
 from src.models import Story
 from src.services.storage_service import StorageService
 from src.core.logger import logger
+from src.prompts import get_story_generation_prompt
 
 
 class StoryService:
@@ -43,86 +44,12 @@ class StoryService:
         Returns:
             Tuple of (story_title, story_text, generation_time)
         """
+
         start_time = time.time()
 
         try:
-            # Create the prompt based on language
-            if language == "de":
-                story_prompt = """
-                Du bist ein professioneller Kinderbuchautor, der fesselnde, lehrreiche und altersgerechte Geschichten für Kinder im Alter von 4-7 Jahren erstellt.
-                
-                Schau dir dieses Bild an und erstelle eine wunderbare kurze Geschichte basierend auf dem, was du siehst.
-                
-                GESCHICHTENANFORDERUNGEN:
-                - Zielgruppe: 4-7 Jahre alte Kinder
-                - Länge: 150-250 Wörter (perfekt für Schlafenszeit oder Lesezeit)
-                - Sprache: Einfacher, klarer Wortschatz, den junge Kinder verstehen können
-                - Ton: Positiv, ermutigend und magisch
-                - Enthalten: Ein klarer Anfang, Mittelteil und Ende
-                - Themen: Freundschaft, Freundlichkeit, Abenteuer, Lernen oder Entdeckung
-                - Mache es spannend und Spaß beim Vorlesen
-                
-                GESCHICHTENSTRUKTUR:
-                1. Beginne mit einer interessanten Figur oder Situation aus dem Bild
-                2. Erstelle ein einfaches Problem oder Abenteuer
-                3. Zeige, wie die Figur es löst oder etwas lernt
-                4. Ende mit einer positiven, erhebenden Schlussfolgerung
-                
-                SCHREIBSTIL:
-                - Verwende kurze, einfache Sätze
-                - Füge einige Dialoge hinzu, um es lebendig zu machen
-                - Füge beschreibende Wörter hinzu, die Kindern helfen zu visualisieren
-                - Mache es rhythmisch und angenehm zum Vorlesen
-                - Vermeide gruselige oder negative Themen
-                
-                Bitte gib an:
-                1. Einen einprägsamen Titel (5-8 Wörter)
-                2. Die vollständige Geschichte
-                
-                Formatiere deine Antwort wie folgt:
-                TITEL: [Dein Titel hier]
-                
-                GESCHICHTE:
-                [Deine Geschichte hier]
-                """
-            else:
-                story_prompt = """
-                You are a professional children's story writer who creates engaging, educational, and age-appropriate stories for children aged 4-7 years old.
-                
-                Look at this image and create a wonderful short story based on what you see.
-                
-                STORY REQUIREMENTS:
-                - Target audience: 4-7 year old children
-                - Length: 150-250 words (perfect for bedtime or reading time)
-                - Language: Simple, clear vocabulary that young children can understand
-                - Tone: Positive, encouraging, and magical
-                - Include: A clear beginning, middle, and end
-                - Themes: Friendship, kindness, adventure, learning, or discovery
-                - Make it engaging and fun to read aloud
-                
-                STORY STRUCTURE:
-                1. Start with an interesting character or situation from the image
-                2. Create a simple problem or adventure
-                3. Show how the character solves it or learns something
-                4. End with a positive, uplifting conclusion
-                
-                WRITING STYLE:
-                - Use short, simple sentences
-                - Include some dialogue to make it lively
-                - Add descriptive words that help children visualize
-                - Make it rhythmic and pleasant to read aloud
-                - Avoid scary or negative themes
-                
-                Please provide:
-                1. A catchy title (5-8 words)
-                2. The complete story
-                
-                Format your response as:
-                TITLE: [Your title here]
-                
-                STORY:
-                [Your story here]
-                """
+            # Get prompt from centralized prompt module
+            story_prompt = get_story_generation_prompt(language)
 
             # Prepare the message with image
             messages = [
@@ -205,6 +132,7 @@ class StoryService:
         Returns:
             True if valid image, False otherwise
         """
+
         try:
             # Remove data URL prefix if present
             if image_base64.startswith("data:image"):
@@ -230,6 +158,7 @@ class StoryService:
         Get example stories for different types of images.
         Useful for frontend to show users what to expect.
         """
+
         return {
             "animal_story": {
                 "title": "Bella the Brave Little Cat",
