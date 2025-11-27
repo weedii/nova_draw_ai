@@ -9,9 +9,7 @@ from typing import List
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pydantic import EmailStr
 from src.core.config import settings
-import logging
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class EmailService:

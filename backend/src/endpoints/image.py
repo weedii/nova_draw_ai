@@ -8,9 +8,7 @@ from src.services import AuthService
 from src.models import User
 from src.core.config import settings
 from src.database import get_db
-import logging
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 router = APIRouter(prefix="/api", tags=["images"])
 

@@ -22,9 +22,7 @@ from src.services.edit_option_service import EditOptionService
 from src.services import AuthService
 from src.models import User
 from src.schemas import EditOptionsListResponse
-import logging
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 router = APIRouter(prefix="/api", tags=["edit-options"])
 
