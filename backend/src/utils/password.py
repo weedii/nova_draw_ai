@@ -19,9 +19,7 @@ Usage:
 """
 
 from passlib.context import CryptContext
-import logging
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 # Create password context with bcrypt
 # Bcrypt automatically handles salting and is resistant to rainbow table attacks

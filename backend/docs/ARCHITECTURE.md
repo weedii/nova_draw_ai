@@ -74,7 +74,7 @@ from uuid import UUID
 from src.database import get_db
 from src.services.my_service import MyService
 from src.schemas import MyRequest, MyResponse
-import logging
+from src.core.logger import logger
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["my-feature"])
@@ -150,7 +150,7 @@ async def my_endpoint(
 **Example Service Structure**:
 
 ```python
-import logging
+from src.core.logger import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from typing import Dict, Any
@@ -456,7 +456,7 @@ class MyFeatureRepository:
 **File**: `src/services/my_feature_service.py`
 
 ```python
-import logging
+from src.core.logger import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from typing import Dict, Any
@@ -557,7 +557,7 @@ from uuid import UUID
 from src.schemas import MyFeatureRequest, MyFeatureResponse
 from src.services.my_feature_service import MyFeatureService
 from src.database import get_db
-import logging
+from src.core.logger import logger
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["my-feature"])

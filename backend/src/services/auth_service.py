@@ -16,7 +16,6 @@ from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from datetime import date
-import logging
 
 from src.models import User
 from src.repositories.user_repository import UserRepository
@@ -40,8 +39,7 @@ from src.utils import (
 )
 from src.database.db import get_db
 from src.services.email_service import EmailService
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 # HTTP Bearer token security scheme
 security = HTTPBearer()
@@ -443,8 +441,8 @@ class AuthService:
             user = await UserRepository.find_by_email(db, request.email)
             if not user:
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, 
-                    detail="User not found. Please check your email address."
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found. Please check your email address.",
                 )
 
             # Verify code

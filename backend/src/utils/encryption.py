@@ -8,10 +8,8 @@ import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import logging
 from src.core.config import settings
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 def _get_encryption_key() -> bytes:

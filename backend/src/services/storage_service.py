@@ -3,7 +3,6 @@ Storage service for managing image uploads to DigitalOcean Spaces (S3-compatible
 Handles uploading, downloading, and managing image URLs.
 """
 
-import logging
 import base64
 from io import BytesIO
 from pathlib import Path
@@ -12,8 +11,7 @@ from uuid import UUID
 import boto3
 from botocore.exceptions import ClientError
 from src.core.config import settings
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class StorageService:

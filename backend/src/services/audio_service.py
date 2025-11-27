@@ -1,6 +1,5 @@
 import time
 import base64
-import logging
 from pathlib import Path
 from openai import OpenAI
 from typing import Tuple, Any
@@ -10,10 +9,7 @@ from uuid import UUID
 import io
 import subprocess
 import tempfile
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class AudioService:

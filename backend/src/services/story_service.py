@@ -1,6 +1,5 @@
 import time
 import base64
-import logging
 from io import BytesIO
 from PIL import Image
 from openai import OpenAI
@@ -10,8 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from src.models import Story
 from src.services.storage_service import StorageService
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class StoryService:

@@ -1,6 +1,5 @@
 import time
 import base64
-import logging
 from pathlib import Path
 from PIL import Image
 from io import BytesIO
@@ -14,10 +13,7 @@ from uuid import UUID
 from src.models import Drawing
 from src.services.storage_service import StorageService
 from src.models import Drawing, Tutorial
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class ImageProcessingService:
@@ -53,8 +49,8 @@ class ImageProcessingService:
     def enhance_voice_prompt(self, user_request: str, subject: str = None) -> str:
         """
         Use GPT-3.5-turbo to create a focused prompt from voice input.
-        
-        This is simpler than the old enhance_prompt - it creates short, 
+
+        This is simpler than the old enhance_prompt - it creates short,
         preservation-focused prompts that won't lose the drawing's identity.
 
         Args:
@@ -70,7 +66,7 @@ class ImageProcessingService:
         try:
             # Build context about what was drawn
             subject_context = f"a {subject}" if subject else "their picture"
-            
+
             enhancement_prompt = f"""A child just drew {subject_context} and said: "{user_request}"
 
 Generate a prompt (3-4 sentences) for an image editing AI.
@@ -102,7 +98,9 @@ Child says "make flower rainbow" → "Transform this child's flower with beautif
             )
 
             enhancement_time = time.time() - enhancement_start
-            logger.info(f"⚡ Voice prompt enhancement completed in {enhancement_time:.2f}s")
+            logger.info(
+                f"⚡ Voice prompt enhancement completed in {enhancement_time:.2f}s"
+            )
 
             if not response.choices or not response.choices[0].message.content:
                 logger.warning("⚠️ Empty response from OpenAI, using original")
@@ -119,7 +117,7 @@ Child says "make flower rainbow" → "Transform this child's flower with beautif
     def process_image(self, image_data: bytes, prompt: str) -> Tuple[str, float]:
         """
         Process an image with a text prompt using Gemini.
-        
+
         For predefined edit options, the prompt already contains detailed instructions
         from the database, so we skip GPT enhancement and send directly to Gemini.
 
@@ -610,9 +608,7 @@ TECHNICAL REQUIREMENTS:
         enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
         # Step 3: Process the image with the transcribed text
-        result_base64, processing_time = self.process_image(
-            image_data, enhanced_prompt
-        )
+        result_base64, processing_time = self.process_image(image_data, enhanced_prompt)
 
         # Step 4: Upload edited image to Spaces
         edited_image_url = None

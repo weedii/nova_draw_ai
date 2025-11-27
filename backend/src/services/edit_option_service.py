@@ -15,15 +15,13 @@ Why this service exists:
 - Makes testing easier
 """
 
-import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
 from src.models import EditOption
 from src.repositories import EditOptionRepository
 from src.schemas import EditOptionRead, EditOptionsListResponse
-
-logger = logging.getLogger(__name__)
+from src.core.logger import logger
 
 
 class EditOptionService:
