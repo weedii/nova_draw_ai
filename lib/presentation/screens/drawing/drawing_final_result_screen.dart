@@ -241,6 +241,10 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                     subtitle: _getResultSubtitle(),
                     emoji: widget.selectedEditOption != null ? '✨' : '🎨',
                     showAnimation: true,
+                    // For direct upload, go to upload tab (index 1) instead of pop
+                    onBackPressed: widget.categoryId == 'direct'
+                        ? () => context.go('/direct-upload')
+                        : null,
                   ),
 
                   // Main content

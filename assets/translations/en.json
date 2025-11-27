@@ -434,7 +434,28 @@
 
   "navigation": {
     "tutorials": "Tutorials",
+    "upload": "Upload",
     "gallery": "Gallery"
+  },
+
+  "direct_upload": {
+    "title": "Upload My Drawing",
+    "subtitle": "Share your amazing creation!",
+    "what_did_you_draw": "What did you draw today?",
+    "subject_hint": "e.g., train, dragon, house...",
+    "upload_your_drawing": "Upload your drawing",
+    "what_to_do": "What should we do with it?",
+    "prompt_hint": "e.g., make it fly, add rainbow...",
+    "or_use_voice": "Or tell us with your voice!",
+    "start_recording": "Tap to speak",
+    "stop_recording": "Tap to stop",
+    "recording": "Listening...",
+    "submit": "Make Magic! ✨",
+    "processing": "Creating magic...",
+    "success": "Your drawing is ready!",
+    "error_no_subject": "Please tell us what you drew",
+    "error_no_prompt": "Please tell us what to do with it",
+    "error_no_image": "Please upload your drawing first"
   },
 
   "gallery": {

@@ -434,7 +434,28 @@
 
   "navigation": {
     "tutorials": "Anleitungen",
+    "upload": "Hochladen",
     "gallery": "Galerie"
+  },
+
+  "direct_upload": {
+    "title": "Meine Zeichnung hochladen",
+    "subtitle": "Teile deine tolle Kreation!",
+    "what_did_you_draw": "Was hast du heute gezeichnet?",
+    "subject_hint": "z.B. Zug, Drache, Haus...",
+    "upload_your_drawing": "Lade deine Zeichnung hoch",
+    "what_to_do": "Was sollen wir damit machen?",
+    "prompt_hint": "z.B. lass es fliegen, füge Regenbogen hinzu...",
+    "or_use_voice": "Oder sag es uns mit deiner Stimme!",
+    "start_recording": "Tippe zum Sprechen",
+    "stop_recording": "Tippe zum Stoppen",
+    "recording": "Ich höre zu...",
+    "submit": "Zaubere! ✨",
+    "processing": "Magie wird erstellt...",
+    "success": "Deine Zeichnung ist fertig!",
+    "error_no_subject": "Bitte sag uns, was du gezeichnet hast",
+    "error_no_prompt": "Bitte sag uns, was wir damit machen sollen",
+    "error_no_image": "Bitte lade zuerst deine Zeichnung hoch"
   },
 
   "gallery": {

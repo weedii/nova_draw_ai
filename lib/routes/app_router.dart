@@ -14,6 +14,7 @@ import '../presentation/screens/drawing/drawing_upload_screen.dart';
 import '../presentation/screens/drawing/drawing_edit_options_screen.dart';
 import '../presentation/screens/drawing/drawing_final_result_screen.dart';
 import '../presentation/screens/drawing/drawing_story_screen.dart';
+import '../presentation/screens/drawing/direct_upload_screen.dart';
 import '../providers/user_provider.dart';
 
 // Create router as a function to access BuildContext
@@ -216,6 +217,32 @@ GoRouter createAppRouter(UserProvider userProvider) {
             drawingId: drawingId,
             drawingImage: drawingImage,
             imageUrl: imageUrl,
+            dbDrawingId: dbDrawingId,
+          );
+        },
+      ),
+
+      // Direct Upload Route - for uploading any drawing without tutorial
+      GoRoute(
+        path: "/direct-upload",
+        builder: (BuildContext context, GoRouterState state) {
+          return const DirectUploadScreen();
+        },
+      ),
+      // Direct Upload Result Route
+      GoRoute(
+        path: "/drawings/direct/upload/result",
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final originalImageUrl = extra?['originalImageUrl'] as String?;
+          final editedImageUrl = extra?['editedImageUrl'] as String?;
+          final dbDrawingId = extra?['drawing_id'] as String?;
+          return DrawingFinalResultScreen(
+            categoryId: 'direct',
+            drawingId: 'upload',
+            originalImageUrl: originalImageUrl,
+            editedImageUrl: editedImageUrl,
+            selectedEditOption: null,
             dbDrawingId: dbDrawingId,
           );
         },
