@@ -59,6 +59,7 @@ class EditOptionService:
                 db, "Animals", "dog"
             )
         """
+
         try:
             # Step 1: Validate that the category/subject combination exists
             exists = await EditOptionRepository.subject_exists_in_category(
@@ -139,6 +140,7 @@ class EditOptionService:
         Example:
             response = await EditOptionService.get_categories(db)
         """
+
         try:
             logger.info("Fetching all categories")
 
@@ -186,6 +188,7 @@ class EditOptionService:
         Example:
             response = await EditOptionService.get_subjects_by_category(db, "Animals")
         """
+
         try:
             logger.info(f"Fetching subjects for category '{category}'")
 

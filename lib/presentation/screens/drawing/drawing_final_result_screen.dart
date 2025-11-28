@@ -310,7 +310,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
               if (_showEditedImage && widget.editedImageUrl != null)
                 Image.network(
                   widget.editedImageUrl!,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                   width: double.infinity,
                   height: double.infinity,
                   loadingBuilder: (context, child, loadingProgress) {
@@ -336,7 +336,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
               else if (!_showEditedImage && widget.originalImageUrl != null)
                 Image.network(
                   widget.originalImageUrl!,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                   width: double.infinity,
                   height: double.infinity,
                   loadingBuilder: (context, child, loadingProgress) {

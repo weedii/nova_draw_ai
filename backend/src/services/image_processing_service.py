@@ -14,6 +14,10 @@ from src.models import Drawing
 from src.services.storage_service import StorageService
 from src.models import Drawing, Tutorial
 from src.core.logger import logger
+from src.prompts import (
+    get_voice_prompt_enhancement_prompt,
+    get_image_processing_prompt,
+)
 
 
 class ImageProcessingService:
@@ -60,35 +64,15 @@ class ImageProcessingService:
         Returns:
             Short, focused prompt for Gemini
         """
+
         logger.info(f"🎤 Enhancing voice prompt: '{user_request}' (subject: {subject})")
         enhancement_start = time.time()
 
         try:
-            # Build context about what was drawn
-            subject_context = f"a {subject}" if subject else "their picture"
-
-            enhancement_prompt = f"""A child just drew {subject_context} and said: "{user_request}"
-
-Generate a prompt (3-4 sentences) for an image editing AI.
-
-CRITICAL: You MUST follow exactly what the child asked for. Do NOT make up your own ideas.
-
-RULES:
-- FOLLOW THE CHILD'S REQUEST - do exactly what they asked, not something else
-- Keep the child's original drawing recognizable
-- Add vibrant colors, sparkles, and fun details to make it magical
-- Keep it kid-friendly and full of wonder
-- Understand child language: "put in paris" = "place in Paris", "make alive" = "bring to life"
-
-IMPORTANT: Output ONLY the prompt text. No prefixes or labels.
-
-EXAMPLES:
-Child says "make cat chasing mouse" → "Show this child's cat in an exciting chase scene with a cute little mouse! Add motion lines to show speed. Give the cat bright playful eyes and the mouse a funny scared expression. Add colorful background."
-
-Child says "put dog in paris" → "Transport this child's dog to magical Paris! Add the sparkling Eiffel Tower in the background. Give the dog warm golden fur. Add pink sunset clouds."
-
-Child says "make flower rainbow" → "Transform this child's flower with beautiful rainbow colors! Flow vibrant colors through the petals. Add sparkles and a soft magical glow."
-"""
+            # Get prompt from centralized prompt module
+            enhancement_prompt = get_voice_prompt_enhancement_prompt(
+                user_request, subject
+            )
 
             response = self.openai_client.chat.completions.create(
                 model=self.openai_model,
@@ -128,6 +112,7 @@ Child says "make flower rainbow" → "Transform this child's flower with beautif
         Returns:
             Tuple of (base64_result_image, processing_time)
         """
+
         logger.info(f"🎨 Starting image processing with prompt: '{prompt[:100]}...'")
         start_time = time.time()
 
@@ -151,23 +136,7 @@ Child says "make flower rainbow" → "Transform this child's flower with beautif
             # The prompt from edit_options already contains detailed instructions,
             # so we just wrap it with preservation guidelines
             logger.info("🎯 Preparing prompt for Gemini (no GPT enhancement)...")
-            full_prompt = f"""
-You are editing a child's hand-drawn picture for a kids' creativity app.
-
-CRITICAL RULES:
-1. PRESERVE THE ORIGINAL DRAWING - Keep the child's original lines, shapes, and proportions intact
-2. DO NOT redraw or replace the main subject - only enhance/add to it
-3. The child's drawing style must remain recognizable
-4. Keep it kid-friendly, fun, and magical
-
-YOUR TASK:
-{prompt}
-
-TECHNICAL REQUIREMENTS:
-- Return ONLY the edited image
-- No text, watermarks, or labels
-- Maintain image quality
-"""
+            full_prompt = get_image_processing_prompt(prompt)
 
             # Prepare content for Gemini
             contents = [full_prompt, input_image]
@@ -280,6 +249,7 @@ TECHNICAL REQUIREMENTS:
         Returns:
             True if valid image, False otherwise
         """
+
         try:
             image = Image.open(BytesIO(image_data))
             # Check if it's a reasonable size (not too large)
@@ -300,6 +270,7 @@ TECHNICAL REQUIREMENTS:
         Returns:
             Dictionary with image information
         """
+
         try:
             image = Image.open(BytesIO(image_data))
             return {
