@@ -570,14 +570,6 @@ class ImageProcessingService:
         logger.info(f"Processing image: {image_info}")
         logger.info(f"Processing audio: {audio_info}")
 
-        # Fetch tutorial subject if tutorial_id is provided
-        subject = None
-        if tutorial_id:
-            tutorial = await Tutorial.get_by_id(db, tutorial_id)
-            if tutorial:
-                subject = tutorial.subject_en
-                logger.info(f"📚 Tutorial subject: {subject}")
-
         # Step 2: Transcribe audio to text
         transcribed_text, transcription_time = audio_service.transcribe_audio(
             audio_data, language, audio_filename
@@ -585,11 +577,11 @@ class ImageProcessingService:
         logger.info(f"🎤 Transcribed: '{transcribed_text}'")
 
         # Step 3: Enhance the transcribed text with GPT (short, preservation-focused)
-        enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
+        # enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
         # Step 4: Process the image with the transcribed text
         result_base64, processing_time = self.process_image(
-            image_data, enhanced_prompt, subject
+            image_data, transcribed_text, subject
         )
 
         # Step 4: Upload edited image to Spaces
@@ -707,7 +699,9 @@ class ImageProcessingService:
         Returns:
             Enhanced prompt for Gemini
         """
-        logger.info(f"🎨 Enhancing direct upload prompt - subject: '{subject}', request: '{user_prompt}'")
+        logger.info(
+            f"🎨 Enhancing direct upload prompt - subject: '{subject}', request: '{user_prompt}'"
+        )
         enhancement_start = time.time()
 
         try:
@@ -742,7 +736,9 @@ Child drew "house" and says "add snow" → "Cover this child's house in beautifu
             )
 
             enhancement_time = time.time() - enhancement_start
-            logger.info(f"⚡ Direct upload prompt enhancement completed in {enhancement_time:.2f}s")
+            logger.info(
+                f"⚡ Direct upload prompt enhancement completed in {enhancement_time:.2f}s"
+            )
 
             if not response.choices or not response.choices[0].message.content:
                 logger.warning("⚠️ Empty response from OpenAI, using fallback")
@@ -792,7 +788,9 @@ Child drew "house" and says "add snow" → "Cover this child's house in beautifu
 
         # Validate input: need either prompt or audio
         if not prompt and not audio_data:
-            raise ValueError("Either 'prompt' (text) or 'audio' (file) must be provided")
+            raise ValueError(
+                "Either 'prompt' (text) or 'audio' (file) must be provided"
+            )
 
         if audio_data and prompt:
             raise ValueError("Provide either 'prompt' or 'audio', not both")
@@ -812,7 +810,12 @@ Child drew "house" and says "add snow" → "Cover this child's house in beautifu
                 raise ValueError("Invalid language. Please provide 'en' or 'de'.")
 
             if not audio_service.validate_audio_file(
-                audio_data, f"audio/{audio_filename.split('.')[-1]}" if audio_filename else "audio/mp3"
+                audio_data,
+                (
+                    f"audio/{audio_filename.split('.')[-1]}"
+                    if audio_filename
+                    else "audio/mp3"
+                ),
             ):
                 supported = audio_service.get_supported_formats()
                 raise ValueError(
@@ -866,7 +869,9 @@ Child drew "house" and says "add snow" → "Cover this child's house in beautifu
             user_id=user_id,
             tutorial_id=None,  # Direct upload = no tutorial
             uploaded_image_url=original_image_url,
-            edited_images_urls=[edited_image_url] if edited_image_url else [result_base64],
+            edited_images_urls=(
+                [edited_image_url] if edited_image_url else [result_base64]
+            ),
         )
 
         return {
