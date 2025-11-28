@@ -137,7 +137,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                     emoji: widget.selectedEditOption != null ? '✨' : '🎨',
                     showAnimation: true,
                     // For direct upload, go to home (nav bar will be visible)
-                    onBackPressed: widget.categoryId == 'direct'
+                    onBackPressed: widget.category == 'direct'
                         ? () => context.go('/home')
                         : null,
                   ),

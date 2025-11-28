@@ -271,6 +271,8 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       '/drawings/${widget.category}/${widget.subject}/result',
       extra: {
         'uploadedImage': widget.uploadedImage,
+        'originalImageUrl': widget.originalImageUrl,
+        'editedImageUrl': widget.originalImageUrl,
         'selectedEditOption': null,
       },
     );

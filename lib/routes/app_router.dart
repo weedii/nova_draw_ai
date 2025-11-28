@@ -224,8 +224,8 @@ GoRouter createAppRouter(UserProvider userProvider) {
           final editedImageUrl = extra?['editedImageUrl'] as String?;
           final dbDrawingId = extra?['drawing_id'] as String?;
           return DrawingFinalResultScreen(
-            categoryId: 'direct',
-            drawingId: 'upload',
+            category: 'direct',
+            subject: 'upload',
             originalImageUrl: originalImageUrl,
             editedImageUrl: editedImageUrl,
             selectedEditOption: null,
