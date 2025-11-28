@@ -11,13 +11,13 @@ import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
 
 class DrawingStepsScreen extends StatefulWidget {
-  final String categoryId;
-  final String drawingId;
+  final String category;
+  final String subject;
 
   const DrawingStepsScreen({
     super.key,
-    required this.categoryId,
-    required this.drawingId,
+    required this.category,
+    required this.subject,
   });
 
   @override
@@ -128,7 +128,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
               onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
                 context.push(
-                  '/drawings/${widget.categoryId}/${widget.drawingId}/upload',
+                  '/drawings/${widget.category}/${widget.subject}/upload',
                 );
               },
               backgroundColor: AppColors.primary,

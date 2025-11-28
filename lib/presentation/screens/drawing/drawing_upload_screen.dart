@@ -11,13 +11,13 @@ import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
 
 class DrawingUploadScreen extends StatefulWidget {
-  final String categoryId;
-  final String drawingId;
+  final String category;
+  final String subject;
 
   const DrawingUploadScreen({
     super.key,
-    required this.categoryId,
-    required this.drawingId,
+    required this.category,
+    required this.subject,
   });
 
   @override
@@ -431,8 +431,7 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
                       setState(() {
                         _isLoading = true;
                       });
-                      final croppedImage =
-                          await ImageCropperService.cropImage(
+                      final croppedImage = await ImageCropperService.cropImage(
                         imageFile: _pickedImage!,
                       );
                       if (croppedImage != null) {
@@ -515,9 +514,8 @@ class _DrawingUploadScreenState extends State<DrawingUploadScreen>
 
     // Navigate to the next screen with the uploaded image
     context.push(
-      '/drawings/${widget.categoryId}/${widget.drawingId}/edit-options',
+      '/drawings/${widget.category}/${widget.subject}/edit-options',
       extra: _pickedImage, // Pass the image file
     );
   }
-
 }

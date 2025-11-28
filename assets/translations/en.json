@@ -434,7 +434,35 @@
 
   "navigation": {
     "tutorials": "Tutorials",
+    "upload": "Upload",
     "gallery": "Gallery"
+  },
+
+  "direct_upload": {
+    "title": "Upload My Drawing",
+    "subtitle": "Share your amazing creation!",
+    "what_did_you_draw": "What did you draw today?",
+    "subject_description": "Tell us what amazing thing you created!",
+    "subject_hint": "e.g., train, dragon, house...",
+    "upload_description": "Show us your masterpiece!",
+    "upload_your_drawing": "Upload your drawing",
+    "what_to_do": "What should we do with it?",
+    "prompt_hint": "e.g., make it fly, add rainbow...",
+    "or_use_voice": "Or tell us with your voice!",
+    "start_recording": "Tap to speak",
+    "stop_recording": "Tap to stop",
+    "recording": "Listening...",
+    "submit": "Make Magic! ✨",
+    "processing": "Creating magic...",
+    "success": "Your drawing is ready!",
+    "error_no_subject": "Please tell us what you drew",
+    "error_no_prompt": "Please tell us what to do with it",
+    "error_no_image": "Please upload your drawing first",
+    "error_timeout": "This is taking too long. Please try again!",
+    "error_network": "Can't connect to the internet. Please check your connection!",
+    "error_image_too_large": "Your image is too big! Please use a smaller one.",
+    "error_invalid_audio": "We couldn't understand the audio. Please try recording again!",
+    "error_service_unavailable": "Our magic service is busy. Please try again in a moment!"
   },
 
   "gallery": {
@@ -461,6 +489,12 @@
     "images": "images",
     "view_all": "View all",
     "image_count": "images",
-    "edit_label": "Edit"
+    "edit_label": "Edit",
+    "save": "Save",
+    "saving_image": "Saving your image...",
+    "image_saved_successfully": "Image saved to your gallery! 🎉",
+    "failed_to_save_image": "Failed to save image...",
+    "no_image_to_save": "No image to save...",
+    "error_saving_image": "Error saving image"
   }
 }

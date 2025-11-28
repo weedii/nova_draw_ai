@@ -434,7 +434,35 @@
 
   "navigation": {
     "tutorials": "Anleitungen",
+    "upload": "Hochladen",
     "gallery": "Galerie"
+  },
+
+  "direct_upload": {
+    "title": "Meine Zeichnung hochladen",
+    "subtitle": "Teile deine tolle Kreation!",
+    "what_did_you_draw": "Was hast du heute gezeichnet?",
+    "subject_description": "Erzähl uns, was du Tolles gemacht hast!",
+    "subject_hint": "z.B. Zug, Drache, Haus...",
+    "upload_description": "Zeig uns dein Meisterwerk!",
+    "upload_your_drawing": "Lade deine Zeichnung hoch",
+    "what_to_do": "Was sollen wir damit machen?",
+    "prompt_hint": "z.B. lass es fliegen, füge Regenbogen hinzu...",
+    "or_use_voice": "Oder sag es uns mit deiner Stimme!",
+    "start_recording": "Tippe zum Sprechen",
+    "stop_recording": "Tippe zum Stoppen",
+    "recording": "Ich höre zu...",
+    "submit": "Zaubere! ✨",
+    "processing": "Magie wird erstellt...",
+    "success": "Deine Zeichnung ist fertig!",
+    "error_no_subject": "Bitte sag uns, was du gezeichnet hast",
+    "error_no_prompt": "Bitte sag uns, was wir damit machen sollen",
+    "error_no_image": "Bitte lade zuerst deine Zeichnung hoch",
+    "error_timeout": "Das dauert zu lange. Bitte versuche es nochmal!",
+    "error_network": "Keine Internetverbindung. Bitte überprüfe deine Verbindung!",
+    "error_image_too_large": "Dein Bild ist zu groß! Bitte verwende ein kleineres.",
+    "error_invalid_audio": "Wir konnten das Audio nicht verstehen. Bitte nimm es nochmal auf!",
+    "error_service_unavailable": "Unser Zauberdienst ist beschäftigt. Bitte versuche es gleich nochmal!"
   },
 
   "gallery": {
@@ -461,6 +489,12 @@
     "images": "Bilder",
     "view_all": "Alle anzeigen",
     "image_count": "Bilder",
-    "edit_label": "Bearbeitung"
+    "edit_label": "Bearbeitung",
+    "save": "Speichern",
+    "saving_image": "Speichere dein Bild...",
+    "image_saved_successfully": "Bild in deiner Galerie gespeichert! 🎉",
+    "failed_to_save_image": "Fehler beim Speichern des Bildes...",
+    "no_image_to_save": "Kein Bild zum Speichern...",
+    "error_saving_image": "Fehler beim Speichern des Bildes"
   }
 }

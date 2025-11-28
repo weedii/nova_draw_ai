@@ -120,32 +120,26 @@ GoRouter createAppRouter(UserProvider userProvider) {
         },
       ),
       GoRoute(
-        path: "/drawings/:categoryId/:drawingId",
+        path: "/drawings/:category/:subject",
         builder: (BuildContext context, GoRouterState state) {
-          final categoryId = state.pathParameters['categoryId']!;
-          final drawingId = state.pathParameters['drawingId']!;
-          return DrawingStepsScreen(
-            categoryId: categoryId,
-            drawingId: drawingId,
-          );
+          final category = state.pathParameters['category']!;
+          final subject = state.pathParameters['subject']!;
+          return DrawingStepsScreen(category: category, subject: subject);
         },
       ),
       GoRoute(
-        path: "/drawings/:categoryId/:drawingId/upload",
+        path: "/drawings/:category/:subject/upload",
         builder: (BuildContext context, GoRouterState state) {
-          final categoryId = state.pathParameters['categoryId']!;
-          final drawingId = state.pathParameters['drawingId']!;
-          return DrawingUploadScreen(
-            categoryId: categoryId,
-            drawingId: drawingId,
-          );
+          final category = state.pathParameters['category']!;
+          final subject = state.pathParameters['subject']!;
+          return DrawingUploadScreen(category: category, subject: subject);
         },
       ),
       GoRoute(
-        path: "/drawings/:categoryId/:drawingId/edit-options",
+        path: "/drawings/:category/:subject/edit-options",
         builder: (BuildContext context, GoRouterState state) {
-          final categoryId = state.pathParameters['categoryId']!;
-          final drawingId = state.pathParameters['drawingId']!;
+          final category = state.pathParameters['category']!;
+          final subject = state.pathParameters['subject']!;
 
           // Handle both old format (File directly) and new format (Map with extras)
           File? uploadedImage;
@@ -162,8 +156,8 @@ GoRouter createAppRouter(UserProvider userProvider) {
           }
 
           return DrawingEditOptionsScreen(
-            categoryId: categoryId,
-            drawingId: drawingId,
+            category: category,
+            subject: subject,
             uploadedImage: uploadedImage,
             originalImageUrl: originalImageUrl,
             dbDrawingId: dbDrawingId,
@@ -171,18 +165,18 @@ GoRouter createAppRouter(UserProvider userProvider) {
         },
       ),
       GoRoute(
-        path: "/drawings/:categoryId/:drawingId/result",
+        path: "/drawings/:category/:subject/result",
         builder: (BuildContext context, GoRouterState state) {
-          final categoryId = state.pathParameters['categoryId']!;
-          final drawingId = state.pathParameters['drawingId']!;
+          final category = state.pathParameters['category']!;
+          final subject = state.pathParameters['subject']!;
           final extra = state.extra as Map<String, dynamic>?;
           final originalImageUrl = extra?['originalImageUrl'] as String?;
           final editedImageUrl = extra?['editedImageUrl'] as String?;
           final selectedEditOption = extra?['selectedEditOption'];
           final dbDrawingId = extra?['drawing_id'] as String?;
           return DrawingFinalResultScreen(
-            categoryId: categoryId,
-            drawingId: drawingId,
+            category: category,
+            subject: subject,
             originalImageUrl: originalImageUrl,
             editedImageUrl: editedImageUrl,
             selectedEditOption: selectedEditOption,
@@ -216,6 +210,25 @@ GoRouter createAppRouter(UserProvider userProvider) {
             drawingId: drawingId,
             drawingImage: drawingImage,
             imageUrl: imageUrl,
+            dbDrawingId: dbDrawingId,
+          );
+        },
+      ),
+
+      // Direct Upload Result Route
+      GoRoute(
+        path: "/drawings/direct/upload/result",
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final originalImageUrl = extra?['originalImageUrl'] as String?;
+          final editedImageUrl = extra?['editedImageUrl'] as String?;
+          final dbDrawingId = extra?['drawing_id'] as String?;
+          return DrawingFinalResultScreen(
+            category: 'direct',
+            subject: 'upload',
+            originalImageUrl: originalImageUrl,
+            editedImageUrl: editedImageUrl,
+            selectedEditOption: null,
             dbDrawingId: dbDrawingId,
           );
         },

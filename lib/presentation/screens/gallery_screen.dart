@@ -6,6 +6,7 @@ import '../../services/actions/gallery_api_service.dart';
 import '../animations/app_animations.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_loading_widget.dart';
+import '../widgets/save_to_gallery_button.dart';
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
@@ -625,51 +626,71 @@ class _GalleryScreenState extends State<GalleryScreen>
                           ),
                         ),
                         const SizedBox(height: 8),
-                        // Image
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            color: AppColors.border,
-                            child: Image.network(
-                              images[index],
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 200,
-                                  color: AppColors.border,
-                                  child: const Icon(
-                                    Icons.image_not_supported,
-                                    color: AppColors.textDark,
-                                  ),
-                                );
-                              },
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return SizedBox(
+                        // Image with save button
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                color: AppColors.border,
+                                child: Image.network(
+                                  images[index],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
                                       height: 200,
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          value:
-                                              loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    loadingProgress
-                                                        .expectedTotalBytes!
-                                              : null,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                AppColors.primary,
-                                              ),
-                                        ),
+                                      color: AppColors.border,
+                                      child: const Icon(
+                                        Icons.image_not_supported,
+                                        color: AppColors.textDark,
                                       ),
                                     );
                                   },
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return SizedBox(
+                                          height: 200,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              value:
+                                                  loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                  : null,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    AppColors.primary,
+                                                  ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                ),
+                              ),
                             ),
-                          ),
+                            // Save button (floating at bottom-right)
+                            Positioned(
+                              bottom: 12,
+                              right: 12,
+                              child: SaveToGalleryButton(
+                                imageUrl: images[index],
+                                displayMode: SaveButtonDisplayMode.iconOnly,
+                                backgroundColor: AppColors.success,
+                                iconColor: AppColors.white,
+                                buttonSize: 48,
+                                iconSize: 20,
+                                borderRadius: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

@@ -1,17 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
-import 'package:saver_gallery/saver_gallery.dart';
 import '../../../core/constants/colors.dart';
 import '../../../models/ui_models.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/save_to_gallery_button.dart';
 
 class DrawingFinalResultScreen extends StatefulWidget {
-  final String categoryId;
-  final String drawingId;
+  final String category;
+  final String subject;
   final String? originalImageUrl; // URL of the original uploaded image
   final String? editedImageUrl; // URL of the edited image
   final EditOption? selectedEditOption;
@@ -19,8 +18,8 @@ class DrawingFinalResultScreen extends StatefulWidget {
 
   const DrawingFinalResultScreen({
     super.key,
-    required this.categoryId,
-    required this.drawingId,
+    required this.category,
+    required this.subject,
     this.originalImageUrl,
     this.editedImageUrl,
     this.selectedEditOption,
@@ -78,117 +77,13 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
     });
   }
 
-  void _saveDrawing() async {
-    try {
-      // Show loading indicator
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('final_result.saving_drawing'.tr()),
-          backgroundColor: AppColors.primary,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-
-      // Get the image to save (prefer edited image if available)
-      String? imageUrl = widget.editedImageUrl ?? widget.originalImageUrl;
-
-      if (imageUrl == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('final_result.no_image_to_save'.tr()),
-              backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-        return;
-      }
-
-      // Download image from URL
-      final response = await http.get(Uri.parse(imageUrl));
-      if (response.statusCode != 200) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('final_result.failed_to_save_drawing'.tr()),
-              backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-        return;
-      }
-
-      final imageBytes = response.bodyBytes;
-      if (imageBytes.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('final_result.no_image_to_save'.tr()),
-              backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-        return;
-      }
-
-      // Generate filename with timestamp (SaverGallery adds extension automatically)
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final filename = 'NovaDrawAI_$timestamp';
-
-      // Save to gallery
-      final result = await SaverGallery.saveImage(
-        imageBytes,
-        quality: 100,
-        fileName: filename,
-        androidRelativePath: 'Pictures/NovaDraw',
-        skipIfExists: false,
-      );
-
-      if (mounted) {
-        if (result.isSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('final_result.drawing_saved_successfully'.tr()),
-              backgroundColor: AppColors.success,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-          print('✅ Drawing saved successfully to gallery');
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('final_result.failed_to_save_drawing'.tr()),
-              backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-          print('❌ Failed to save drawing: ${result.errorMessage}');
-        }
-      }
-    } catch (e) {
-      print('❌ Error saving drawing: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('final_result.error_saving_drawing'.tr()),
-            backgroundColor: AppColors.error,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
-  }
-
   void _createStory() {
     // Pass the edited image URL if available, otherwise the original URL
     final imageUrl = widget.editedImageUrl ?? widget.originalImageUrl;
 
     if (imageUrl != null) {
       context.push(
-        '/drawings/${widget.categoryId}/${widget.drawingId}/story',
+        '/drawings/${widget.category}/${widget.subject}/story',
         extra: {'imageUrl': imageUrl, 'dbDrawingId': widget.dbDrawingId},
       );
     }
@@ -201,7 +96,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   void _editDrawingAgain() {
     // Pass the original image URL and database drawing ID for re-editing
     context.pushReplacement(
-      '/drawings/${widget.categoryId}/${widget.drawingId}/edit-options',
+      '/drawings/${widget.category}/${widget.subject}/edit-options',
       extra: {
         'originalImageUrl': widget.originalImageUrl,
         'dbDrawingId': widget.dbDrawingId,
@@ -241,6 +136,10 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                     subtitle: _getResultSubtitle(),
                     emoji: widget.selectedEditOption != null ? '✨' : '🎨',
                     showAnimation: true,
+                    // For direct upload, go to home (nav bar will be visible)
+                    onBackPressed: widget.category == 'direct'
+                        ? () => context.go('/home')
+                        : null,
                   ),
 
                   // Main content
@@ -597,14 +496,28 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
         Row(
           children: [
             Expanded(
-              child: CustomButton(
-                label: 'ai_enhancement.save_drawing',
-                onPressed: _saveDrawing,
-                backgroundColor: AppColors.success,
-                textColor: AppColors.white,
-                icon: Icons.download,
-                borderRadius: 16,
-              ),
+              child: widget.editedImageUrl != null
+                  ? SaveToGalleryButton(
+                      imageUrl: widget.editedImageUrl!,
+                      displayMode: SaveButtonDisplayMode.both,
+                      backgroundColor: AppColors.success,
+                      iconColor: AppColors.white,
+                      textColor: AppColors.white,
+                      borderRadius: 16,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    )
+                  : CustomButton(
+                      label: 'ai_enhancement.save_drawing',
+                      onPressed: () {},
+                      backgroundColor: AppColors.success,
+                      textColor: AppColors.white,
+                      icon: Icons.download,
+                      borderRadius: 16,
+                      enabled: false,
+                    ),
             ),
             const SizedBox(width: 16),
             Expanded(

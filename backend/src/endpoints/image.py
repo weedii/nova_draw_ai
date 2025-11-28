@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from typing import Optional
 from src.schemas import ImageProcessResponse, EditImageWithAudioResponse
 from src.services.image_processing_service import ImageProcessingService
 from src.services.audio_service import AudioService
@@ -32,6 +33,10 @@ if settings.OPENAI_API_KEY:
 async def edit_image(
     prompt: str = Form(
         ..., description="Processing instruction (e.g., 'make it alive')"
+    ),
+    subject: str = Form(
+        None,
+        description="What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing",
     ),
     image: UploadFile = File(
         None, description="Image file to process (optional if image_url is provided)"
@@ -97,6 +102,7 @@ async def edit_image(
         result = await image_processing_service.edit_image_with_prompt(
             db=db,
             prompt=prompt,
+            subject=subject,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
             drawing_id=UUID(drawing_id) if drawing_id else None,
@@ -134,6 +140,10 @@ async def edit_image_with_audio(
         description="Audio file (mp3, wav, m4a, aac, webm, ogg, flac) with editing instructions",
     ),
     language: str = Form(..., description="Language code: 'en' or 'de'"),
+    subject: str = Form(
+        None,
+        description="What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing",
+    ),
     image: UploadFile = File(
         None, description="Image file to edit (optional if image_url is provided)"
     ),
@@ -223,6 +233,7 @@ async def edit_image_with_audio(
             audio_data=audio_data,
             audio_filename=audio.filename or "audio.mp3",
             language=language,
+            subject=subject,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
             drawing_id=UUID(drawing_id) if drawing_id else None,
@@ -251,4 +262,161 @@ async def edit_image_with_audio(
         logger.error(f"Failed to process audio and image: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Failed to process audio and image: {str(e)}"
+        )
+
+
+@router.post("/direct-upload", response_model=ImageProcessResponse)
+async def direct_upload(
+    subject: str = Form(
+        ..., description="What did you draw? (e.g., 'train', 'dog', 'flower')"
+    ),
+    prompt: str = Form(..., description="What should we do with it? (e.g., 'make it fly')"),
+    image: UploadFile = File(..., description="The drawing image file"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
+):
+    """
+    Direct upload with text prompt: Upload any drawing and tell us what to do with it.
+
+    This endpoint allows kids to upload drawings that don't fit existing tutorial categories.
+    They specify what they drew (subject) and what they want done with it (text prompt).
+
+    Flow:
+    1. "What did you draw today?" → subject (e.g., "a train")
+    2. Upload the drawing → image file
+    3. "What should we do with it?" → prompt (text)
+
+    **Authentication Required:** User must be logged in.
+    """
+    try:
+        if not image_processing_service:
+            raise HTTPException(
+                status_code=503,
+                detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
+            )
+
+        # Validate image file type
+        if not image.content_type or not image.content_type.startswith("image/"):
+            raise HTTPException(
+                status_code=400, detail="File must be an image (JPEG, PNG, etc.)"
+            )
+
+        image_data = await image.read()
+        user_id = current_user.id
+
+        result = await image_processing_service.process_direct_upload(
+            db=db,
+            subject=subject,
+            user_id=user_id,
+            image_data=image_data,
+            prompt=prompt,
+        )
+
+        return ImageProcessResponse(
+            success="true",
+            prompt=result["prompt"],
+            original_image_url=result["original_image_url"],
+            edited_image_url=result["edited_image_url"],
+            processing_time=result["processing_time"],
+            drawing_id=result["drawing_id"],
+            user_id=str(user_id),
+        )
+
+    except ValueError as e:
+        logger.error(f"Direct upload validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to process direct upload: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to process direct upload: {str(e)}"
+        )
+
+
+@router.post("/direct-upload-audio", response_model=ImageProcessResponse)
+async def direct_upload_with_audio(
+    subject: str = Form(
+        ..., description="What did you draw? (e.g., 'train', 'dog', 'flower')"
+    ),
+    audio: UploadFile = File(
+        ..., description="Voice recording of what to do with the drawing"
+    ),
+    image: UploadFile = File(..., description="The drawing image file"),
+    language: str = Form("en", description="Language for audio transcription: 'en' or 'de'"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
+):
+    """
+    Direct upload with voice prompt: Upload any drawing and tell us what to do with it using voice.
+
+    This endpoint allows kids to upload drawings that don't fit existing tutorial categories.
+    They specify what they drew (subject) and speak what they want done with it (audio).
+
+    Flow:
+    1. "What did you draw today?" → subject (e.g., "a train")
+    2. Upload the drawing → image file
+    3. "What should we do with it?" → audio (voice recording)
+
+    **Authentication Required:** User must be logged in.
+    """
+    try:
+        if not image_processing_service:
+            raise HTTPException(
+                status_code=503,
+                detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
+            )
+
+        if not audio_service:
+            raise HTTPException(
+                status_code=503,
+                detail="Audio transcription service not available. Please configure OpenAI API key.",
+            )
+
+        # Validate image file type
+        if not image.content_type or not image.content_type.startswith("image/"):
+            raise HTTPException(
+                status_code=400, detail="File must be an image (JPEG, PNG, etc.)"
+            )
+
+        # Validate audio file type
+        if not audio.content_type:
+            raise HTTPException(
+                status_code=400, detail="Could not determine audio file type"
+            )
+
+        image_data = await image.read()
+        audio_data = await audio.read()
+        user_id = current_user.id
+
+        result = await image_processing_service.process_direct_upload(
+            db=db,
+            subject=subject,
+            user_id=user_id,
+            image_data=image_data,
+            audio_data=audio_data,
+            audio_filename=audio.filename or "audio.mp3",
+            language=language,
+            audio_service=audio_service,
+        )
+
+        return ImageProcessResponse(
+            success="true",
+            prompt=result["prompt"],
+            original_image_url=result["original_image_url"],
+            edited_image_url=result["edited_image_url"],
+            processing_time=result["processing_time"],
+            drawing_id=result["drawing_id"],
+            user_id=str(user_id),
+        )
+
+    except ValueError as e:
+        logger.error(f"Direct upload audio validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to process direct upload with audio: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to process direct upload: {str(e)}"
         )

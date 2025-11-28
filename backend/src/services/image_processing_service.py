@@ -98,7 +98,9 @@ class ImageProcessingService:
             logger.error(f"❌ Voice prompt enhancement failed: {e}")
             return user_request
 
-    def process_image(self, image_data: bytes, prompt: str) -> Tuple[str, float]:
+    def process_image(
+        self, image_data: bytes, prompt: str, subject: str = None
+    ) -> Tuple[str, float]:
         """
         Process an image with a text prompt using Gemini.
 
@@ -108,6 +110,7 @@ class ImageProcessingService:
         Args:
             image_data: Raw image bytes
             prompt: Text prompt for processing (detailed prompt from edit_options table)
+            subject: What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
 
         Returns:
             Tuple of (base64_result_image, processing_time)
@@ -136,7 +139,7 @@ class ImageProcessingService:
             # The prompt from edit_options already contains detailed instructions,
             # so we just wrap it with preservation guidelines
             logger.info("🎯 Preparing prompt for Gemini (no GPT enhancement)...")
-            full_prompt = get_image_processing_prompt(prompt)
+            full_prompt = get_image_processing_prompt(prompt, subject)
 
             # Prepare content for Gemini
             contents = [full_prompt, input_image]
@@ -289,6 +292,7 @@ class ImageProcessingService:
         db: AsyncSession,
         prompt: str,
         user_id: UUID,
+        subject: str = None,
         tutorial_id: UUID = None,
         drawing_id: UUID = None,
         image_data: bytes = None,
@@ -303,6 +307,7 @@ class ImageProcessingService:
             db: Async database session
             prompt: Processing instruction
             user_id: UUID of the user editing the image
+            subject: What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
             tutorial_id: Optional UUID of the associated tutorial
             drawing_id: Optional UUID of existing drawing to append edit to
             image_data: Raw image bytes (for new uploads)
@@ -374,8 +379,10 @@ class ImageProcessingService:
         image_info = self.get_image_info(image_data)
         logger.info(f"Processing image: {image_info}")
 
+        logger.info(f"===== Using subject '{subject}' =====")
+
         # Step 2: Process the image
-        result_base64, processing_time = self.process_image(image_data, prompt)
+        result_base64, processing_time = self.process_image(image_data, prompt, subject)
 
         # Step 3: Upload edited image to Spaces
         edited_image_url = None
@@ -455,6 +462,7 @@ class ImageProcessingService:
         audio_filename: str,
         language: str,
         user_id: UUID,
+        subject: str = None,
         tutorial_id: UUID = None,
         drawing_id: UUID = None,
         audio_service=None,
@@ -472,6 +480,7 @@ class ImageProcessingService:
             audio_filename: Audio file name
             language: Language code ('en' or 'de')
             user_id: UUID of the user editing the image
+            subject: What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
             tutorial_id: Optional UUID of the associated tutorial
             drawing_id: Optional UUID of existing drawing to append edit to
             audio_service: AudioService instance for transcription
@@ -578,8 +587,10 @@ class ImageProcessingService:
         # Step 3: Enhance the transcribed text with GPT (short, preservation-focused)
         enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
-        # Step 3: Process the image with the transcribed text
-        result_base64, processing_time = self.process_image(image_data, enhanced_prompt)
+        # Step 4: Process the image with the transcribed text
+        result_base64, processing_time = self.process_image(
+            image_data, enhanced_prompt, subject
+        )
 
         # Step 4: Upload edited image to Spaces
         edited_image_url = None
@@ -684,3 +695,184 @@ class ImageProcessingService:
             edited_images_urls=[result_base64],
         )
         return drawing
+
+    def enhance_direct_upload_prompt(self, subject: str, user_prompt: str) -> str:
+        """
+        Create an enhanced prompt for direct upload by combining subject and user request.
+
+        Args:
+            subject: What the child drew (e.g., "train", "dog", "flower")
+            user_prompt: What they want to do with it (e.g., "make it fly", "add rainbow")
+
+        Returns:
+            Enhanced prompt for Gemini
+        """
+        logger.info(f"🎨 Enhancing direct upload prompt - subject: '{subject}', request: '{user_prompt}'")
+        enhancement_start = time.time()
+
+        try:
+            enhancement_prompt = f"""A child drew a {subject} and wants you to: "{user_prompt}"
+
+Generate a prompt (3-4 sentences) for an image editing AI.
+
+CRITICAL: You MUST follow exactly what the child asked for. Do NOT make up your own ideas.
+
+RULES:
+- FOLLOW THE CHILD'S REQUEST - do exactly what they asked, not something else
+- Keep the child's original {subject} drawing recognizable
+- Add vibrant colors, sparkles, and fun details to make it magical
+- Keep it kid-friendly and full of wonder
+- Understand child language: "put in paris" = "place in Paris", "make alive" = "bring to life"
+
+IMPORTANT: Output ONLY the prompt text. No prefixes or labels.
+
+EXAMPLES:
+Child drew "cat" and says "make it chase a mouse" → "Show this child's cat in an exciting chase scene with a cute little mouse! Add motion lines to show speed. Give the cat bright playful eyes and the mouse a funny scared expression. Add colorful background."
+
+Child drew "car" and says "make it fly" → "Transform this child's car into a magical flying vehicle soaring through fluffy clouds! Add sparkly wings or rocket boosters. Keep the car's original shape but add a trail of colorful stars behind it."
+
+Child drew "house" and says "add snow" → "Cover this child's house in beautiful white snow! Add snowflakes falling gently, icicles on the roof, and a cozy warm glow from the windows. Make it feel like a magical winter wonderland."
+"""
+
+            response = self.openai_client.chat.completions.create(
+                model=self.openai_model,
+                messages=[{"role": "user", "content": enhancement_prompt}],
+                max_tokens=170,
+                temperature=0.65,
+            )
+
+            enhancement_time = time.time() - enhancement_start
+            logger.info(f"⚡ Direct upload prompt enhancement completed in {enhancement_time:.2f}s")
+
+            if not response.choices or not response.choices[0].message.content:
+                logger.warning("⚠️ Empty response from OpenAI, using fallback")
+                return f"Transform this child's {subject} drawing: {user_prompt}. Keep the original drawing recognizable. Make it colorful and magical."
+
+            enhanced = response.choices[0].message.content.strip()
+            logger.info(f"✅ Enhanced direct upload prompt: '{enhanced}'")
+            return enhanced
+
+        except Exception as e:
+            logger.error(f"❌ Direct upload prompt enhancement failed: {e}")
+            return f"Transform this child's {subject} drawing: {user_prompt}. Keep the original drawing recognizable. Make it colorful and magical."
+
+    async def process_direct_upload(
+        self,
+        db: AsyncSession,
+        subject: str,
+        user_id: UUID,
+        image_data: bytes,
+        prompt: str = None,
+        audio_data: bytes = None,
+        audio_filename: str = None,
+        language: str = "en",
+        audio_service=None,
+    ) -> dict:
+        """
+        Process a direct upload: kid uploads any drawing with subject and prompt (text or audio).
+
+        Args:
+            db: Async database session
+            subject: What the child drew (e.g., "train", "dog")
+            user_id: UUID of the user
+            image_data: Raw image bytes
+            prompt: Text prompt (optional if audio provided)
+            audio_data: Audio bytes (optional if prompt provided)
+            audio_filename: Audio filename for format detection
+            language: Language code for audio transcription ('en' or 'de')
+            audio_service: AudioService instance for transcription
+
+        Returns:
+            Dictionary with drawing_id, original_image_url, edited_image_url, prompt, processing_time
+
+        Raises:
+            ValueError: If validation fails or processing fails
+        """
+        logger.info(f"🎨 Processing direct upload - subject: '{subject}'")
+
+        # Validate input: need either prompt or audio
+        if not prompt and not audio_data:
+            raise ValueError("Either 'prompt' (text) or 'audio' (file) must be provided")
+
+        if audio_data and prompt:
+            raise ValueError("Provide either 'prompt' or 'audio', not both")
+
+        # Validate image
+        if not self.validate_image(image_data):
+            raise ValueError("Invalid image or image too large (max 2048x2048)")
+
+        final_prompt = None
+
+        # Handle audio input
+        if audio_data:
+            if not audio_service:
+                raise ValueError("Audio service not available")
+
+            if language not in ["en", "de"]:
+                raise ValueError("Invalid language. Please provide 'en' or 'de'.")
+
+            if not audio_service.validate_audio_file(
+                audio_data, f"audio/{audio_filename.split('.')[-1]}" if audio_filename else "audio/mp3"
+            ):
+                supported = audio_service.get_supported_formats()
+                raise ValueError(
+                    f"Invalid audio file. Supported formats: {', '.join(supported['formats'])}. Max size: {supported['max_size_mb']}MB"
+                )
+
+            # Transcribe audio
+            logger.info("🎤 Transcribing audio...")
+            transcribed_text, _ = audio_service.transcribe_audio(
+                audio_data, language, audio_filename or "audio.mp3"
+            )
+            logger.info(f"🎤 Transcribed: '{transcribed_text}'")
+            final_prompt = transcribed_text
+        else:
+            final_prompt = prompt
+
+        # Enhance prompt with subject context
+        enhanced_prompt = self.enhance_direct_upload_prompt(subject, final_prompt)
+
+        # Upload original image to Spaces
+        original_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading original image to Spaces...")
+                original_image_url = self.storage_service.upload_image_from_bytes(
+                    image_data, user_id, image_type="original"
+                )
+                logger.info(f"✅ Original image uploaded: {original_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload original image: {e}")
+
+        # Process the image
+        result_base64, processing_time = self.process_image(image_data, enhanced_prompt)
+
+        # Upload edited image to Spaces
+        edited_image_url = None
+        if self.storage_service:
+            try:
+                logger.info("📤 Uploading edited image to Spaces...")
+                edited_image_url = self.storage_service.upload_image_from_base64(
+                    result_base64, user_id, image_type="edited"
+                )
+                logger.info(f"✅ Edited image uploaded: {edited_image_url}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to upload edited image: {e}")
+
+        # Save to database (no tutorial_id for direct uploads)
+        logger.info("📝 Creating new drawing entry for direct upload")
+        saved_drawing = await Drawing.create(
+            db,
+            user_id=user_id,
+            tutorial_id=None,  # Direct upload = no tutorial
+            uploaded_image_url=original_image_url,
+            edited_images_urls=[edited_image_url] if edited_image_url else [result_base64],
+        )
+
+        return {
+            "drawing_id": str(saved_drawing.id),
+            "original_image_url": original_image_url,
+            "edited_image_url": edited_image_url,
+            "prompt": final_prompt,
+            "processing_time": processing_time,
+        }
