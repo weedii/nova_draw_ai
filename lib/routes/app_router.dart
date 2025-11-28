@@ -14,7 +14,6 @@ import '../presentation/screens/drawing/drawing_upload_screen.dart';
 import '../presentation/screens/drawing/drawing_edit_options_screen.dart';
 import '../presentation/screens/drawing/drawing_final_result_screen.dart';
 import '../presentation/screens/drawing/drawing_story_screen.dart';
-import '../presentation/screens/drawing/direct_upload_screen.dart';
 import '../providers/user_provider.dart';
 
 // Create router as a function to access BuildContext
@@ -222,13 +221,6 @@ GoRouter createAppRouter(UserProvider userProvider) {
         },
       ),
 
-      // Direct Upload Route - for uploading any drawing without tutorial
-      GoRoute(
-        path: "/direct-upload",
-        builder: (BuildContext context, GoRouterState state) {
-          return const DirectUploadScreen();
-        },
-      ),
       // Direct Upload Result Route
       GoRoute(
         path: "/drawings/direct/upload/result",

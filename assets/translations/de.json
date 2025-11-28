@@ -442,7 +442,9 @@
     "title": "Meine Zeichnung hochladen",
     "subtitle": "Teile deine tolle Kreation!",
     "what_did_you_draw": "Was hast du heute gezeichnet?",
+    "subject_description": "Erzähl uns, was du Tolles gemacht hast!",
     "subject_hint": "z.B. Zug, Drache, Haus...",
+    "upload_description": "Zeig uns dein Meisterwerk!",
     "upload_your_drawing": "Lade deine Zeichnung hoch",
     "what_to_do": "Was sollen wir damit machen?",
     "prompt_hint": "z.B. lass es fliegen, füge Regenbogen hinzu...",
@@ -455,7 +457,12 @@
     "success": "Deine Zeichnung ist fertig!",
     "error_no_subject": "Bitte sag uns, was du gezeichnet hast",
     "error_no_prompt": "Bitte sag uns, was wir damit machen sollen",
-    "error_no_image": "Bitte lade zuerst deine Zeichnung hoch"
+    "error_no_image": "Bitte lade zuerst deine Zeichnung hoch",
+    "error_timeout": "Das dauert zu lange. Bitte versuche es nochmal!",
+    "error_network": "Keine Internetverbindung. Bitte überprüfe deine Verbindung!",
+    "error_image_too_large": "Dein Bild ist zu groß! Bitte verwende ein kleineres.",
+    "error_invalid_audio": "Wir konnten das Audio nicht verstehen. Bitte nimm es nochmal auf!",
+    "error_service_unavailable": "Unser Zauberdienst ist beschäftigt. Bitte versuche es gleich nochmal!"
   },
 
   "gallery": {

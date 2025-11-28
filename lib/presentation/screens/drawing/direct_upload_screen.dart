@@ -97,11 +97,84 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
   }
 
   void _showError(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
         backgroundColor: AppColors.error,
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// Maps API error messages to user-friendly localized messages
+  String _getUserFriendlyError(String error) {
+    final lowerError = error.toLowerCase();
+    
+    if (lowerError.contains('timeout') || lowerError.contains('timed out')) {
+      return 'direct_upload.error_timeout'.tr();
+    }
+    if (lowerError.contains('network') || lowerError.contains('connection') || 
+        lowerError.contains('socket') || lowerError.contains('failed host lookup')) {
+      return 'direct_upload.error_network'.tr();
+    }
+    if (lowerError.contains('too large') || lowerError.contains('2048')) {
+      return 'direct_upload.error_image_too_large'.tr();
+    }
+    if (lowerError.contains('invalid audio') || lowerError.contains('audio format')) {
+      return 'direct_upload.error_invalid_audio'.tr();
+    }
+    if (lowerError.contains('service not available') || lowerError.contains('503')) {
+      return 'direct_upload.error_service_unavailable'.tr();
+    }
+    
+    // Return original if no mapping found
+    return error;
+  }
+
+  /// Shows a retry dialog for recoverable errors
+  void _showRetryDialog(String error, VoidCallback onRetry) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.error),
+            const SizedBox(width: 12),
+            Text('common.error'.tr()),
+          ],
+        ),
+        content: Text(_getUserFriendlyError(error)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('common.cancel'.tr()),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onRetry();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text('common.retry'.tr()),
+          ),
+        ],
       ),
     );
   }
@@ -273,10 +346,17 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
       }
     } on ApiException catch (e) {
       setState(() => _isProcessing = false);
-      _showError(e.message);
+      // Show retry dialog for API errors
+      _showRetryDialog(e.message, _submit);
+    } on SocketException catch (_) {
+      setState(() => _isProcessing = false);
+      _showRetryDialog('direct_upload.error_network'.tr(), _submit);
+    } on TimeoutException catch (_) {
+      setState(() => _isProcessing = false);
+      _showRetryDialog('direct_upload.error_timeout'.tr(), _submit);
     } catch (e) {
       setState(() => _isProcessing = false);
-      _showError(e.toString());
+      _showRetryDialog(e.toString(), _submit);
     }
   }
 
@@ -412,55 +492,121 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
           child: SingleChildScrollView(
             child: Column(
               children: [
+                // Main card with gradient border
                 Container(
-                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.accent],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        '🖼️',
-                        style: TextStyle(fontSize: 60),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'direct_upload.what_did_you_draw'.tr(),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      TextField(
-                        controller: _subjectController,
-                        decoration: InputDecoration(
-                          hintText: 'direct_upload.subject_hint'.tr(),
-                          filled: true,
-                          fillColor: AppColors.background,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
+                  padding: const EdgeInsets.all(3),
+                  child: Container(
+                    padding: const EdgeInsets.all(28),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(21),
+                    ),
+                    child: Column(
+                      children: [
+                        // Animated emoji container
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.primary.withValues(alpha: 0.1),
+                                AppColors.accent.withValues(alpha: 0.1),
+                              ],
+                            ),
+                            shape: BoxShape.circle,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 16,
+                          child: const Center(
+                            child: Text('🎨', style: TextStyle(fontSize: 50)),
                           ),
                         ),
-                        style: const TextStyle(fontSize: 18),
-                        textCapitalization: TextCapitalization.words,
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+                        Text(
+                          'direct_upload.what_did_you_draw'.tr(),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                            fontFamily: 'Comic Sans MS',
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'direct_upload.subject_description'.tr(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textDark.withValues(alpha: 0.6),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 28),
+                        // Enhanced text field
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _subjectController,
+                            decoration: InputDecoration(
+                              hintText: 'direct_upload.subject_hint'.tr(),
+                              hintStyle: TextStyle(
+                                color: AppColors.textDark.withValues(alpha: 0.4),
+                              ),
+                              filled: true,
+                              fillColor: AppColors.background,
+                              prefixIcon: const Icon(
+                                Icons.brush,
+                                color: AppColors.primary,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary,
+                                  width: 2,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 18,
+                              ),
+                            ),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textCapitalization: TextCapitalization.words,
+                          ),
+                        ),
+
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -468,7 +614,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
           ),
         ),
         const SizedBox(height: 20),
-        // Only Next button on step 1 (no back since it's a tab)
         CustomButton(
           label: 'common.next',
           onPressed: _nextStep,
@@ -521,51 +666,138 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
 
   Widget _buildImageUploadOptions() {
     return Container(
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [AppColors.secondary, AppColors.primary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+            color: AppColors.secondary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('📸', style: TextStyle(fontSize: 60)),
-          const SizedBox(height: 16),
-          Text(
-            'direct_upload.upload_your_drawing'.tr(),
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+      padding: const EdgeInsets.all(3),
+      child: Container(
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(21),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Animated camera icon
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.secondary.withValues(alpha: 0.15),
+                    AppColors.primary.withValues(alpha: 0.15),
+                  ],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(Icons.cloud_upload_rounded, size: 50, color: AppColors.secondary),
+              ),
             ),
-            textAlign: TextAlign.center,
+            const SizedBox(height: 24),
+            Text(
+              'direct_upload.upload_your_drawing'.tr(),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+                fontFamily: 'Comic Sans MS',
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'direct_upload.upload_description'.tr(),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textDark.withValues(alpha: 0.6),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            // Camera button with icon
+            _buildUploadOptionButton(
+              icon: Icons.camera_alt_rounded,
+              label: 'upload.take_photo'.tr(),
+              color: AppColors.primary,
+              onTap: _takePhoto,
+            ),
+            const SizedBox(height: 16),
+            // Gallery button
+            _buildUploadOptionButton(
+              icon: Icons.photo_library_rounded,
+              label: 'upload.choose_from_gallery'.tr(),
+              color: AppColors.secondary,
+              onTap: _chooseFromGallery,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUploadOptionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [color, color.withValues(alpha: 0.8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(height: 30),
-          CustomButton(
-            label: 'upload.take_photo',
-            onPressed: _takePhoto,
-            backgroundColor: AppColors.primary,
-            textColor: AppColors.white,
-            icon: Icons.camera_alt,
-            height: 60,
-          ),
-          const SizedBox(height: 16),
-          CustomButton(
-            label: 'upload.choose_from_gallery',
-            onPressed: _chooseFromGallery,
-            backgroundColor: AppColors.secondary,
-            textColor: AppColors.white,
-            icon: Icons.photo_library,
-            height: 60,
-          ),
-        ],
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: AppColors.white, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
