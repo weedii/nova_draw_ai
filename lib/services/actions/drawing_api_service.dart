@@ -514,4 +514,147 @@ class DrawingApiService {
       return drawings;
     });
   }
+
+  /// Direct upload: Upload any drawing with a text prompt
+  /// For kids who want to upload drawings that don't fit tutorial categories
+  ///
+  /// [imageFile] - The drawing image file
+  /// [subject] - What the child drew (e.g., "train", "dog", "flower")
+  /// [prompt] - What to do with it (e.g., "make it fly", "add rainbow")
+  ///
+  /// Returns [ApiImageEditResponse] with the edited image URLs
+  /// Throws [ApiException] on error
+  static Future<ApiImageEditResponse> directUpload({
+    required File imageFile,
+    required String subject,
+    required String prompt,
+  }) async {
+    return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
+      print('🎨 Starting direct upload request');
+      print('📁 Image file: ${imageFile.path}');
+      print('🏷️ Subject: $subject');
+      print('💬 Prompt: $prompt');
+
+      // Validate inputs
+      if (!imageFile.existsSync()) {
+        print('❌ Image file does not exist!');
+        throw ApiException('Image file does not exist');
+      }
+
+      if (subject.trim().isEmpty) {
+        print('❌ Subject is empty!');
+        throw ApiException('Subject cannot be empty');
+      }
+
+      if (prompt.trim().isEmpty) {
+        print('❌ Prompt is empty!');
+        throw ApiException('Prompt cannot be empty');
+      }
+
+      print('✅ Validation passed, making API request...');
+
+      // Prepare request fields
+      final fields = {
+        'subject': subject.trim(),
+        'prompt': prompt.trim(),
+      };
+
+      // Make multipart API request
+      final response = await BaseApiService.postMultipart(
+        '/api/direct-upload',
+        file: imageFile,
+        fileFieldName: 'image',
+        fields: fields,
+      );
+
+      print('🎉 API request completed');
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+      final result = ApiImageEditResponse.fromJson(jsonData);
+
+      print(
+        '✅ Direct upload successful! Processing time: ${result.processingTime}s',
+      );
+
+      return result;
+    });
+  }
+
+  /// Direct upload with voice: Upload any drawing with a voice prompt
+  /// For kids who want to speak what they want done with their drawing
+  ///
+  /// [imageFile] - The drawing image file
+  /// [subject] - What the child drew (e.g., "train", "dog", "flower")
+  /// [audioBytes] - Raw audio data with the voice prompt
+  /// [language] - Language code: 'en' for English or 'de' for German
+  ///
+  /// Returns [ApiImageEditResponse] with the edited image URLs
+  /// Throws [ApiException] on error
+  static Future<ApiImageEditResponse> directUploadWithVoice({
+    required File imageFile,
+    required String subject,
+    required Uint8List audioBytes,
+    required String language,
+  }) async {
+    return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
+      print('🎨 Starting direct upload with voice request');
+      print('📁 Image file: ${imageFile.path}');
+      print('🏷️ Subject: $subject');
+      print('🎤 Audio data: ${audioBytes.length} bytes');
+      print('💬 Language: $language');
+
+      // Validate inputs
+      if (!imageFile.existsSync()) {
+        print('❌ Image file does not exist!');
+        throw ApiException('Image file does not exist');
+      }
+
+      if (subject.trim().isEmpty) {
+        print('❌ Subject is empty!');
+        throw ApiException('Subject cannot be empty');
+      }
+
+      if (audioBytes.isEmpty) {
+        print('❌ Audio data is empty!');
+        throw ApiException('Audio data cannot be empty');
+      }
+
+      if (language != 'en' && language != 'de') {
+        print('❌ Invalid language code: $language');
+        throw ApiException('Language must be "en" or "de"');
+      }
+
+      print('✅ Validation passed, making API request...');
+
+      // Prepare request fields
+      final fields = {
+        'subject': subject.trim(),
+        'language': language,
+      };
+
+      // Make multipart API request with audio
+      final response = await BaseApiService.postMultipartWithAudio(
+        '/api/direct-upload-audio',
+        imageFile: imageFile,
+        imageFieldName: 'image',
+        audioBytes: audioBytes,
+        audioFieldName: 'audio',
+        audioFormat: 'aac',
+        fields: fields,
+      );
+
+      print('🎉 API request completed');
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+      final result = ApiImageEditResponse.fromJson(jsonData);
+
+      print(
+        '✅ Direct upload with voice successful! Processing time: ${result.processingTime}s',
+      );
+
+      return result;
+    });
+  }
 }

@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
 import 'drawing/drawing_categories_screen.dart';
+import 'drawing/direct_upload_screen.dart';
 import 'gallery_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,7 +22,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _screens = [const DrawingCategoriesScreen(), const GalleryScreen()];
+    _screens = [
+      const DrawingCategoriesScreen(),
+      const DirectUploadScreen(),
+      const GalleryScreen(),
+    ];
   }
 
   void _onNavItemTapped(int index) {
@@ -80,11 +85,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => _onNavItemTapped(0),
               ),
               _buildFloatingNavItem(
+                icon: Icons.add_photo_alternate,
+                outlinedIcon: Icons.add_photo_alternate_outlined,
+                label: 'navigation.upload'.tr(),
+                isSelected: _selectedIndex == 1,
+                onTap: () => _onNavItemTapped(1),
+              ),
+              _buildFloatingNavItem(
                 icon: Icons.collections,
                 outlinedIcon: Icons.collections_outlined,
                 label: 'navigation.gallery'.tr(),
-                isSelected: _selectedIndex == 1,
-                onTap: () => _onNavItemTapped(1),
+                isSelected: _selectedIndex == 2,
+                onTap: () => _onNavItemTapped(2),
               ),
             ],
           ),

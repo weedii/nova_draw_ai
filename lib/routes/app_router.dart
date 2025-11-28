@@ -220,6 +220,25 @@ GoRouter createAppRouter(UserProvider userProvider) {
           );
         },
       ),
+
+      // Direct Upload Result Route
+      GoRoute(
+        path: "/drawings/direct/upload/result",
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final originalImageUrl = extra?['originalImageUrl'] as String?;
+          final editedImageUrl = extra?['editedImageUrl'] as String?;
+          final dbDrawingId = extra?['drawing_id'] as String?;
+          return DrawingFinalResultScreen(
+            categoryId: 'direct',
+            drawingId: 'upload',
+            originalImageUrl: originalImageUrl,
+            editedImageUrl: editedImageUrl,
+            selectedEditOption: null,
+            dbDrawingId: dbDrawingId,
+          );
+        },
+      ),
     ],
   );
 }
