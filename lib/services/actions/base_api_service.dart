@@ -16,8 +16,8 @@ abstract class BaseApiService {
 
   /// Get the base URL for API requests from .env file
   static String get baseUrl {
-    // final url = dotenv.env['API_BASE_URL'];
-    final url = "https://novadraw-o47gf.ondigitalocean.app";
+    final url = dotenv.env['API_BASE_URL'];
+    // final url = "https://novadraw-o47gf.ondigitalocean.app";
     if (url == null || url.isEmpty) {
       throw ApiException(
         'API_BASE_URL not configured in .env file',

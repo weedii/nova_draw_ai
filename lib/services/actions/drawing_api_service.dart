@@ -138,6 +138,7 @@ class DrawingApiService {
   /// [imageFile] - The image file to edit (optional if imageUrl is provided)
   /// [imageUrl] - URL of existing image from Spaces to re-edit (optional if imageFile is provided)
   /// [prompt] - The editing instruction (e.g., "make it alive", "make it colorful")
+  /// [subject] - What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
   /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
@@ -146,6 +147,7 @@ class DrawingApiService {
     File? imageFile,
     String? imageUrl,
     required String prompt,
+    String? subject,
     String? drawingId,
   }) async {
     return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
@@ -170,6 +172,12 @@ class DrawingApiService {
 
       // Prepare request fields
       final fields = {'prompt': prompt.trim()};
+
+      // Add subject if provided (helps Gemini understand the drawing)
+      if (subject != null && subject.trim().isNotEmpty) {
+        fields['subject'] = subject.trim();
+        print('📚 Subject Added to the request: $subject');
+      }
 
       // Add drawingId if provided (for appending to existing drawing)
       if (drawingId != null) {
@@ -313,6 +321,7 @@ class DrawingApiService {
   /// [imageUrl] - URL of existing image from Spaces to re-edit (optional if imageFile is provided)
   /// [audioBytes] - Raw audio data (AAC format recommended, no disk I/O needed)
   /// [language] - Language code: 'en' for English or 'de' for German
+  /// [subject] - What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
   /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
@@ -322,6 +331,7 @@ class DrawingApiService {
     String? imageUrl,
     required Uint8List audioBytes,
     required String language,
+    String? subject,
     String? drawingId,
   }) async {
     return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
@@ -352,6 +362,12 @@ class DrawingApiService {
       final fields = {
         'language': language, // Language ('en' or 'de')
       };
+
+      // Add subject if provided (helps Gemini understand the drawing)
+      if (subject != null && subject.trim().isNotEmpty) {
+        fields['subject'] = subject.trim();
+        print('📚 Subject Added to the request: $subject');
+      }
 
       // Add drawingId if provided (for appending to existing drawing)
       if (drawingId != null) {

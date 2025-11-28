@@ -10,8 +10,8 @@ import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
 
 class DrawingFinalResultScreen extends StatefulWidget {
-  final String categoryId;
-  final String drawingId;
+  final String category;
+  final String subject;
   final String? originalImageUrl; // URL of the original uploaded image
   final String? editedImageUrl; // URL of the edited image
   final EditOption? selectedEditOption;
@@ -19,8 +19,8 @@ class DrawingFinalResultScreen extends StatefulWidget {
 
   const DrawingFinalResultScreen({
     super.key,
-    required this.categoryId,
-    required this.drawingId,
+    required this.category,
+    required this.subject,
     this.originalImageUrl,
     this.editedImageUrl,
     this.selectedEditOption,
@@ -188,7 +188,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
 
     if (imageUrl != null) {
       context.push(
-        '/drawings/${widget.categoryId}/${widget.drawingId}/story',
+        '/drawings/${widget.category}/${widget.subject}/story',
         extra: {'imageUrl': imageUrl, 'dbDrawingId': widget.dbDrawingId},
       );
     }
@@ -201,7 +201,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   void _editDrawingAgain() {
     // Pass the original image URL and database drawing ID for re-editing
     context.pushReplacement(
-      '/drawings/${widget.categoryId}/${widget.drawingId}/edit-options',
+      '/drawings/${widget.category}/${widget.subject}/edit-options',
       extra: {
         'originalImageUrl': widget.originalImageUrl,
         'dbDrawingId': widget.dbDrawingId,
