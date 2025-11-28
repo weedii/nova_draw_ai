@@ -21,8 +21,10 @@ class DrawingProvider extends ChangeNotifier {
   String? _currentSubject;
 
   // Current selection state
-  String? _selectedCategoryId;
-  String? _selectedDrawingId;
+  String? _selectedCategory;
+  String? _selectedSubject;
+  String? _selectedSubjectEn; // Store English version for API calls
+  String? _selectedSubjectDe; // Store German version for display
   int _currentStepIndex = 0;
 
   // Getters for categories
@@ -41,8 +43,10 @@ class DrawingProvider extends ChangeNotifier {
   bool get hasSteps => _currentSteps.isNotEmpty;
 
   // Getters for current selection
-  String? get selectedCategoryId => _selectedCategoryId;
-  String? get selectedDrawingId => _selectedDrawingId;
+  String? get selectedCategory => _selectedCategory;
+  String? get selectedSubject => _selectedSubject;
+  String? get selectedSubjectEn => _selectedSubjectEn;
+  String? get selectedSubjectDe => _selectedSubjectDe;
   int get currentStepIndex => _currentStepIndex;
   bool get hasNextStep => _currentStepIndex < _currentSteps.length - 1;
   bool get hasPreviousStep => _currentStepIndex > 0;
@@ -77,22 +81,27 @@ class DrawingProvider extends ChangeNotifier {
   }
 
   // Select category
-  void selectCategory(String categoryId) {
-    _selectedCategoryId = categoryId;
-    _selectedDrawingId = null;
+  void selectCategory(String category) {
+    _selectedCategory = category;
+    _selectedSubject = null;
+    _selectedSubjectEn = null;
+    _selectedSubjectDe = null;
     _clearSteps();
     notifyListeners();
   }
 
-  // Select drawing
+  // Select drawing and persist subject in both languages
   void selectDrawing(String categoryTitle, String drawingName) async {
-    _selectedCategoryId = categoryTitle;
-    _selectedDrawingId = drawingName;
+    _selectedCategory = categoryTitle;
+    _selectedSubject = drawingName;
     _currentStepIndex = 0;
 
-    // Get the drawing to find its subject for API call
+    // Get the drawing to find its subject for API call and persist both languages
     final drawing = getDrawingByName(categoryTitle, drawingName);
     if (drawing != null) {
+      // Persist subject in both languages for later access
+      _selectedSubjectEn = drawing.subjectEn;
+      _selectedSubjectDe = drawing.subjectDe;
       // Use the drawing's English name as the subject for API
       final subject = drawing.subjectEn;
       await loadStepsFromApi(subject);
@@ -252,8 +261,10 @@ class DrawingProvider extends ChangeNotifier {
 
   // Clear all state
   void clearAll() {
-    _selectedCategoryId = null;
-    _selectedDrawingId = null;
+    _selectedCategory = null;
+    _selectedSubject = null;
+    _selectedSubjectEn = null;
+    _selectedSubjectDe = null;
     _clearSteps();
     notifyListeners();
   }

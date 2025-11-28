@@ -34,6 +34,10 @@ async def edit_image(
     prompt: str = Form(
         ..., description="Processing instruction (e.g., 'make it alive')"
     ),
+    subject: str = Form(
+        None,
+        description="What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing",
+    ),
     image: UploadFile = File(
         None, description="Image file to process (optional if image_url is provided)"
     ),
@@ -98,6 +102,7 @@ async def edit_image(
         result = await image_processing_service.edit_image_with_prompt(
             db=db,
             prompt=prompt,
+            subject=subject,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
             drawing_id=UUID(drawing_id) if drawing_id else None,
@@ -135,6 +140,10 @@ async def edit_image_with_audio(
         description="Audio file (mp3, wav, m4a, aac, webm, ogg, flac) with editing instructions",
     ),
     language: str = Form(..., description="Language code: 'en' or 'de'"),
+    subject: str = Form(
+        None,
+        description="What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing",
+    ),
     image: UploadFile = File(
         None, description="Image file to edit (optional if image_url is provided)"
     ),
@@ -224,6 +233,7 @@ async def edit_image_with_audio(
             audio_data=audio_data,
             audio_filename=audio.filename or "audio.mp3",
             language=language,
+            subject=subject,
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
             drawing_id=UUID(drawing_id) if drawing_id else None,

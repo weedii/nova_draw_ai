@@ -98,7 +98,9 @@ class ImageProcessingService:
             logger.error(f"❌ Voice prompt enhancement failed: {e}")
             return user_request
 
-    def process_image(self, image_data: bytes, prompt: str) -> Tuple[str, float]:
+    def process_image(
+        self, image_data: bytes, prompt: str, subject: str = None
+    ) -> Tuple[str, float]:
         """
         Process an image with a text prompt using Gemini.
 
@@ -108,6 +110,7 @@ class ImageProcessingService:
         Args:
             image_data: Raw image bytes
             prompt: Text prompt for processing (detailed prompt from edit_options table)
+            subject: What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
 
         Returns:
             Tuple of (base64_result_image, processing_time)
@@ -136,7 +139,7 @@ class ImageProcessingService:
             # The prompt from edit_options already contains detailed instructions,
             # so we just wrap it with preservation guidelines
             logger.info("🎯 Preparing prompt for Gemini (no GPT enhancement)...")
-            full_prompt = get_image_processing_prompt(prompt)
+            full_prompt = get_image_processing_prompt(prompt, subject)
 
             # Prepare content for Gemini
             contents = [full_prompt, input_image]
@@ -289,6 +292,7 @@ class ImageProcessingService:
         db: AsyncSession,
         prompt: str,
         user_id: UUID,
+        subject: str = None,
         tutorial_id: UUID = None,
         drawing_id: UUID = None,
         image_data: bytes = None,
@@ -303,6 +307,7 @@ class ImageProcessingService:
             db: Async database session
             prompt: Processing instruction
             user_id: UUID of the user editing the image
+            subject: What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
             tutorial_id: Optional UUID of the associated tutorial
             drawing_id: Optional UUID of existing drawing to append edit to
             image_data: Raw image bytes (for new uploads)
@@ -374,8 +379,10 @@ class ImageProcessingService:
         image_info = self.get_image_info(image_data)
         logger.info(f"Processing image: {image_info}")
 
+        logger.info(f"===== Using subject '{subject}' =====")
+
         # Step 2: Process the image
-        result_base64, processing_time = self.process_image(image_data, prompt)
+        result_base64, processing_time = self.process_image(image_data, prompt, subject)
 
         # Step 3: Upload edited image to Spaces
         edited_image_url = None
@@ -455,6 +462,7 @@ class ImageProcessingService:
         audio_filename: str,
         language: str,
         user_id: UUID,
+        subject: str = None,
         tutorial_id: UUID = None,
         drawing_id: UUID = None,
         audio_service=None,
@@ -472,6 +480,7 @@ class ImageProcessingService:
             audio_filename: Audio file name
             language: Language code ('en' or 'de')
             user_id: UUID of the user editing the image
+            subject: What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
             tutorial_id: Optional UUID of the associated tutorial
             drawing_id: Optional UUID of existing drawing to append edit to
             audio_service: AudioService instance for transcription
@@ -578,8 +587,10 @@ class ImageProcessingService:
         # Step 3: Enhance the transcribed text with GPT (short, preservation-focused)
         enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
-        # Step 3: Process the image with the transcribed text
-        result_base64, processing_time = self.process_image(image_data, enhanced_prompt)
+        # Step 4: Process the image with the transcribed text
+        result_base64, processing_time = self.process_image(
+            image_data, enhanced_prompt, subject
+        )
 
         # Step 4: Upload edited image to Spaces
         edited_image_url = None

@@ -489,6 +489,12 @@
     "images": "images",
     "view_all": "View all",
     "image_count": "images",
-    "edit_label": "Edit"
+    "edit_label": "Edit",
+    "save": "Save",
+    "saving_image": "Saving your image...",
+    "image_saved_successfully": "Image saved to your gallery! 🎉",
+    "failed_to_save_image": "Failed to save image...",
+    "no_image_to_save": "No image to save...",
+    "error_saving_image": "Error saving image"
   }
 }

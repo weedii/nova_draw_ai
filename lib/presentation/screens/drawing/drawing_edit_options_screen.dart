@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nova_draw_ai/providers/drawing_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import '../../../core/constants/colors.dart';
 import '../../../models/ui_models.dart';
@@ -16,16 +18,16 @@ import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
 
 class DrawingEditOptionsScreen extends StatefulWidget {
-  final String categoryId;
-  final String drawingId;
+  final String category;
+  final String subject;
   final File? uploadedImage;
   final String? originalImageUrl; // URL of the original image for re-editing
   final String? dbDrawingId; // Database Drawing record ID for appending edits
 
   const DrawingEditOptionsScreen({
     super.key,
-    required this.categoryId,
-    required this.drawingId,
+    required this.category,
+    required this.subject,
     this.uploadedImage,
     this.originalImageUrl,
     this.dbDrawingId,
@@ -79,6 +81,9 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     _fadeController.forward();
     _slideController.forward();
 
+    // Access and print the selected subject from provider
+    _printSelectedSubject();
+
     // Load edit options for this drawing
     _loadEditOptions();
   }
@@ -97,14 +102,24 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  void _printSelectedSubject() {
+    // Get the drawing provider
+    final drawingProvider = context.read<DrawingProvider>();
+
+    print('📚 Drawing Subject Information (DrawingEditOptionsScreen):');
+    print('  - Generic: ${drawingProvider.selectedSubject}');
+    print('  - English: ${drawingProvider.selectedSubjectEn}');
+    print('  - German: ${drawingProvider.selectedSubjectDe}');
+  }
+
   Future<void> _loadEditOptions() async {
     try {
       print('📋 Loading edit options from API...');
 
       // Fetch edit options from the API
       final apiOptions = await EditOptionApiService.getEditOptions(
-        category: widget.categoryId,
-        subject: widget.drawingId,
+        category: widget.category,
+        subject: widget.subject,
       );
 
       if (!mounted) return;
@@ -189,6 +204,10 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       // Get the detailed AI prompt from the selected edit option
       final prompt = _selectedEditOption!.promptEn;
 
+      // Get the selected subject from provider
+      final drawingProvider = context.read<DrawingProvider>();
+      final subject = drawingProvider.selectedSubjectEn;
+
       // Call the API to edit the image
       // If originalImageUrl is provided (re-editing), use it; otherwise use the uploaded file
       // Only pass dbDrawingId when re-editing (dbDrawingId is provided)
@@ -196,13 +215,14 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         imageFile: widget.uploadedImage,
         imageUrl: widget.originalImageUrl,
         prompt: prompt,
+        subject: subject,
         drawingId: widget.dbDrawingId,
       );
 
       if (mounted && response.success) {
         // Navigate to the final result screen with the edited image URLs and drawing ID
         context.pushReplacement(
-          '/drawings/${widget.categoryId}/${widget.drawingId}/result',
+          '/drawings/${widget.category}/${widget.subject}/result',
           extra: {
             'originalImageUrl': response.originalImageUrl,
             'editedImageUrl': response.editedImageUrl,
@@ -248,7 +268,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   void _skipEditing() {
     // Navigate to result screen without editing
     context.pushReplacement(
-      '/drawings/${widget.categoryId}/${widget.drawingId}/result',
+      '/drawings/${widget.category}/${widget.subject}/result',
       extra: {
         'uploadedImage': widget.uploadedImage,
         'selectedEditOption': null,
@@ -449,6 +469,10 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       final language = context.locale.languageCode;
       print('💬 Language: $language');
 
+      // Get the selected subject from provider
+      final drawingProvider = context.read<DrawingProvider>();
+      final subject = drawingProvider.selectedSubjectEn;
+
       // Call the API service to send both image and audio
       // The audio bytes are sent directly to memory without saving to disk
       // If originalImageUrl is provided (re-editing), use it; otherwise use the uploaded file
@@ -458,6 +482,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         imageUrl: widget.originalImageUrl,
         audioBytes: _recordingBytes!, // Send audio bytes directly
         language: language, // Send current app language
+        subject: subject,
         drawingId: widget.dbDrawingId,
       );
 
@@ -479,7 +504,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
         // Navigate to the final result screen with the edited image URLs and drawing ID
         context.pushReplacement(
-          '/drawings/${widget.categoryId}/${widget.drawingId}/result',
+          '/drawings/${widget.category}/${widget.subject}/result',
           extra: {
             'originalImageUrl': response.originalImageUrl,
             'editedImageUrl': response.editedImageUrl,
