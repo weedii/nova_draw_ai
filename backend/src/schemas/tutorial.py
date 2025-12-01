@@ -7,6 +7,7 @@ from typing import List
 class TutorialMetadata(BaseModel):
     """Tutorial metadata."""
 
+    tutorial_id: str  # UUID of the tutorial for database linking
     subject_en: str
     subject_de: str
     total_steps: int

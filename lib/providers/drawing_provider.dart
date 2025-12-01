@@ -25,6 +25,7 @@ class DrawingProvider extends ChangeNotifier {
   String? _selectedSubject;
   String? _selectedSubjectEn; // Store English version for API calls
   String? _selectedSubjectDe; // Store German version for display
+  String? _selectedTutorialId; // Store tutorial ID for database linking
   int _currentStepIndex = 0;
 
   // Getters for categories
@@ -47,6 +48,7 @@ class DrawingProvider extends ChangeNotifier {
   String? get selectedSubject => _selectedSubject;
   String? get selectedSubjectEn => _selectedSubjectEn;
   String? get selectedSubjectDe => _selectedSubjectDe;
+  String? get selectedTutorialId => _selectedTutorialId;
   int get currentStepIndex => _currentStepIndex;
   bool get hasNextStep => _currentStepIndex < _currentSteps.length - 1;
   bool get hasPreviousStep => _currentStepIndex > 0;
@@ -194,6 +196,10 @@ class DrawingProvider extends ChangeNotifier {
       final apiResponse = await DrawingApiService.generateTutorial(subject);
 
       if (apiResponse.success) {
+        // Store the tutorial ID from the response metadata
+        _selectedTutorialId = apiResponse.metadata.tutorialId;
+        print('📚 Tutorial ID captured: $_selectedTutorialId');
+
         // Convert API steps to local DrawingStep format
         _currentSteps = apiResponse.steps
             .map(
@@ -265,6 +271,7 @@ class DrawingProvider extends ChangeNotifier {
     _selectedSubject = null;
     _selectedSubjectEn = null;
     _selectedSubjectDe = null;
+    _selectedTutorialId = null;
     _clearSteps();
     notifyListeners();
   }
