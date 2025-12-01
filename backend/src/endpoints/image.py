@@ -4,7 +4,6 @@ from uuid import UUID
 from typing import Optional
 from src.schemas import ImageProcessResponse, EditImageWithAudioResponse
 from src.services.image_processing_service import ImageProcessingService
-from src.services.audio_service import AudioService
 from src.services import AuthService
 from src.models import User
 from src.core.config import settings
@@ -20,13 +19,6 @@ if settings.GOOGLE_API_KEY and settings.OPENAI_API_KEY:
         image_processing_service = ImageProcessingService()
     except Exception as e:
         logger.warning(f"Could not initialize image processing service: {e}")
-
-audio_service = None
-if settings.OPENAI_API_KEY:
-    try:
-        audio_service = AudioService()
-    except Exception as e:
-        logger.warning(f"Could not initialize audio service: {e}")
 
 
 @router.post("/edit-image", response_model=ImageProcessResponse)
@@ -181,13 +173,7 @@ async def edit_image_with_audio(
     """
 
     try:
-        # Check if both services are available
-        if not audio_service:
-            raise HTTPException(
-                status_code=503,
-                detail="Audio transcription service not available. Please configure OpenAI API key.",
-            )
-
+        # Check if image service are available
         if not image_processing_service:
             raise HTTPException(
                 status_code=503,
@@ -237,7 +223,6 @@ async def edit_image_with_audio(
             user_id=user_id,
             tutorial_id=UUID(tutorial_id) if tutorial_id else None,
             drawing_id=UUID(drawing_id) if drawing_id else None,
-            audio_service=audio_service,
             image_data=image_data,
             image_url=image_url,
         )
@@ -270,7 +255,9 @@ async def direct_upload(
     subject: str = Form(
         ..., description="What did you draw? (e.g., 'train', 'dog', 'flower')"
     ),
-    prompt: str = Form(..., description="What should we do with it? (e.g., 'make it fly')"),
+    prompt: str = Form(
+        ..., description="What should we do with it? (e.g., 'make it fly')"
+    ),
     image: UploadFile = File(..., description="The drawing image file"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(AuthService.get_current_user),
@@ -343,7 +330,9 @@ async def direct_upload_with_audio(
         ..., description="Voice recording of what to do with the drawing"
     ),
     image: UploadFile = File(..., description="The drawing image file"),
-    language: str = Form("en", description="Language for audio transcription: 'en' or 'de'"),
+    language: str = Form(
+        "en", description="Language for audio transcription: 'en' or 'de'"
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(AuthService.get_current_user),
 ):
@@ -365,12 +354,6 @@ async def direct_upload_with_audio(
             raise HTTPException(
                 status_code=503,
                 detail="Image processing service not available. Please configure both Google and OpenAI API keys.",
-            )
-
-        if not audio_service:
-            raise HTTPException(
-                status_code=503,
-                detail="Audio transcription service not available. Please configure OpenAI API key.",
             )
 
         # Validate image file type
@@ -397,7 +380,6 @@ async def direct_upload_with_audio(
             audio_data=audio_data,
             audio_filename=audio.filename or "audio.mp3",
             language=language,
-            audio_service=audio_service,
         )
 
         return ImageProcessResponse(
