@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:async';
+import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,152 @@ import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
+
+/// Responsive helper class for calculating sizes based on screen dimensions
+class _ResponsiveHelper {
+  final double screenWidth;
+  final double screenHeight;
+  final double availableHeight;
+
+  _ResponsiveHelper({
+    required this.screenWidth,
+    required this.screenHeight,
+    required this.availableHeight,
+  });
+
+  // Screen size categories
+  bool get isSmallScreen => screenHeight < 700;
+  bool get isMediumScreen => screenHeight >= 700 && screenHeight < 850;
+  bool get isLargeScreen => screenHeight >= 850;
+
+  // Responsive icon sizes
+  double get iconContainerSize {
+    if (isSmallScreen) return 50;
+    if (isMediumScreen) return 60;
+    return 70;
+  }
+
+  double get iconSize {
+    if (isSmallScreen) return 28;
+    if (isMediumScreen) return 32;
+    return 36;
+  }
+
+  double get emojiSize {
+    if (isSmallScreen) return 26;
+    if (isMediumScreen) return 30;
+    return 36;
+  }
+
+  // Responsive font sizes
+  double get titleFontSize {
+    if (isSmallScreen) return 16;
+    if (isMediumScreen) return 18;
+    return 20;
+  }
+
+  double get subtitleFontSize {
+    if (isSmallScreen) return 11;
+    if (isMediumScreen) return 12;
+    return 13;
+  }
+
+  double get buttonFontSize {
+    if (isSmallScreen) return 13;
+    if (isMediumScreen) return 14;
+    return 15;
+  }
+
+  // Responsive padding
+  double get cardPadding {
+    if (isSmallScreen) return 14;
+    if (isMediumScreen) return 18;
+    return 24;
+  }
+
+  double get cardPaddingHorizontal {
+    if (isSmallScreen) return 14;
+    if (isMediumScreen) return 18;
+    return 20;
+  }
+
+  double get itemSpacing {
+    if (isSmallScreen) return 10;
+    if (isMediumScreen) return 14;
+    return 16;
+  }
+
+  double get smallSpacing {
+    if (isSmallScreen) return 4;
+    if (isMediumScreen) return 6;
+    return 8;
+  }
+
+  // Image preview height
+  double get imagePreviewHeight {
+    if (isSmallScreen) return min(availableHeight * 0.35, 200);
+    if (isMediumScreen) return min(availableHeight * 0.4, 280);
+    return min(availableHeight * 0.45, 350);
+  }
+
+  double get smallImagePreviewHeight {
+    if (isSmallScreen) return 80;
+    if (isMediumScreen) return 100;
+    return 120;
+  }
+
+  // Button dimensions
+  double get buttonHeight {
+    if (isSmallScreen) return 46;
+    if (isMediumScreen) return 50;
+    return 56;
+  }
+
+  double get buttonPaddingVertical {
+    if (isSmallScreen) return 10;
+    if (isMediumScreen) return 12;
+    return 14;
+  }
+
+  double get buttonPaddingHorizontal {
+    if (isSmallScreen) return 14;
+    if (isMediumScreen) return 16;
+    return 20;
+  }
+
+  // Record button size
+  double get recordButtonSize {
+    if (isSmallScreen) return 48;
+    if (isMediumScreen) return 52;
+    return 56;
+  }
+
+  double get recordIconSize {
+    if (isSmallScreen) return 22;
+    if (isMediumScreen) return 24;
+    return 26;
+  }
+
+  // Border radius
+  double get cardBorderRadius {
+    if (isSmallScreen) return 16;
+    if (isMediumScreen) return 20;
+    return 24;
+  }
+
+  double get buttonBorderRadius {
+    if (isSmallScreen) return 12;
+    if (isMediumScreen) return 14;
+    return 16;
+  }
+
+  // Bottom padding (no nav bar on this screen)
+  double get bottomPadding {
+    if (isSmallScreen) return 12;
+    if (isMediumScreen) return 16;
+    return 20;
+  }
+}
 
 /// Direct Upload Screen - allows kids to upload any drawing
 /// without going through tutorial categories
@@ -116,32 +263,33 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     );
   }
 
-  /// Maps API error messages to user-friendly localized messages
   String _getUserFriendlyError(String error) {
     final lowerError = error.toLowerCase();
-    
+
     if (lowerError.contains('timeout') || lowerError.contains('timed out')) {
       return 'direct_upload.error_timeout'.tr();
     }
-    if (lowerError.contains('network') || lowerError.contains('connection') || 
-        lowerError.contains('socket') || lowerError.contains('failed host lookup')) {
+    if (lowerError.contains('network') ||
+        lowerError.contains('connection') ||
+        lowerError.contains('socket') ||
+        lowerError.contains('failed host lookup')) {
       return 'direct_upload.error_network'.tr();
     }
     if (lowerError.contains('too large') || lowerError.contains('2048')) {
       return 'direct_upload.error_image_too_large'.tr();
     }
-    if (lowerError.contains('invalid audio') || lowerError.contains('audio format')) {
+    if (lowerError.contains('invalid audio') ||
+        lowerError.contains('audio format')) {
       return 'direct_upload.error_invalid_audio'.tr();
     }
-    if (lowerError.contains('service not available') || lowerError.contains('503')) {
+    if (lowerError.contains('service not available') ||
+        lowerError.contains('503')) {
       return 'direct_upload.error_service_unavailable'.tr();
     }
-    
-    // Return original if no mapping found
+
     return error;
   }
 
-  /// Shows a retry dialog for recoverable errors
   void _showRetryDialog(String error, VoidCallback onRetry) {
     if (!mounted) return;
     showDialog(
@@ -179,7 +327,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     );
   }
 
-  // Image picking methods
   void _takePhoto() async {
     setState(() => _isLoading = true);
     try {
@@ -222,7 +369,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     }
   }
 
-  // Audio recording methods
   void _startRecording() async {
     try {
       if (await _audioRecorder.hasPermission()) {
@@ -288,9 +434,7 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  // Submit the drawing
   void _submit() async {
-    // Validate
     if (_pickedImage == null) {
       _showError('direct_upload.error_no_image'.tr());
       return;
@@ -303,7 +447,8 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     }
 
     final hasTextPrompt = _promptController.text.trim().isNotEmpty;
-    final hasVoicePrompt = _recordingBytes != null && _recordingBytes!.isNotEmpty;
+    final hasVoicePrompt =
+        _recordingBytes != null && _recordingBytes!.isNotEmpty;
 
     if (!hasTextPrompt && !hasVoicePrompt) {
       _showError('direct_upload.error_no_prompt'.tr());
@@ -316,7 +461,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
       late final response;
 
       if (hasVoicePrompt && _useVoicePrompt) {
-        // Use voice prompt
         final language = context.locale.languageCode;
         response = await DrawingApiService.directUploadWithVoice(
           imageFile: _pickedImage!,
@@ -325,7 +469,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
           language: language,
         );
       } else {
-        // Use text prompt
         response = await DrawingApiService.directUpload(
           imageFile: _pickedImage!,
           subject: subject,
@@ -334,7 +477,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
       }
 
       if (mounted && response.success) {
-        // Navigate to result screen
         context.pushReplacement(
           '/drawings/direct/upload/result',
           extra: {
@@ -346,7 +488,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
       }
     } on ApiException catch (e) {
       setState(() => _isProcessing = false);
-      // Show retry dialog for API errors
       _showRetryDialog(e.message, _submit);
     } on SocketException catch (_) {
       setState(() => _isProcessing = false);
@@ -362,7 +503,6 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Listen to locale changes to rebuild when language changes
     context.locale;
 
     if (_isProcessing) {
@@ -372,9 +512,12 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
       );
     }
 
+    final screenSize = MediaQuery.of(context).size;
+
     return Stack(
       children: [
         Scaffold(
+          resizeToAvoidBottomInset: true,
           body: Container(
             decoration: const BoxDecoration(
               gradient: AppColors.backgroundGradient,
@@ -388,23 +531,30 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                       title: 'direct_upload.title',
                       subtitle: 'direct_upload.subtitle',
                       emoji: '🎨',
-                      showBackButton: false,
+                      showBackButton: true,
                       showAnimation: true,
                       showSettingsButton: true,
                     ),
-                    // Step indicator
                     _buildStepIndicator(),
-                    // Main content based on current step
                     Expanded(
-                      child: Padding(
-                        // Extra bottom padding for floating nav bar
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20.0,
-                          top: 20.0,
-                          bottom: 100.0, // Space for floating nav bar
-                        ),
-                        child: _buildCurrentStep(),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final responsive = _ResponsiveHelper(
+                            screenWidth: screenSize.width,
+                            screenHeight: screenSize.height,
+                            availableHeight: constraints.maxHeight,
+                          );
+
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              left: 16.0,
+                              right: 16.0,
+                              top: 8.0,
+                              bottom: responsive.bottomPadding,
+                            ),
+                            child: _buildCurrentStep(responsive),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -424,7 +574,7 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
 
   Widget _buildStepIndicator() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
       child: Row(
         children: [
           _buildStepDot(0, '1'),
@@ -441,13 +591,13 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     final isActive = _currentStep >= step;
     final isCurrent = _currentStep == step;
     return Container(
-      width: 36,
-      height: 36,
+      width: 32,
+      height: 32,
       decoration: BoxDecoration(
         color: isActive ? AppColors.primary : AppColors.border,
         shape: BoxShape.circle,
         border: isCurrent
-            ? Border.all(color: AppColors.accent, width: 3)
+            ? Border.all(color: AppColors.accent, width: 2)
             : null,
       ),
       child: Center(
@@ -456,6 +606,7 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
           style: TextStyle(
             color: isActive ? AppColors.white : AppColors.textDark,
             fontWeight: FontWeight.bold,
+            fontSize: 14,
           ),
         ),
       ),
@@ -470,171 +621,182 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     );
   }
 
-  Widget _buildCurrentStep() {
+  Widget _buildCurrentStep(_ResponsiveHelper r) {
     switch (_currentStep) {
       case 0:
-        return _buildSubjectStep();
+        return _buildSubjectStep(r);
       case 1:
-        return _buildImageStep();
+        return _buildImageStep(r);
       case 2:
-        return _buildPromptStep();
+        return _buildPromptStep(r);
       default:
-        return _buildSubjectStep();
+        return _buildSubjectStep(r);
     }
   }
 
-
   // Step 1: What did you draw?
-  Widget _buildSubjectStep() {
+  Widget _buildSubjectStep(_ResponsiveHelper r) {
     return Column(
       children: [
         Expanded(
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Main card with gradient border
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.accent],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(3),
-                  child: Container(
-                    padding: const EdgeInsets.all(28),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(21),
-                    ),
-                    child: Column(
-                      children: [
-                        // Animated emoji container
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.primary.withValues(alpha: 0.1),
-                                AppColors.accent.withValues(alpha: 0.1),
-                              ],
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Text('🎨', style: TextStyle(fontSize: 50)),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'direct_upload.what_did_you_draw'.tr(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                            fontFamily: 'Comic Sans MS',
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'direct_upload.subject_description'.tr(),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textDark.withValues(alpha: 0.6),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 28),
-                        // Enhanced text field
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _subjectController,
-                            decoration: InputDecoration(
-                              hintText: 'direct_upload.subject_hint'.tr(),
-                              hintStyle: TextStyle(
-                                color: AppColors.textDark.withValues(alpha: 0.4),
-                              ),
-                              filled: true,
-                              fillColor: AppColors.background,
-                              prefixIcon: const Icon(
-                                Icons.brush,
-                                color: AppColors.primary,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(18),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(18),
-                                borderSide: const BorderSide(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 18,
-                              ),
-                            ),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textCapitalization: TextCapitalization.words,
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
+            physics: const BouncingScrollPhysics(),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.accent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(r.cardBorderRadius),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(3),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: r.cardPaddingHorizontal,
+                  vertical: r.cardPadding,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(r.cardBorderRadius - 3),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: r.iconContainerSize,
+                      height: r.iconContainerSize,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.primary.withValues(alpha: 0.1),
+                            AppColors.accent.withValues(alpha: 0.1),
+                          ],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '🎨',
+                          style: TextStyle(fontSize: r.emojiSize),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: r.itemSpacing),
+                    Text(
+                      'direct_upload.what_did_you_draw'.tr(),
+                      style: TextStyle(
+                        fontSize: r.titleFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                        fontFamily: 'Comic Sans MS',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: r.smallSpacing),
+                    Text(
+                      'direct_upload.subject_description'.tr(),
+                      style: TextStyle(
+                        fontSize: r.subtitleFontSize,
+                        color: AppColors.textDark.withValues(alpha: 0.6),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: r.itemSpacing),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          r.buttonBorderRadius,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _subjectController,
+                        decoration: InputDecoration(
+                          hintText: 'direct_upload.subject_hint'.tr(),
+                          hintStyle: TextStyle(
+                            color: AppColors.textDark.withValues(alpha: 0.4),
+                            fontSize: r.buttonFontSize,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.background,
+                          prefixIcon: Icon(
+                            Icons.brush,
+                            color: AppColors.primary,
+                            size: r.iconSize * 0.6,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              r.buttonBorderRadius,
+                            ),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              r.buttonBorderRadius,
+                            ),
+                            borderSide: const BorderSide(
+                              color: AppColors.primary,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: r.buttonPaddingHorizontal,
+                            vertical: r.buttonPaddingVertical,
+                          ),
+                        ),
+                        style: TextStyle(
+                          fontSize: r.buttonFontSize,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: r.itemSpacing),
         CustomButton(
           label: 'common.next',
           onPressed: _nextStep,
           backgroundColor: AppColors.primary,
           textColor: AppColors.white,
           icon: Icons.arrow_forward,
+          height: r.buttonHeight,
         ),
       ],
     );
   }
 
   // Step 2: Upload your drawing
-  Widget _buildImageStep() {
+  Widget _buildImageStep(_ResponsiveHelper r) {
     return Column(
       children: [
         Expanded(
-          child: _pickedImage != null
-              ? _buildImagePreview()
-              : _buildImageUploadOptions(),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: _pickedImage != null
+                ? _buildImagePreview(r)
+                : _buildImageUploadOptions(r),
+          ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: r.itemSpacing),
         Row(
           children: [
             Expanded(
@@ -644,18 +806,21 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                 variant: 'outlined',
                 borderColor: AppColors.primary,
                 textColor: AppColors.primary,
+                height: r.buttonHeight,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: r.smallSpacing * 1.5),
             Expanded(
               child: CustomButton(
                 label: 'common.next',
                 onPressed: _pickedImage != null ? _nextStep : () {},
-                backgroundColor:
-                    _pickedImage != null ? AppColors.primary : AppColors.border,
+                backgroundColor: _pickedImage != null
+                    ? AppColors.primary
+                    : AppColors.border,
                 textColor: AppColors.white,
                 icon: Icons.arrow_forward,
                 enabled: _pickedImage != null,
+                height: r.buttonHeight,
               ),
             ),
           ],
@@ -664,7 +829,7 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     );
   }
 
-  Widget _buildImageUploadOptions() {
+  Widget _buildImageUploadOptions(_ResponsiveHelper r) {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -672,29 +837,31 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(r.cardBorderRadius),
         boxShadow: [
           BoxShadow(
             color: AppColors.secondary.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       padding: const EdgeInsets.all(3),
       child: Container(
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.symmetric(
+          horizontal: r.cardPaddingHorizontal,
+          vertical: r.cardPadding,
+        ),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(21),
+          borderRadius: BorderRadius.circular(r.cardBorderRadius - 3),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Animated camera icon
             Container(
-              width: 100,
-              height: 100,
+              width: r.iconContainerSize,
+              height: r.iconContainerSize,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -704,41 +871,45 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                 ),
                 shape: BoxShape.circle,
               ),
-              child: const Center(
-                child: Icon(Icons.cloud_upload_rounded, size: 50, color: AppColors.secondary),
+              child: Center(
+                child: Icon(
+                  Icons.cloud_upload_rounded,
+                  size: r.iconSize,
+                  color: AppColors.secondary,
+                ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: r.itemSpacing),
             Text(
               'direct_upload.upload_your_drawing'.tr(),
-              style: const TextStyle(
-                fontSize: 22,
+              style: TextStyle(
+                fontSize: r.titleFontSize,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textDark,
                 fontFamily: 'Comic Sans MS',
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: r.smallSpacing),
             Text(
               'direct_upload.upload_description'.tr(),
               style: TextStyle(
-                fontSize: 14,
+                fontSize: r.subtitleFontSize,
                 color: AppColors.textDark.withValues(alpha: 0.6),
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-            // Camera button with icon
+            SizedBox(height: r.itemSpacing),
             _buildUploadOptionButton(
+              r: r,
               icon: Icons.camera_alt_rounded,
               label: 'upload.take_photo'.tr(),
               color: AppColors.primary,
               onTap: _takePhoto,
             ),
-            const SizedBox(height: 16),
-            // Gallery button
+            SizedBox(height: r.smallSpacing * 1.5),
             _buildUploadOptionButton(
+              r: r,
               icon: Icons.photo_library_rounded,
               label: 'upload.choose_from_gallery'.tr(),
               color: AppColors.secondary,
@@ -751,6 +922,7 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
   }
 
   Widget _buildUploadOptionButton({
+    required _ResponsiveHelper r,
     required IconData icon,
     required String label,
     required Color color,
@@ -760,19 +932,22 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+        padding: EdgeInsets.symmetric(
+          vertical: r.buttonPaddingVertical,
+          horizontal: r.buttonPaddingHorizontal,
+        ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [color, color.withValues(alpha: 0.8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(r.buttonBorderRadius),
           boxShadow: [
             BoxShadow(
               color: color.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -780,20 +955,27 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(r.smallSpacing),
               decoration: BoxDecoration(
                 color: AppColors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: AppColors.white, size: 24),
-            ),
-            const SizedBox(width: 14),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
+              child: Icon(
+                icon,
                 color: AppColors.white,
+                size: r.iconSize * 0.55,
+              ),
+            ),
+            SizedBox(width: r.smallSpacing * 1.5),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: r.buttonFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -802,30 +984,30 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     );
   }
 
-  Widget _buildImagePreview() {
+  Widget _buildImagePreview(_ResponsiveHelper r) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.file(_pickedImage!, fit: BoxFit.contain),
-            ),
+        Container(
+          width: double.infinity,
+          height: r.imagePreviewHeight,
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(r.buttonBorderRadius),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(r.buttonBorderRadius),
+            child: Image.file(_pickedImage!, fit: BoxFit.contain),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: r.smallSpacing * 1.5),
         CustomButton(
           label: 'upload.choose_different',
           onPressed: () => setState(() => _pickedImage = null),
@@ -833,70 +1015,68 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
           borderColor: AppColors.primary,
           textColor: AppColors.primary,
           icon: Icons.refresh,
+          height: r.buttonHeight,
         ),
       ],
     );
   }
 
   // Step 3: What should we do with it?
-  Widget _buildPromptStep() {
+  Widget _buildPromptStep(_ResponsiveHelper r) {
     return Column(
       children: [
         Expanded(
           child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                // Image preview (small)
                 if (_pickedImage != null)
                   Container(
-                    height: 150,
+                    height: r.smallImagePreviewHeight,
                     width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 16),
+                    margin: EdgeInsets.only(bottom: r.smallSpacing * 1.5),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(r.buttonBorderRadius),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
+                          blurRadius: 6,
                         ),
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(r.buttonBorderRadius),
                       child: Image.file(_pickedImage!, fit: BoxFit.cover),
                     ),
                   ),
-
-                // Prompt input card
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(r.cardPadding * 0.8),
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(r.buttonBorderRadius),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('✨', style: TextStyle(fontSize: 40)),
-                      const SizedBox(height: 12),
+                      Text('✨', style: TextStyle(fontSize: r.emojiSize)),
+                      SizedBox(height: r.smallSpacing),
                       Text(
                         'direct_upload.what_to_do'.tr(),
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: r.titleFontSize * 0.85,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
-
-                      // Toggle between text and voice
+                      SizedBox(height: r.smallSpacing * 1.5),
                       Row(
                         children: [
                           Expanded(
@@ -904,8 +1084,9 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                               onTap: () =>
                                   setState(() => _useVoicePrompt = false),
                               child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: r.smallSpacing * 1.2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: !_useVoicePrompt
                                       ? AppColors.primary
@@ -917,14 +1098,16 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                                   children: [
                                     Icon(
                                       Icons.keyboard,
+                                      size: r.iconSize * 0.5,
                                       color: !_useVoicePrompt
                                           ? AppColors.white
                                           : AppColors.textDark,
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: r.smallSpacing),
                                     Text(
                                       'Type',
                                       style: TextStyle(
+                                        fontSize: r.subtitleFontSize,
                                         color: !_useVoicePrompt
                                             ? AppColors.white
                                             : AppColors.textDark,
@@ -936,14 +1119,15 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: r.smallSpacing),
                           Expanded(
                             child: GestureDetector(
                               onTap: () =>
                                   setState(() => _useVoicePrompt = true),
                               child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: r.smallSpacing * 1.2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: _useVoicePrompt
                                       ? AppColors.accent
@@ -955,14 +1139,16 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                                   children: [
                                     Icon(
                                       Icons.mic,
+                                      size: r.iconSize * 0.5,
                                       color: _useVoicePrompt
                                           ? AppColors.white
                                           : AppColors.textDark,
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: r.smallSpacing),
                                     Text(
                                       'Voice',
                                       style: TextStyle(
+                                        fontSize: r.subtitleFontSize,
                                         color: _useVoicePrompt
                                             ? AppColors.white
                                             : AppColors.textDark,
@@ -976,31 +1162,31 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 16),
-
-                      // Text input or voice recording
+                      SizedBox(height: r.smallSpacing * 1.5),
                       if (!_useVoicePrompt)
                         TextField(
                           controller: _promptController,
                           decoration: InputDecoration(
                             hintText: 'direct_upload.prompt_hint'.tr(),
+                            hintStyle: TextStyle(fontSize: r.subtitleFontSize),
                             filled: true,
                             fillColor: AppColors.background,
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(
+                                r.buttonBorderRadius,
+                              ),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: r.buttonPaddingHorizontal,
+                              vertical: r.buttonPaddingVertical,
                             ),
                           ),
-                          style: const TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: r.subtitleFontSize + 1),
                           maxLines: 3,
                         )
                       else
-                        _buildVoiceRecorder(),
+                        _buildVoiceRecorder(r),
                     ],
                   ),
                 ),
@@ -1008,26 +1194,30 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: r.itemSpacing),
         Row(
           children: [
             Expanded(
+              flex: 2,
               child: CustomButton(
                 label: 'common.back',
                 onPressed: _previousStep,
                 variant: 'outlined',
                 borderColor: AppColors.primary,
                 textColor: AppColors.primary,
+                height: r.buttonHeight,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: r.smallSpacing * 1.5),
             Expanded(
+              flex: 3,
               child: CustomButton(
                 label: 'direct_upload.submit',
                 onPressed: _submit,
                 backgroundColor: AppColors.accent,
                 textColor: AppColors.white,
                 icon: Icons.auto_fix_high,
+                height: r.buttonHeight,
               ),
             ),
           ],
@@ -1036,36 +1226,34 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
     );
   }
 
-  Widget _buildVoiceRecorder() {
+  Widget _buildVoiceRecorder(_ResponsiveHelper r) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(r.smallSpacing * 1.5),
       decoration: BoxDecoration(
         color: AppColors.background,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(r.buttonBorderRadius),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Recording indicator
           if (_isRecording)
             Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.mic,
-                  size: 48,
-                  color: AppColors.error,
-                ),
-                const SizedBox(height: 8),
+                Icon(Icons.mic, size: r.iconSize, color: AppColors.error),
+                SizedBox(height: r.smallSpacing),
                 Text(
                   'direct_upload.recording'.tr(),
-                  style: const TextStyle(
+                  style: TextStyle(
+                    fontSize: r.subtitleFontSize,
                     color: AppColors.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   _formatDuration(_recordingDuration),
-                  style: const TextStyle(
-                    fontSize: 24,
+                  style: TextStyle(
+                    fontSize: r.titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -1073,16 +1261,18 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
             )
           else if (_recordingBytes != null)
             Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.check_circle,
-                  size: 48,
+                  size: r.iconSize,
                   color: AppColors.success,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: r.smallSpacing),
                 Text(
                   '${_formatDuration(_recordingDuration)} recorded',
-                  style: const TextStyle(
+                  style: TextStyle(
+                    fontSize: r.subtitleFontSize,
                     color: AppColors.success,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1091,30 +1281,25 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
             )
           else
             Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.mic_none,
-                  size: 48,
-                  color: AppColors.border,
-                ),
-                const SizedBox(height: 8),
+                Icon(Icons.mic_none, size: r.iconSize, color: AppColors.border),
+                SizedBox(height: r.smallSpacing),
                 Text(
                   'direct_upload.start_recording'.tr(),
                   style: TextStyle(
+                    fontSize: r.subtitleFontSize,
                     color: AppColors.textDark.withValues(alpha: 0.6),
                   ),
                 ),
               ],
             ),
-
-          const SizedBox(height: 16),
-
-          // Record button
+          SizedBox(height: r.smallSpacing * 1.5),
           GestureDetector(
             onTap: _isRecording ? _stopRecording : _startRecording,
             child: Container(
-              width: 70,
-              height: 70,
+              width: r.recordButtonSize,
+              height: r.recordButtonSize,
               decoration: BoxDecoration(
                 color: _isRecording ? AppColors.error : AppColors.primary,
                 shape: BoxShape.circle,
@@ -1122,32 +1307,37 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
                   BoxShadow(
                     color: (_isRecording ? AppColors.error : AppColors.primary)
                         .withValues(alpha: 0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: Icon(
                 _isRecording ? Icons.stop : Icons.mic,
                 color: AppColors.white,
-                size: 32,
+                size: r.recordIconSize,
               ),
             ),
           ),
-
-          // Clear recording button
           if (_recordingBytes != null && !_isRecording)
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: EdgeInsets.only(top: r.smallSpacing),
               child: TextButton.icon(
                 onPressed: () => setState(() {
                   _recordingBytes = null;
                   _recordingDuration = Duration.zero;
                 }),
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Record again'),
+                icon: Icon(Icons.refresh, size: r.iconSize * 0.4),
+                label: Text(
+                  'Record again',
+                  style: TextStyle(fontSize: r.subtitleFontSize),
+                ),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.textDark.withValues(alpha: 0.6),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: r.smallSpacing,
+                    vertical: r.smallSpacing * 0.5,
+                  ),
                 ),
               ),
             ),
