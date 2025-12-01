@@ -1,11 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/colors.dart';
 import '../../models/api_models.dart';
 import '../../services/actions/gallery_api_service.dart';
 import '../animations/app_animations.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_loading_widget.dart';
+import '../widgets/custom_button.dart';
 import '../widgets/save_to_gallery_button.dart';
 
 class GalleryScreen extends StatefulWidget {
@@ -534,6 +536,19 @@ class _GalleryScreenState extends State<GalleryScreen>
     );
   }
 
+  void _handleReEditImage(ApiGalleryDrawing drawing) {
+    Navigator.pop(context);
+    if (drawing.uploadedImageUrl != null && drawing.tutorial != null) {
+      context.push(
+        '/drawings/${drawing.tutorial!.categoryEn}/${drawing.tutorial!.subjectEn}/edit-options',
+        extra: {
+          'originalImageUrl': drawing.uploadedImageUrl,
+          'dbDrawingId': drawing.id,
+        },
+      );
+    }
+  }
+
   Widget _buildImageViewerModal(
     ApiGalleryDrawing drawing,
     List<String> images,
@@ -555,48 +570,68 @@ class _GalleryScreenState extends State<GalleryScreen>
             // Header
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (drawing.tutorial != null)
-                        Text(
-                          drawing.tutorial!.subjectEn,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                            fontFamily: 'Comic Sans MS',
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (drawing.tutorial != null)
+                            Text(
+                              drawing.tutorial!.subjectEn,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textDark,
+                                fontFamily: 'Comic Sans MS',
+                              ),
+                            )
+                          else
+                            Text(
+                              'gallery.original_image'.tr(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textDark,
+                                fontFamily: 'Comic Sans MS',
+                              ),
+                            ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${images.length} ${'gallery.image_count'.tr()}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textDark.withValues(alpha: 0.6),
+                              fontFamily: 'Comic Sans MS',
+                            ),
                           ),
-                        )
-                      else
-                        Text(
-                          'gallery.original_image'.tr(),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                            fontFamily: 'Comic Sans MS',
-                          ),
-                        ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${images.length} ${'gallery.image_count'.tr()}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textDark.withValues(alpha: 0.6),
-                          fontFamily: 'Comic Sans MS',
-                        ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                        color: AppColors.textDark,
                       ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                    color: AppColors.textDark,
-                  ),
+
+                  // Re-edit Button
+                  if (drawing.tutorial != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: CustomButton(
+                        label: 'gallery.re_edit',
+                        onPressed: () => _handleReEditImage(drawing),
+                        backgroundColor: AppColors.success,
+                        textColor: AppColors.white,
+                        icon: Icons.edit,
+                        height: 50,
+                        fontSize: 14,
+                      ),
+                    ),
                 ],
               ),
             ),
