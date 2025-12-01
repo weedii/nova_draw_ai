@@ -477,10 +477,15 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
       // Get the selected subject and tutorial ID from provider
       final drawingProvider = context.read<DrawingProvider>();
-      final subject = drawingProvider.selectedSubjectEn;
+      final subject = context.locale.languageCode == 'de'
+          ? drawingProvider.selectedSubjectDe
+          : drawingProvider.selectedSubjectEn;
       final tutorialId = drawingProvider.selectedTutorialId;
 
       print('📚 Using Tutorial ID: $tutorialId');
+      print(
+        '📚 Using Subject: $subject (Language: ${context.locale.languageCode})',
+      );
 
       // Call the API service to send both image and audio
       // The audio bytes are sent directly to memory without saving to disk

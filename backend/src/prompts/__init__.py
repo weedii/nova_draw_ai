@@ -18,8 +18,8 @@ from src.prompts.audio_prompts import (
 
 # Image processing prompts
 from src.prompts.image_processing_prompts import (
-    get_voice_prompt_enhancement_prompt,
-    get_image_processing_prompt,
+    get_image_processing_prompt_en,
+    get_image_processing_prompt_de,
 )
 
 # Drawing prompts
@@ -48,7 +48,8 @@ __all__ = [
     "get_prompt_enhancement_user_message",
     # Image processing prompts
     "get_voice_prompt_enhancement_prompt",
-    "get_image_processing_prompt",
+    "get_image_processing_prompt_en",
+    "get_image_processing_prompt_de",
     # Drawing prompts
     "get_drawing_steps_generation_prompt",
     "get_german_translation_prompt",

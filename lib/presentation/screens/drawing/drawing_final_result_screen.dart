@@ -518,9 +518,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
               child: widget.editedImageUrl != null
                   ? SaveToGalleryButton(
                       imageUrl: widget.editedImageUrl!,
-                      displayMode: SaveButtonDisplayMode.both,
                       backgroundColor: AppColors.success,
-                      iconColor: AppColors.white,
                       textColor: AppColors.white,
                       borderRadius: 16,
                       padding: const EdgeInsets.symmetric(

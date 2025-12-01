@@ -6,6 +6,7 @@ from io import BytesIO
 from google import genai
 from openai import OpenAI
 from typing import Tuple, Any
+from src.services import AudioService
 from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import attributes
@@ -15,8 +16,8 @@ from src.services.storage_service import StorageService
 from src.models import Drawing, Tutorial
 from src.core.logger import logger
 from src.prompts import (
-    get_voice_prompt_enhancement_prompt,
-    get_image_processing_prompt,
+    get_image_processing_prompt_en,
+    get_image_processing_prompt_de,
 )
 
 
@@ -50,56 +51,61 @@ class ImageProcessingService:
         logger.info(f"Using Gemini model: {self.gemini_model}")
         logger.info(f"Using OpenAI model: {self.openai_model}")
 
-    def enhance_voice_prompt(self, user_request: str, subject: str = None) -> str:
-        """
-        Use GPT-3.5-turbo to create a focused prompt from voice input.
+    # Commented for now, cause not being used anywhere!
+    # def enhance_voice_prompt(self, user_request: str, subject: str = None) -> str:
+    #     """
+    #     Use GPT-3.5-turbo to create a focused prompt from voice input.
 
-        This is simpler than the old enhance_prompt - it creates short,
-        preservation-focused prompts that won't lose the drawing's identity.
+    #     This is simpler than the old enhance_prompt - it creates short,
+    #     preservation-focused prompts that won't lose the drawing's identity.
 
-        Args:
-            user_request: Transcribed voice request (e.g., "put it in Paris")
-            subject: What the child drew (e.g., "dog", "cat") - from tutorial
+    #     Args:
+    #         user_request: Transcribed voice request (e.g., "put it in Paris")
+    #         subject: What the child drew (e.g., "dog", "cat") - from tutorial
 
-        Returns:
-            Short, focused prompt for Gemini
-        """
+    #     Returns:
+    #         Short, focused prompt for Gemini
+    #     """
 
-        logger.info(f"🎤 Enhancing voice prompt: '{user_request}' (subject: {subject})")
-        enhancement_start = time.time()
+    #     logger.info(f"🎤 Enhancing voice prompt: '{user_request}' (subject: {subject})")
+    #     enhancement_start = time.time()
 
-        try:
-            # Get prompt from centralized prompt module
-            enhancement_prompt = get_voice_prompt_enhancement_prompt(
-                user_request, subject
-            )
+    #     try:
+    #         # Get prompt from centralized prompt module
+    #         enhancement_prompt = get_voice_prompt_enhancement_prompt(
+    #             user_request, subject
+    #         )
 
-            response = self.openai_client.chat.completions.create(
-                model=self.openai_model,
-                messages=[{"role": "user", "content": enhancement_prompt}],
-                max_tokens=170,  # Balanced output
-                temperature=0.65,  # Balanced creativity
-            )
+    #         response = self.openai_client.chat.completions.create(
+    #             model=self.openai_model,
+    #             messages=[{"role": "user", "content": enhancement_prompt}],
+    #             max_tokens=170,  # Balanced output
+    #             temperature=0.65,  # Balanced creativity
+    #         )
 
-            enhancement_time = time.time() - enhancement_start
-            logger.info(
-                f"⚡ Voice prompt enhancement completed in {enhancement_time:.2f}s"
-            )
+    #         enhancement_time = time.time() - enhancement_start
+    #         logger.info(
+    #             f"⚡ Voice prompt enhancement completed in {enhancement_time:.2f}s"
+    #         )
 
-            if not response.choices or not response.choices[0].message.content:
-                logger.warning("⚠️ Empty response from OpenAI, using original")
-                return user_request
+    #         if not response.choices or not response.choices[0].message.content:
+    #             logger.warning("⚠️ Empty response from OpenAI, using original")
+    #             return user_request
 
-            enhanced = response.choices[0].message.content.strip()
-            logger.info(f"✅ Enhanced voice prompt: '{enhanced}'")
-            return enhanced
+    #         enhanced = response.choices[0].message.content.strip()
+    #         logger.info(f"✅ Enhanced voice prompt: '{enhanced}'")
+    #         return enhanced
 
-        except Exception as e:
-            logger.error(f"❌ Voice prompt enhancement failed: {e}")
-            return user_request
+    #     except Exception as e:
+    #         logger.error(f"❌ Voice prompt enhancement failed: {e}")
+    #         return user_request
 
     def process_image(
-        self, image_data: bytes, prompt: str, subject: str = None
+        self,
+        image_data: bytes,
+        prompt: str,
+        subject: str = None,
+        language: str = "en",  # en or de
     ) -> Tuple[str, float]:
         """
         Process an image with a text prompt using Gemini.
@@ -117,6 +123,7 @@ class ImageProcessingService:
         """
 
         logger.info(f"🎨 Starting image processing with prompt: '{prompt[:100]}...'")
+        logger.info(f"Using Language -----> {language}")
         start_time = time.time()
 
         try:
@@ -139,7 +146,10 @@ class ImageProcessingService:
             # The prompt from edit_options already contains detailed instructions,
             # so we just wrap it with preservation guidelines
             logger.info("🎯 Preparing prompt for Gemini (no GPT enhancement)...")
-            full_prompt = get_image_processing_prompt(prompt, subject)
+            if language == "en":
+                full_prompt = get_image_processing_prompt_en(prompt, subject)
+            else:
+                full_prompt = get_image_processing_prompt_de(prompt, subject)
 
             # Prepare content for Gemini
             contents = [full_prompt, input_image]
@@ -465,7 +475,6 @@ class ImageProcessingService:
         subject: str = None,
         tutorial_id: UUID = None,
         drawing_id: UUID = None,
-        audio_service=None,
         image_data: bytes = None,
         image_url: str = None,
     ) -> dict:
@@ -483,7 +492,6 @@ class ImageProcessingService:
             subject: What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
             tutorial_id: Optional UUID of the associated tutorial
             drawing_id: Optional UUID of existing drawing to append edit to
-            audio_service: AudioService instance for transcription
             image_data: Raw image bytes (for new uploads)
             image_url: URL of existing image from Spaces (for re-editing)
 
@@ -493,6 +501,9 @@ class ImageProcessingService:
         Raises:
             ValueError: If validation or processing fails
         """
+
+        # Initialize Audio Service
+        audio_service = AudioService()
 
         # Validate that either image_data or image_url is provided
         if not image_data and not image_url:
@@ -574,14 +585,15 @@ class ImageProcessingService:
         transcribed_text, transcription_time = audio_service.transcribe_audio(
             audio_data, language, audio_filename
         )
-        logger.info(f"🎤 Transcribed: '{transcribed_text}'")
+        logger.info(f"🎤 Transcribed Text: '{transcribed_text}'")
 
+        # Ignore enhancement step it is comletely chaging the prompt and complicating it
         # Step 3: Enhance the transcribed text with GPT (short, preservation-focused)
         # enhanced_prompt = self.enhance_voice_prompt(transcribed_text, subject)
 
-        # Step 4: Process the image with the transcribed text
+        # Step 3: Process the image with the transcribed text
         result_base64, processing_time = self.process_image(
-            image_data, transcribed_text, subject
+            image_data, transcribed_text, subject, language
         )
 
         # Step 4: Upload edited image to Spaces
@@ -762,7 +774,6 @@ Child drew "house" and says "add snow" → "Cover this child's house in beautifu
         audio_data: bytes = None,
         audio_filename: str = None,
         language: str = "en",
-        audio_service=None,
     ) -> dict:
         """
         Process a direct upload: kid uploads any drawing with subject and prompt (text or audio).
@@ -776,7 +787,6 @@ Child drew "house" and says "add snow" → "Cover this child's house in beautifu
             audio_data: Audio bytes (optional if prompt provided)
             audio_filename: Audio filename for format detection
             language: Language code for audio transcription ('en' or 'de')
-            audio_service: AudioService instance for transcription
 
         Returns:
             Dictionary with drawing_id, original_image_url, edited_image_url, prompt, processing_time
@@ -784,7 +794,11 @@ Child drew "house" and says "add snow" → "Cover this child's house in beautifu
         Raises:
             ValueError: If validation fails or processing fails
         """
+
         logger.info(f"🎨 Processing direct upload - subject: '{subject}'")
+
+        # Initialize Audio Service
+        audio_service = AudioService()
 
         # Validate input: need either prompt or audio
         if not prompt and not audio_data:
