@@ -89,6 +89,7 @@ class TutorialService:
             return FullTutorialResponse(
                 success="true",
                 metadata=TutorialMetadata(
+                    tutorial_id=str(tutorial.id),
                     subject_en=tutorial.subject_en,
                     subject_de=tutorial.subject_de,
                     total_steps=tutorial.total_steps,

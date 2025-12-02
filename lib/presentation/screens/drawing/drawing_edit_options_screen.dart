@@ -204,9 +204,12 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       // Get the detailed AI prompt from the selected edit option
       final prompt = _selectedEditOption!.promptEn;
 
-      // Get the selected subject from provider
+      // Get the selected subject and tutorial ID from provider
       final drawingProvider = context.read<DrawingProvider>();
       final subject = drawingProvider.selectedSubjectEn;
+      final tutorialId = drawingProvider.selectedTutorialId;
+
+      print('📚 Using Tutorial ID: $tutorialId');
 
       // Call the API to edit the image
       // If originalImageUrl is provided (re-editing), use it; otherwise use the uploaded file
@@ -217,6 +220,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         prompt: prompt,
         subject: subject,
         drawingId: widget.dbDrawingId,
+        tutorialId: tutorialId,
       );
 
       if (mounted && response.success) {
@@ -471,9 +475,17 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       final language = context.locale.languageCode;
       print('💬 Language: $language');
 
-      // Get the selected subject from provider
+      // Get the selected subject and tutorial ID from provider
       final drawingProvider = context.read<DrawingProvider>();
-      final subject = drawingProvider.selectedSubjectEn;
+      final subject = context.locale.languageCode == 'de'
+          ? drawingProvider.selectedSubjectDe
+          : drawingProvider.selectedSubjectEn;
+      final tutorialId = drawingProvider.selectedTutorialId;
+
+      print('📚 Using Tutorial ID: $tutorialId');
+      print(
+        '📚 Using Subject: $subject (Language: ${context.locale.languageCode})',
+      );
 
       // Call the API service to send both image and audio
       // The audio bytes are sent directly to memory without saving to disk
@@ -485,6 +497,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         audioBytes: _recordingBytes!, // Send audio bytes directly
         language: language, // Send current app language
         subject: subject,
+        tutorialId: tutorialId,
         drawingId: widget.dbDrawingId,
       );
 

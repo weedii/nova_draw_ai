@@ -29,11 +29,13 @@ class ApiDrawingStepResponse {
 }
 
 class ApiMetadata {
+  final String tutorialId; // UUID of the tutorial for database linking
   final String subjectEn;
   final String subjectDe;
   final int totalSteps;
 
   const ApiMetadata({
+    required this.tutorialId,
     required this.subjectEn,
     required this.subjectDe,
     required this.totalSteps,
@@ -41,6 +43,7 @@ class ApiMetadata {
 
   factory ApiMetadata.fromJson(Map<String, dynamic> json) {
     return ApiMetadata(
+      tutorialId: json['tutorial_id'] ?? '',
       subjectEn: json['subject_en'] ?? '',
       subjectDe: json['subject_de'] ?? '',
       totalSteps: json['total_steps'] ?? 0,
@@ -49,6 +52,7 @@ class ApiMetadata {
 
   Map<String, dynamic> toJson() {
     return {
+      'tutorial_id': tutorialId,
       'subject_en': subjectEn,
       'subject_de': subjectDe,
       'total_steps': totalSteps,

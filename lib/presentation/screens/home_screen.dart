@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/colors.dart';
 import 'drawing/drawing_categories_screen.dart';
-import 'drawing/direct_upload_screen.dart';
 import 'gallery_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,23 +16,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Screens for bottom navigation
+  // Screens for bottom navigation (removed DirectUploadScreen)
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
-    _screens = [
-      const DrawingCategoriesScreen(),
-      const DirectUploadScreen(),
-      const GalleryScreen(),
-    ];
+    _screens = [const DrawingCategoriesScreen(), const GalleryScreen()];
   }
 
   void _onNavItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _navigateToDirectUpload() {
+    context.push('/direct-upload');
   }
 
   @override
@@ -88,15 +88,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icons.add_photo_alternate,
                 outlinedIcon: Icons.add_photo_alternate_outlined,
                 label: 'navigation.upload'.tr(),
-                isSelected: _selectedIndex == 1,
-                onTap: () => _onNavItemTapped(1),
+                isSelected: false,
+                onTap: _navigateToDirectUpload,
               ),
               _buildFloatingNavItem(
                 icon: Icons.collections,
                 outlinedIcon: Icons.collections_outlined,
                 label: 'navigation.gallery'.tr(),
-                isSelected: _selectedIndex == 2,
-                onTap: () => _onNavItemTapped(2),
+                isSelected: _selectedIndex == 1,
+                onTap: () => _onNavItemTapped(1),
               ),
             ],
           ),

@@ -14,6 +14,8 @@ import '../presentation/screens/drawing/drawing_upload_screen.dart';
 import '../presentation/screens/drawing/drawing_edit_options_screen.dart';
 import '../presentation/screens/drawing/drawing_final_result_screen.dart';
 import '../presentation/screens/drawing/drawing_story_screen.dart';
+import '../presentation/screens/drawing/direct_upload_screen.dart';
+import '../presentation/screens/drawing/direct_upload_reprompt_screen.dart';
 import '../providers/user_provider.dart';
 
 // Create router as a function to access BuildContext
@@ -102,6 +104,28 @@ GoRouter createAppRouter(UserProvider userProvider) {
         path: "/home",
         builder: (BuildContext context, GoRouterState state) {
           return const HomeScreen();
+        },
+      ),
+
+      // Direct Upload Route (standalone screen with back button)
+      GoRoute(
+        path: "/direct-upload",
+        builder: (BuildContext context, GoRouterState state) {
+          return const DirectUploadScreen();
+        },
+      ),
+
+      // Direct Upload Re-prompt Route (try another prompt with existing image)
+      GoRoute(
+        path: "/direct-upload/reprompt",
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final originalImageUrl = extra?['originalImageUrl'] as String? ?? '';
+          final dbDrawingId = extra?['dbDrawingId'] as String?;
+          return DirectUploadRepromptScreen(
+            originalImageUrl: originalImageUrl,
+            dbDrawingId: dbDrawingId,
+          );
         },
       ),
 

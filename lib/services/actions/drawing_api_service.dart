@@ -139,6 +139,7 @@ class DrawingApiService {
   /// [imageUrl] - URL of existing image from Spaces to re-edit (optional if imageFile is provided)
   /// [prompt] - The editing instruction (e.g., "make it alive", "make it colorful")
   /// [subject] - What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
+  /// [tutorialId] - UUID of the tutorial associated with this drawing (optional)
   /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
@@ -148,6 +149,7 @@ class DrawingApiService {
     String? imageUrl,
     required String prompt,
     String? subject,
+    String? tutorialId,
     String? drawingId,
   }) async {
     return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
@@ -177,6 +179,12 @@ class DrawingApiService {
       if (subject != null && subject.trim().isNotEmpty) {
         fields['subject'] = subject.trim();
         print('📚 Subject Added to the request: $subject');
+      }
+
+      // Add tutorialId if provided (for database linking)
+      if (tutorialId != null && tutorialId.trim().isNotEmpty) {
+        fields['tutorial_id'] = tutorialId.trim();
+        print('📚 Tutorial ID: $tutorialId (for database linking)');
       }
 
       // Add drawingId if provided (for appending to existing drawing)
@@ -322,6 +330,7 @@ class DrawingApiService {
   /// [audioBytes] - Raw audio data (AAC format recommended, no disk I/O needed)
   /// [language] - Language code: 'en' for English or 'de' for German
   /// [subject] - What the child drew (e.g., 'dog', 'cat') - helps Gemini understand the drawing
+  /// [tutorialId] - UUID of the tutorial associated with this drawing (optional)
   /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
@@ -332,6 +341,7 @@ class DrawingApiService {
     required Uint8List audioBytes,
     required String language,
     String? subject,
+    String? tutorialId,
     String? drawingId,
   }) async {
     return await BaseApiService.handleApiCall<ApiImageEditResponse>(() async {
@@ -367,6 +377,12 @@ class DrawingApiService {
       if (subject != null && subject.trim().isNotEmpty) {
         fields['subject'] = subject.trim();
         print('📚 Subject Added to the request: $subject');
+      }
+
+      // Add tutorialId if provided (for database linking)
+      if (tutorialId != null && tutorialId.trim().isNotEmpty) {
+        fields['tutorial_id'] = tutorialId.trim();
+        print('📚 Tutorial ID: $tutorialId (for database linking)');
       }
 
       // Add drawingId if provided (for appending to existing drawing)
@@ -570,10 +586,7 @@ class DrawingApiService {
       print('✅ Validation passed, making API request...');
 
       // Prepare request fields
-      final fields = {
-        'subject': subject.trim(),
-        'prompt': prompt.trim(),
-      };
+      final fields = {'subject': subject.trim(), 'prompt': prompt.trim()};
 
       // Make multipart API request
       final response = await BaseApiService.postMultipart(
@@ -644,10 +657,7 @@ class DrawingApiService {
       print('✅ Validation passed, making API request...');
 
       // Prepare request fields
-      final fields = {
-        'subject': subject.trim(),
-        'language': language,
-      };
+      final fields = {'subject': subject.trim(), 'language': language};
 
       // Make multipart API request with audio
       final response = await BaseApiService.postMultipartWithAudio(

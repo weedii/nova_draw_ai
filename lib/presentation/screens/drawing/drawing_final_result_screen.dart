@@ -104,6 +104,23 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
     );
   }
 
+  void _tryAnotherPrompt() {
+    // Navigate to direct upload prompt screen with existing image
+    context.push(
+      '/direct-upload/reprompt',
+      extra: {
+        'originalImageUrl': widget.originalImageUrl,
+        'dbDrawingId': widget.dbDrawingId,
+      },
+    );
+  }
+
+  bool get _isDirectUpload => widget.category == 'direct';
+
+  // Check if we should show the image switcher
+  bool get _shouldShowImageSwitcher =>
+      widget.editedImageUrl != null && widget.originalImageUrl != null;
+
   String _getResultTitle() {
     if (widget.selectedEditOption != null) {
       return 'ai_enhancement.enhanced_drawing_title';
@@ -197,6 +214,9 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
   }
 
   Widget _buildImageDisplay() {
+    // Determine the active color for switcher
+    final switcherColor = widget.selectedEditOption?.color ?? AppColors.primary;
+
     // Single image view with switcher at bottom
     return widget.editedImageUrl != null || widget.originalImageUrl != null
         ? Stack(
@@ -255,7 +275,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                   },
                 ),
 
-              // Edit option emoji overlay (always displayed when edit is applied)
+              // Edit option emoji overlay (for tutorial flow)
               if (widget.selectedEditOption != null)
                 Positioned(
                   top: 16,
@@ -285,8 +305,8 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                   ),
                 ),
 
-              // Image switcher at bottom (only if edit was applied)
-              if (widget.selectedEditOption != null)
+              // Image switcher at bottom (show for both direct upload and tutorial flow)
+              if (_shouldShowImageSwitcher)
                 Positioned(
                   bottom: 12,
                   left: 0,
@@ -305,7 +325,6 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                           ),
                         ],
                       ),
-
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -318,7 +337,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                               ),
                               decoration: BoxDecoration(
                                 color: !_showEditedImage
-                                    ? widget.selectedEditOption!.color
+                                    ? switcherColor
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -361,7 +380,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
                               ),
                               decoration: BoxDecoration(
                                 color: _showEditedImage
-                                    ? widget.selectedEditOption!.color
+                                    ? switcherColor
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -499,9 +518,7 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
               child: widget.editedImageUrl != null
                   ? SaveToGalleryButton(
                       imageUrl: widget.editedImageUrl!,
-                      displayMode: SaveButtonDisplayMode.both,
                       backgroundColor: AppColors.success,
-                      iconColor: AppColors.white,
                       textColor: AppColors.white,
                       borderRadius: 16,
                       padding: const EdgeInsets.symmetric(
@@ -532,6 +549,18 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
             ),
           ],
         ),
+        // "Try Another Prompt" button for direct upload
+        if (_isDirectUpload) ...[
+          const SizedBox(height: 16),
+          CustomButton(
+            label: 'final_result.try_another_prompt',
+            onPressed: _tryAnotherPrompt,
+            backgroundColor: AppColors.secondary,
+            textColor: AppColors.white,
+            icon: Icons.edit,
+            borderRadius: 16,
+          ),
+        ],
         const SizedBox(height: 16),
         CustomButton(
           label: 'common.draw_another',

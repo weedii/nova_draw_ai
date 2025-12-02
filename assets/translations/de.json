@@ -412,7 +412,8 @@
     "failed_to_save_drawing": "Fehler beim Speichern der Zeichnung...",
     "error_saving_drawing": "Fehler beim Speichern der Zeichnung",
     "original": "Original",
-    "edited": "Bearbeitet"
+    "edited": "Bearbeitet",
+    "try_another_prompt": "Mehr Magie! ✨"
   },
 
   "settings": {
@@ -495,6 +496,7 @@
     "image_saved_successfully": "Bild in deiner Galerie gespeichert! 🎉",
     "failed_to_save_image": "Fehler beim Speichern des Bildes...",
     "no_image_to_save": "Kein Bild zum Speichern...",
-    "error_saving_image": "Fehler beim Speichern des Bildes"
+    "error_saving_image": "Fehler beim Speichern des Bildes",
+    "re_edit": "Erneut Bearbeiten"
   }
 }

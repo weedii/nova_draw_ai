@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_gallery/saver_gallery.dart';
 import '../../core/constants/colors.dart';
+import 'custom_button.dart';
 
 /// Display mode for the save button
 enum SaveButtonDisplayMode {
@@ -24,22 +25,10 @@ class SaveToGalleryButton extends StatefulWidget {
   final SaveButtonDisplayMode displayMode;
 
   /// Background color of the button
-  final Color backgroundColor;
-
-  /// Icon color
-  final Color iconColor;
+  final Color? backgroundColor;
 
   /// Text color
-  final Color textColor;
-
-  /// Button size (used for icon-only mode)
-  final double buttonSize;
-
-  /// Icon size
-  final double iconSize;
-
-  /// Font size for text
-  final double fontSize;
+  final Color? textColor;
 
   /// Border radius
   final double borderRadius;
@@ -56,21 +45,29 @@ class SaveToGalleryButton extends StatefulWidget {
   /// Callback when save fails
   final Function(String error)? onError;
 
+  /// Font size for text
+  final double fontSize;
+
+  /// Icon size
+  final double iconSize;
+
+  /// Whether to show shadow
+  final bool showShadow;
+
   const SaveToGalleryButton({
     super.key,
     required this.imageUrl,
-    this.displayMode = SaveButtonDisplayMode.iconOnly,
-    this.backgroundColor = AppColors.success,
-    this.iconColor = AppColors.white,
-    this.textColor = AppColors.white,
-    this.buttonSize = 56,
-    this.iconSize = 24,
-    this.fontSize = 14,
+    this.displayMode = SaveButtonDisplayMode.both,
+    this.backgroundColor,
+    this.textColor,
     this.borderRadius = 12,
-    this.padding = const EdgeInsets.all(8),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     this.isFloating = false,
     this.onSuccess,
     this.onError,
+    this.fontSize = 16,
+    this.iconSize = 20,
+    this.showShadow = true,
   });
 
   @override
@@ -190,6 +187,18 @@ class _SaveToGalleryButtonState extends State<SaveToGalleryButton> {
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    // Build button based on display mode
+    final button = _buildButton();
+
+    if (widget.isFloating) {
+      return Positioned(bottom: 16, right: 16, child: button);
+    }
+
+    return button;
+  }
+
   Widget _buildButton() {
     switch (widget.displayMode) {
       case SaveButtonDisplayMode.iconOnly:
@@ -202,21 +211,25 @@ class _SaveToGalleryButtonState extends State<SaveToGalleryButton> {
   }
 
   Widget _buildIconOnlyButton() {
+    // For icon-only, use emoji as a workaround since CustomButton will show icon+text
+    // We'll use a space as label and only show the icon
     return GestureDetector(
       onTap: _isSaving ? null : _saveToGallery,
       child: Container(
-        width: widget.buttonSize,
-        height: widget.buttonSize,
+        width: widget.iconSize + 16,
+        height: widget.iconSize + 16,
         decoration: BoxDecoration(
-          color: widget.backgroundColor,
+          color: widget.backgroundColor ?? AppColors.success,
           borderRadius: BorderRadius.circular(widget.borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: widget.showShadow
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Center(
           child: _isSaving
@@ -224,13 +237,15 @@ class _SaveToGalleryButtonState extends State<SaveToGalleryButton> {
                   width: widget.iconSize,
                   height: widget.iconSize,
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(widget.iconColor),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      widget.textColor ?? AppColors.white,
+                    ),
                     strokeWidth: 2,
                   ),
                 )
               : Icon(
                   Icons.download,
-                  color: widget.iconColor,
+                  color: widget.textColor ?? AppColors.white,
                   size: widget.iconSize,
                 ),
         ),
@@ -239,98 +254,37 @@ class _SaveToGalleryButtonState extends State<SaveToGalleryButton> {
   }
 
   Widget _buildTextOnlyButton() {
-    return GestureDetector(
-      onTap: _isSaving ? null : _saveToGallery,
-      child: Container(
-        padding: widget.padding,
-        decoration: BoxDecoration(
-          color: widget.backgroundColor,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: _isSaving
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(widget.textColor),
-                  strokeWidth: 2,
-                ),
-              )
-            : Text(
-                'gallery.save'.tr(),
-                style: TextStyle(
-                  fontSize: widget.fontSize,
-                  fontWeight: FontWeight.bold,
-                  color: widget.textColor,
-                ),
-              ),
-      ),
+    return CustomButton(
+      label: 'gallery.save',
+      onPressed: _isSaving ? () {} : _saveToGallery,
+      backgroundColor: widget.backgroundColor ?? AppColors.success,
+      textColor: widget.textColor ?? AppColors.white,
+      isLoading: _isSaving,
+      borderRadius: widget.borderRadius,
+      padding: widget.padding,
+      fontSize: widget.fontSize,
+      iconSize: widget.iconSize,
+      showShadow: widget.showShadow,
+      enabled: !_isSaving,
+      variant: 'filled',
     );
   }
 
   Widget _buildBothButton() {
-    return GestureDetector(
-      onTap: _isSaving ? null : _saveToGallery,
-      child: Container(
-        padding: widget.padding,
-        decoration: BoxDecoration(
-          color: widget.backgroundColor,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _isSaving
-                ? SizedBox(
-                    width: widget.iconSize,
-                    height: widget.iconSize,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        widget.iconColor,
-                      ),
-                      strokeWidth: 2,
-                    ),
-                  )
-                : Icon(
-                    Icons.download,
-                    color: widget.iconColor,
-                    size: widget.iconSize,
-                  ),
-            const SizedBox(width: 8),
-            Text(
-              'gallery.save'.tr(),
-              style: TextStyle(
-                fontSize: widget.fontSize,
-                fontWeight: FontWeight.bold,
-                color: widget.textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return CustomButton(
+      label: 'gallery.save',
+      onPressed: _isSaving ? () {} : _saveToGallery,
+      backgroundColor: widget.backgroundColor ?? AppColors.success,
+      textColor: widget.textColor ?? AppColors.white,
+      icon: Icons.download,
+      isLoading: _isSaving,
+      borderRadius: widget.borderRadius,
+      padding: widget.padding,
+      fontSize: widget.fontSize,
+      iconSize: widget.iconSize,
+      showShadow: widget.showShadow,
+      enabled: !_isSaving,
+      variant: 'filled',
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.isFloating) {
-      return Positioned(bottom: 16, right: 16, child: _buildButton());
-    }
-
-    return _buildButton();
   }
 }
