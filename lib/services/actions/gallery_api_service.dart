@@ -81,6 +81,39 @@ class GalleryApiService {
     });
   }
 
+  /// Delete a specific image from a drawing by URL
+  ///
+  /// [drawingId] - UUID of the drawing
+  /// [imageUrl] - URL of the image to delete
+  ///
+  /// Returns success status
+  /// Throws [ApiException] on error
+  static Future<bool> deleteDrawingImage(
+    String drawingId,
+    String imageUrl,
+  ) async {
+    return await BaseApiService.handleApiCall<bool>(() async {
+      // Validate input
+      if (drawingId.trim().isEmpty) {
+        throw ApiException('Drawing ID cannot be empty');
+      }
+
+      if (imageUrl.trim().isEmpty) {
+        throw ApiException('Image URL cannot be empty');
+      }
+
+      // Make API request with image_url as query parameter
+      final encodedUrl = Uri.encodeComponent(imageUrl);
+      final response = await BaseApiService.delete(
+        '/api/drawings/$drawingId/images?image_url=$encodedUrl',
+      );
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+      return jsonData['success'] == true || jsonData['success'] == 'true';
+    });
+  }
+
   /// Fetch gallery statistics
   ///
   /// Returns map with stats: total_drawings, edited_drawings, tutorial_drawings

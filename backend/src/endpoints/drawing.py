@@ -1,20 +1,22 @@
 """
 Drawing endpoints for managing user drawings and gallery.
-Handles retrieving, listing, and deleting user drawings.
+
+Handles HTTP requests/responses for drawing gallery operations.
+Delegates business logic to DrawingGalleryService.
 """
 
+import logging
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
-from sqlalchemy.orm import selectinload
 from uuid import UUID
 
 from src.database import get_db
-from src.models import Drawing, User
+from src.models import User
 from src.services import AuthService
+from src.services.drawing_gallery_service import DrawingGalleryService
 from src.schemas import DrawingResponse, DrawingListResponse
-from src.core.logger import logger
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/drawings", tags=["drawings"])
 
 
@@ -44,40 +46,37 @@ async def get_user_gallery(
     try:
         logger.info(f"📸 Fetching gallery for user: {current_user.id}")
 
-        # Calculate offset
-        offset = (page - 1) * limit
+        # Initialize service
+        drawing_gallery_service = DrawingGalleryService()
 
-        # Query total count
-        count_query = select(Drawing).where(Drawing.user_id == current_user.id)
-        count_result = await db.execute(count_query)
-        total_count = len(count_result.scalars().all())
-
-        # Query paginated drawings (most recent first) with tutorial eager loading
-        query = (
-            select(Drawing)
-            .where(Drawing.user_id == current_user.id)
-            .options(selectinload(Drawing.tutorial))
-            .order_by(desc(Drawing.created_at))
-            .offset(offset)
-            .limit(limit)
-        )
-
-        result = await db.execute(query)
-        drawings = result.scalars().all()
-
-        logger.info(f"✅ Retrieved {len(drawings)} drawings for user {current_user.id}")
-
-        # Convert to response models
-        drawing_responses = [DrawingResponse.from_orm(drawing) for drawing in drawings]
-
-        return DrawingListResponse(
-            success=True,
-            data=drawing_responses,
-            count=total_count,
+        # Delegate to service layer
+        result = await drawing_gallery_service.get_user_gallery(
+            db=db,
+            user_id=current_user.id,
             page=page,
             limit=limit,
         )
 
+        # Convert to response models
+        drawing_responses = [
+            DrawingResponse.from_orm(drawing) for drawing in result["drawings"]
+        ]
+
+        logger.info(
+            f"✅ Retrieved {len(drawing_responses)} drawings for user {current_user.id}"
+        )
+
+        return DrawingListResponse(
+            success=True,
+            data=drawing_responses,
+            count=result["total_count"],
+            page=result["page"],
+            limit=result["limit"],
+        )
+
+    except ValueError as e:
+        logger.warning(f"⚠️ Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"❌ Failed to fetch gallery: {str(e)}")
         raise HTTPException(
@@ -108,35 +107,26 @@ async def get_drawing(
     try:
         logger.info(f"📸 Fetching drawing: {drawing_id}")
 
-        # Query drawing with tutorial eager loading
-        query = (
-            select(Drawing)
-            .where(Drawing.id == drawing_id)
-            .options(selectinload(Drawing.tutorial))
+        # Initialize service
+        drawing_gallery_service = DrawingGalleryService()
+
+        # Delegate to service layer
+        drawing = await drawing_gallery_service.get_drawing(
+            db=db,
+            drawing_id=drawing_id,
+            user_id=current_user.id,
         )
-        result = await db.execute(query)
-        drawing = result.scalar_one_or_none()
-
-        if not drawing:
-            logger.warning(f"⚠️ Drawing not found: {drawing_id}")
-            raise HTTPException(status_code=404, detail="Drawing not found")
-
-        # Check ownership
-        if drawing.user_id != current_user.id:
-            logger.warning(
-                f"⚠️ Unauthorized access attempt to drawing {drawing_id} by user {current_user.id}"
-            )
-            raise HTTPException(
-                status_code=403,
-                detail="You don't have permission to access this drawing",
-            )
 
         logger.info(f"✅ Retrieved drawing: {drawing_id}")
 
         return DrawingResponse.from_orm(drawing)
 
-    except HTTPException:
-        raise
+    except ValueError as e:
+        logger.warning(f"⚠️ {str(e)}")
+        if "permission" in str(e).lower():
+            raise HTTPException(status_code=403, detail=str(e))
+        else:
+            raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"❌ Failed to fetch drawing: {str(e)}")
         raise HTTPException(
@@ -168,45 +158,85 @@ async def delete_drawing(
     try:
         logger.info(f"🗑️  Deleting drawing: {drawing_id}")
 
-        # Query drawing
-        query = select(Drawing).where(Drawing.id == drawing_id)
-        result = await db.execute(query)
-        drawing = result.scalar_one_or_none()
+        # Initialize service
+        drawing_gallery_service = DrawingGalleryService()
 
-        if not drawing:
-            logger.warning(f"⚠️ Drawing not found: {drawing_id}")
-            raise HTTPException(status_code=404, detail="Drawing not found")
-
-        # Check ownership
-        if drawing.user_id != current_user.id:
-            logger.warning(
-                f"⚠️ Unauthorized deletion attempt for drawing {drawing_id} by user {current_user.id}"
-            )
-            raise HTTPException(
-                status_code=403,
-                detail="You don't have permission to delete this drawing",
-            )
-
-        # Delete from database
-        await db.delete(drawing)
-        await db.commit()
+        # Delegate to service layer
+        result = await drawing_gallery_service.delete_drawing(
+            db=db,
+            drawing_id=drawing_id,
+            user_id=current_user.id,
+        )
 
         logger.info(f"✅ Drawing deleted: {drawing_id}")
 
-        return {
-            "success": True,
-            "message": "Drawing deleted successfully",
-            "drawing_id": str(drawing_id),
-        }
+        return result
 
-    except HTTPException:
-        raise
+    except ValueError as e:
+        logger.warning(f"⚠️ {str(e)}")
+        if "permission" in str(e).lower():
+            raise HTTPException(status_code=403, detail=str(e))
+        else:
+            raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        await db.rollback()
         logger.error(f"❌ Failed to delete drawing: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Failed to delete drawing: {str(e)}"
         )
+
+
+@router.delete("/{drawing_id}/images")
+async def delete_drawing_image(
+    drawing_id: UUID,
+    image_url: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
+):
+    """
+    Delete a specific image from a drawing by URL.
+
+    Only the owner of the drawing can delete images from it.
+    Note: Images in Spaces are NOT automatically deleted (can be cleaned up later).
+
+    **Authentication Required:** User must be logged in.
+
+    Path Parameters:
+    - drawing_id: UUID of the drawing
+
+    Query Parameters:
+    - image_url: URL of the image to delete
+
+    Returns:
+    - Success message with updated image URLs
+    """
+
+    try:
+        logger.info(f"🗑️  Deleting image from drawing: {drawing_id}")
+
+        # Initialize service
+        drawing_gallery_service = DrawingGalleryService()
+
+        # Delegate to service layer
+        result = await drawing_gallery_service.delete_drawing_image(
+            db=db,
+            drawing_id=drawing_id,
+            image_url=image_url,
+            user_id=current_user.id,
+        )
+
+        logger.info(f"✅ Image deleted from drawing: {drawing_id}")
+
+        return result
+
+    except ValueError as e:
+        logger.warning(f"⚠️ {str(e)}")
+        if "permission" in str(e).lower():
+            raise HTTPException(status_code=403, detail=str(e))
+        else:
+            raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"❌ Failed to delete image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
 
 
 @router.get("/stats/summary")
@@ -228,28 +258,22 @@ async def get_gallery_stats(
     try:
         logger.info(f"📊 Fetching gallery stats for user: {current_user.id}")
 
-        # Query all drawings for user
-        query = select(Drawing).where(Drawing.user_id == current_user.id)
-        result = await db.execute(query)
-        drawings = result.scalars().all()
+        # Initialize service
+        drawing_gallery_service = DrawingGalleryService()
 
-        total_drawings = len(drawings)
-        edited_count = sum(
-            1
-            for d in drawings
-            if d.edited_images_urls and len(d.edited_images_urls) > 0
+        # Delegate to service layer
+        result = await drawing_gallery_service.get_gallery_stats(
+            db=db,
+            user_id=current_user.id,
         )
-        tutorial_count = sum(1 for d in drawings if d.tutorial_id is not None)
 
         logger.info(f"✅ Retrieved stats for user {current_user.id}")
 
-        return {
-            "success": True,
-            "total_drawings": total_drawings,
-            "edited_drawings": edited_count,
-            "tutorial_drawings": tutorial_count,
-        }
+        return result
 
+    except ValueError as e:
+        logger.warning(f"⚠️ {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"❌ Failed to fetch stats: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch stats: {str(e)}")
