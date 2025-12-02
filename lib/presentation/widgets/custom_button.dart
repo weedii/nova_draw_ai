@@ -46,8 +46,9 @@ class CustomButton extends StatefulWidget {
   /// Custom height (default: 56)
   final double height;
 
-  /// Padding inside button
-  final EdgeInsets padding;
+  /// Padding inside button (default: symmetric horizontal 24, vertical 14)
+  /// Can be customized for different button styles (e.g., EdgeInsets.zero for icon-only)
+  final EdgeInsets? padding;
 
   /// Border radius
   final double borderRadius;
@@ -70,6 +71,9 @@ class CustomButton extends StatefulWidget {
   /// Icon position: 'left' or 'right' (default: 'left')
   final String iconPosition;
 
+  /// Whether to show only the icon (no text label)
+  final bool iconOnly;
+
   const CustomButton({
     super.key,
     required this.label,
@@ -83,7 +87,7 @@ class CustomButton extends StatefulWidget {
     this.isLoading = false,
     this.width,
     this.height = 56,
-    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+    this.padding,
     this.borderRadius = 12,
     this.fontSize = 16,
     this.fontWeight = FontWeight.bold,
@@ -91,6 +95,7 @@ class CustomButton extends StatefulWidget {
     this.iconSize = 20,
     this.enabled = true,
     this.iconPosition = 'left',
+    this.iconOnly = false,
   });
 
   @override
@@ -213,31 +218,42 @@ class _CustomButtonState extends State<CustomButton>
     }
 
     // Build button content based on icon position
-    List<Widget> rowChildren = [];
+    Widget buttonContent;
 
-    if (widget.iconPosition == 'right') {
-      // Text on left, icon on right
-      rowChildren.add(textWidget);
-      if (iconWidget != null) {
-        rowChildren.add(
-          Padding(padding: const EdgeInsets.only(left: 6), child: iconWidget),
-        );
-      }
+    if (widget.iconOnly && iconWidget != null) {
+      // Icon only, no text
+      buttonContent = iconWidget;
     } else {
-      // Icon on left, text on right (default)
-      if (iconWidget != null) {
-        rowChildren.add(
-          Padding(padding: const EdgeInsets.only(right: 6), child: iconWidget),
-        );
-      }
-      rowChildren.add(textWidget);
-    }
+      // Icon + text layout
+      List<Widget> rowChildren = [];
 
-    Widget buttonContent = Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: rowChildren,
-    );
+      if (widget.iconPosition == 'right') {
+        // Text on left, icon on right
+        rowChildren.add(textWidget);
+        if (iconWidget != null) {
+          rowChildren.add(
+            Padding(padding: const EdgeInsets.only(left: 6), child: iconWidget),
+          );
+        }
+      } else {
+        // Icon on left, text on right (default)
+        if (iconWidget != null) {
+          rowChildren.add(
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: iconWidget,
+            ),
+          );
+        }
+        rowChildren.add(textWidget);
+      }
+
+      buttonContent = Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: rowChildren,
+      );
+    }
 
     return GestureDetector(
       onTapDown: widget.enabled && !widget.isLoading
@@ -263,8 +279,8 @@ class _CustomButtonState extends State<CustomButton>
         scale: _isPressed ? 0.95 : 1.0,
         duration: const Duration(milliseconds: 100),
         child: Container(
-          width: widget.width,
-          height: widget.height,
+          width: widget.iconOnly ? widget.iconSize + 16 : widget.width,
+          height: widget.iconOnly ? widget.iconSize + 16 : widget.height,
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(widget.borderRadius),
@@ -272,27 +288,33 @@ class _CustomButtonState extends State<CustomButton>
               color: borderColor,
               width: widget.variant == 'outlined' ? 2 : 0,
             ),
-            boxShadow: widget.showShadow && widget.variant == 'filled'
+            boxShadow: widget.showShadow
                 ? [
                     BoxShadow(
-                      color: (widget.backgroundColor ?? AppColors.primary)
-                          .withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ]
                 : null,
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: null, // Handled by GestureDetector
-              child: Padding(
-                padding: widget.padding,
-                child: Center(child: buttonContent),
-              ),
-            ),
-          ),
+          child: widget.iconOnly
+              ? Center(child: buttonContent)
+              : Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: null, // Handled by GestureDetector
+                    child: Padding(
+                      padding:
+                          widget.padding ??
+                          const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 14,
+                          ),
+                      child: Center(child: buttonContent),
+                    ),
+                  ),
+                ),
         ),
       ),
     );

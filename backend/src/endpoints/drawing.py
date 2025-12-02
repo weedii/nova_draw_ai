@@ -209,6 +209,104 @@ async def delete_drawing(
         )
 
 
+@router.delete("/{drawing_id}/images")
+async def delete_drawing_image(
+    drawing_id: UUID,
+    image_url: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(AuthService.get_current_user),
+):
+    """
+    Delete a specific image from a drawing by URL.
+
+    Only the owner of the drawing can delete images from it.
+    Note: Images in Spaces are NOT automatically deleted (can be cleaned up later).
+
+    **Authentication Required:** User must be logged in.
+
+    Path Parameters:
+    - drawing_id: UUID of the drawing
+
+    Query Parameters:
+    - image_url: URL of the image to delete
+
+    Returns:
+    - Success message with updated image URLs
+    """
+
+    try:
+        logger.info(f"🗑️  Deleting image from drawing: {drawing_id}")
+
+        # Query drawing
+        query = select(Drawing).where(Drawing.id == drawing_id)
+        result = await db.execute(query)
+        drawing = result.scalar_one_or_none()
+
+        if not drawing:
+            logger.warning(f"⚠️ Drawing not found: {drawing_id}")
+            raise HTTPException(status_code=404, detail="Drawing not found")
+
+        # Check ownership
+        if drawing.user_id != current_user.id:
+            logger.warning(
+                f"⚠️ Unauthorized deletion attempt for drawing {drawing_id} by user {current_user.id}"
+            )
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to delete images from this drawing",
+            )
+
+        # Check if image exists in drawing
+        is_original = drawing.uploaded_image_url == image_url
+        is_edited = image_url in (drawing.edited_images_urls or [])
+
+        if not is_original and not is_edited:
+            logger.warning(f"⚠️ Image URL not found in drawing {drawing_id}")
+            raise HTTPException(status_code=404, detail="Image not found in drawing")
+
+        # Cannot delete the original image if it's the only image
+        all_images = [drawing.uploaded_image_url] + (drawing.edited_images_urls or [])
+        if is_original and len(all_images) == 1:
+            logger.warning(f"⚠️ Cannot delete the only image from drawing {drawing_id}")
+            raise HTTPException(
+                status_code=400, detail="Cannot delete the only image in a drawing"
+            )
+
+        # Delete the image
+        if is_original:
+            # Deleting original image - promote first edited image to original
+            if drawing.edited_images_urls and len(drawing.edited_images_urls) > 0:
+                drawing.uploaded_image_url = drawing.edited_images_urls[0]
+                drawing.edited_images_urls = drawing.edited_images_urls[1:]
+                logger.info(
+                    f"✅ Promoted first edited image to original for drawing {drawing_id}"
+                )
+        else:
+            # Deleting an edited image
+            if drawing.edited_images_urls:
+                drawing.edited_images_urls.remove(image_url)
+                logger.info(f"✅ Deleted edited image from drawing {drawing_id}")
+
+        await db.commit()
+
+        logger.info(f"✅ Image deleted from drawing: {drawing_id}")
+
+        return {
+            "success": True,
+            "message": "Image deleted successfully",
+            "drawing_id": str(drawing_id),
+            "uploaded_image_url": drawing.uploaded_image_url,
+            "edited_images_urls": drawing.edited_images_urls or [],
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"❌ Failed to delete image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
+
+
 @router.get("/stats/summary")
 async def get_gallery_stats(
     db: AsyncSession = Depends(get_db),

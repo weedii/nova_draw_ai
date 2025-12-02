@@ -461,6 +461,7 @@
     "no_edited_images": "No edited images",
     "delete_drawing": "Delete Drawing",
     "delete_confirmation": "Are you sure you want to delete this drawing?",
+    "deleting_drawing": "Deleting your drawing...",
     "delete_success": "Drawing deleted successfully",
     "delete_error": "Failed to delete drawing",
     "loading_more": "Loading more...",

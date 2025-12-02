@@ -549,6 +549,55 @@ class _GalleryScreenState extends State<GalleryScreen>
     }
   }
 
+  Future<void> _deleteDrawingImage(
+    ApiGalleryDrawing drawing,
+    String imageUrl,
+  ) async {
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('gallery.deleting_drawing'.tr()),
+          backgroundColor: AppColors.primary,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Call the API to delete the image
+      final success = await GalleryApiService.deleteDrawingImage(
+        drawing.id,
+        imageUrl,
+      );
+
+      if (success && mounted) {
+        // Refresh the gallery to get updated drawing data
+        await _loadGallery();
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('gallery.delete_success'.tr()),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Close the image viewer modal
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('gallery.delete_error'.tr()),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildImageViewerModal(
     ApiGalleryDrawing drawing,
     List<String> images,
@@ -711,19 +760,36 @@ class _GalleryScreenState extends State<GalleryScreen>
                                 ),
                               ),
                             ),
-                            // Save button (floating at bottom-right)
+
+                            // Delete button (positioned at bottom-right, left of save button)
                             Positioned(
-                              bottom: 12,
-                              right: 12,
-                              child: SaveToGalleryButton(
-                                imageUrl: images[index],
-                                displayMode: SaveButtonDisplayMode.iconOnly,
-                                backgroundColor: AppColors.success,
+                              bottom: 16,
+                              right: 60,
+                              child: CustomButton(
+                                label: 'gallery.delete_drawing',
+                                onPressed: () =>
+                                    _deleteDrawingImage(drawing, images[index]),
+                                backgroundColor: AppColors.error,
                                 textColor: AppColors.white,
-                                borderRadius: 12,
+                                icon: Icons.delete_outline,
+                                fontSize: 12,
                                 iconSize: 20,
-                                isFloating: true,
+                                borderRadius: 8,
+                                showShadow: true,
+                                iconOnly: true,
                               ),
+                            ),
+
+                            // Save button (floating at bottom-right)
+                            // Note: SaveToGalleryButton returns Positioned internally when isFloating=true
+                            SaveToGalleryButton(
+                              imageUrl: images[index],
+                              displayMode: SaveButtonDisplayMode.iconOnly,
+                              backgroundColor: AppColors.success,
+                              textColor: AppColors.white,
+                              borderRadius: 12,
+                              iconSize: 20,
+                              isFloating: true,
                             ),
                           ],
                         ),
