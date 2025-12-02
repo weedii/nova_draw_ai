@@ -9,6 +9,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_loading_widget.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/save_to_gallery_button.dart';
+import '../widgets/app_dialog.dart';
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
@@ -126,7 +127,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                   emoji: '🖼️',
                   showBackButton: false,
                   showAnimation: true,
-                  showSettingsButton: false,
+                  showSettingsButton: true,
                 ),
                 // Content
                 Expanded(child: _buildContent()),
@@ -327,11 +328,10 @@ class _GalleryScreenState extends State<GalleryScreen>
 
     return GestureDetector(
       onTap: () {
-        if (allImages.length > 1) {
-          // Show image viewer if there are multiple images
-          _showImageViewer(drawing, allImages);
-        }
+        // Show image viewer for any number of images
+        _showImageViewer(drawing, allImages);
       },
+
       child: Card(
         elevation: isSelected ? 8 : 2,
         shape: RoundedRectangleBorder(
@@ -460,66 +460,64 @@ class _GalleryScreenState extends State<GalleryScreen>
                       const SizedBox(height: 6),
 
                       // Image count badge
-                      if (allImages.length > 1)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${allImages.length} ${allImages.length == 1 ? 'gallery.image'.tr() : 'gallery.images'.tr()}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Comic Sans MS',
-                            ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${allImages.length} ${allImages.length == 1 ? 'gallery.image'.tr() : 'gallery.images'.tr()}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Comic Sans MS',
                           ),
                         ),
+                      ),
                     ],
                   ),
                 ),
               ),
 
-              // Tap indicator for multiple images
-              if (allImages.length > 1)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.touch_app,
-                          size: 12,
+              // Tap indicator for all images
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.touch_app,
+                        size: 12,
+                        color: AppColors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'gallery.view_all'.tr(),
+                        style: const TextStyle(
+                          fontSize: 10,
                           color: AppColors.white,
+                          fontFamily: 'Comic Sans MS',
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'gallery.view_all'.tr(),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.white,
-                            fontFamily: 'Comic Sans MS',
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
             ],
           ),
         ),
@@ -550,6 +548,51 @@ class _GalleryScreenState extends State<GalleryScreen>
   }
 
   Future<void> _deleteDrawingImage(
+    ApiGalleryDrawing drawing,
+    String imageUrl,
+  ) async {
+    // Check if this is the original/uploaded image
+    final isOriginalImage = drawing.uploadedImageUrl == imageUrl;
+
+    // Count total images
+    final allImages = <String>[];
+    if (drawing.uploadedImageUrl != null) {
+      allImages.add(drawing.uploadedImageUrl!);
+    }
+    if (drawing.editedImagesUrls != null) {
+      allImages.addAll(drawing.editedImagesUrls!);
+    }
+
+    final isSingleImage = allImages.length == 1;
+
+    // Show appropriate confirmation dialog
+    if (isOriginalImage) {
+      // Deleting original image - show warning dialog
+      AppDialog.showConfirmation(
+        context,
+        title: 'gallery.delete_original_image_title'.tr(),
+        message: 'gallery.delete_original_image_message'.tr(),
+        confirmText: 'gallery.delete'.tr(),
+        cancelText: 'gallery.cancel'.tr(),
+        onConfirmed: () => _performDeleteImage(drawing, imageUrl),
+      );
+    } else if (isSingleImage) {
+      // Only one image and it's not the original - show warning dialog
+      AppDialog.showConfirmation(
+        context,
+        title: 'gallery.delete_single_image_title'.tr(),
+        message: 'gallery.delete_single_image_message'.tr(),
+        confirmText: 'gallery.delete'.tr(),
+        cancelText: 'gallery.cancel'.tr(),
+        onConfirmed: () => _performDeleteImage(drawing, imageUrl),
+      );
+    } else {
+      // Multiple images and not the original - delete directly
+      await _performDeleteImage(drawing, imageUrl);
+    }
+  }
+
+  Future<void> _performDeleteImage(
     ApiGalleryDrawing drawing,
     String imageUrl,
   ) async {

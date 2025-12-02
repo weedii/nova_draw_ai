@@ -8,7 +8,7 @@ import '../../../providers/user_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
-import '../../widgets/error_dialog.dart';
+import '../../widgets/app_dialog.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -90,7 +90,11 @@ class _SignInScreenState extends State<SignInScreen>
             errorMessage = 'auth.errors.login_failed_invalid_credentials'.tr();
           }
 
-          ErrorDialog.showError(context, errorMessage);
+          AppDialog.showError(
+            context,
+            title: 'common.error'.tr(),
+            message: errorMessage,
+          );
         }
       }
     } else {

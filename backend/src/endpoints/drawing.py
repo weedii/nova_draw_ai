@@ -264,28 +264,40 @@ async def delete_drawing_image(
             logger.warning(f"⚠️ Image URL not found in drawing {drawing_id}")
             raise HTTPException(status_code=404, detail="Image not found in drawing")
 
-        # Cannot delete the original image if it's the only image
+        # Count total images
         all_images = [drawing.uploaded_image_url] + (drawing.edited_images_urls or [])
-        if is_original and len(all_images) == 1:
-            logger.warning(f"⚠️ Cannot delete the only image from drawing {drawing_id}")
-            raise HTTPException(
-                status_code=400, detail="Cannot delete the only image in a drawing"
-            )
 
-        # Delete the image
+        # If deleting the original/uploaded image, delete the entire drawing row
+        # because the original/uploaded image cannot be null
         if is_original:
-            # Deleting original image - promote first edited image to original
-            if drawing.edited_images_urls and len(drawing.edited_images_urls) > 0:
-                drawing.uploaded_image_url = drawing.edited_images_urls[0]
-                drawing.edited_images_urls = drawing.edited_images_urls[1:]
-                logger.info(
-                    f"✅ Promoted first edited image to original for drawing {drawing_id}"
-                )
-        else:
-            # Deleting an edited image
-            if drawing.edited_images_urls:
-                drawing.edited_images_urls.remove(image_url)
-                logger.info(f"✅ Deleted edited image from drawing {drawing_id}")
+            await db.delete(drawing)
+            await db.commit()
+            logger.info(
+                f"✅ Drawing deleted because original image was deleted: {drawing_id}"
+            )
+            return {
+                "success": True,
+                "message": "Drawing deleted successfully (original image cannot be deleted)",
+                "drawing_id": str(drawing_id),
+            }
+
+        # If only one image exists and it's an edited image, delete the entire drawing row
+        if len(all_images) == 1 and is_edited:
+            await db.delete(drawing)
+            await db.commit()
+            logger.info(
+                f"✅ Drawing deleted because it had only one image: {drawing_id}"
+            )
+            return {
+                "success": True,
+                "message": "Drawing deleted successfully (only image was deleted)",
+                "drawing_id": str(drawing_id),
+            }
+
+        # Delete the edited image
+        if drawing.edited_images_urls:
+            drawing.edited_images_urls.remove(image_url)
+            logger.info(f"✅ Deleted edited image from drawing {drawing_id}")
 
         await db.commit()
 

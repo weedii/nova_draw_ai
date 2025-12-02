@@ -477,6 +477,12 @@
     "failed_to_save_image": "Fehler beim Speichern des Bildes...",
     "no_image_to_save": "Kein Bild zum Speichern...",
     "error_saving_image": "Fehler beim Speichern des Bildes",
-    "re_edit": "Erneut Bearbeiten"
+    "re_edit": "Erneut Bearbeiten",
+    "delete_single_image_title": "Zeichnung löschen",
+    "delete_single_image_message": "Diese Zeichnung enthält nur ein Bild. Das Löschen entfernt die gesamte Zeichnung.",
+    "delete_original_image_title": "Originalbild löschen",
+    "delete_original_image_message": "Du löschst das Originalbild. Die gesamte Zeichnung und alle bearbeiteten Versionen werden gelöscht.",
+    "delete": "Löschen",
+    "cancel": "Abbrechen"
   }
 }

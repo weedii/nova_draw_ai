@@ -8,7 +8,7 @@ import '../../../services/actions/api_exceptions.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
-import '../../widgets/error_dialog.dart';
+import '../../widgets/app_dialog.dart';
 
 /// Reset password flow steps
 enum ResetStep { email, otp, success }
@@ -104,12 +104,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
           errorMessage = 'auth.errors.server_error_message'.tr();
         }
 
-        ErrorDialog.showError(context, errorMessage);
+        AppDialog.showError(
+          context,
+          title: 'common.error'.tr(),
+          message: errorMessage,
+        );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ErrorDialog.showError(context, 'auth.errors.server_error_message'.tr());
+        AppDialog.showError(
+          context,
+          title: 'common.error'.tr(),
+          message: 'auth.errors.server_error_message'.tr(),
+        );
       }
     }
   }
@@ -145,22 +153,32 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
         // Map specific error messages to translations (matching login/register pattern)
         if (e.statusCode == 404 && e.message.contains('User not found')) {
           errorMessage = 'auth.errors.reset_user_not_found'.tr();
-        } else if (e.statusCode == 400 && e.message.contains('Invalid reset code')) {
+        } else if (e.statusCode == 400 &&
+            e.message.contains('Invalid reset code')) {
           errorMessage = 'auth.errors.invalid_reset_code'.tr();
         } else if (e.statusCode == 400 && e.message.contains('expired')) {
           errorMessage = 'auth.errors.reset_code_expired'.tr();
-        } else if (e.statusCode == 400 && e.message.contains('Password must be at least')) {
+        } else if (e.statusCode == 400 &&
+            e.message.contains('Password must be at least')) {
           errorMessage = 'auth.errors.weak_password_message'.tr();
         } else if (e.statusCode == 500) {
           errorMessage = 'auth.errors.server_error_message'.tr();
         }
 
-        ErrorDialog.showError(context, errorMessage);
+        AppDialog.showError(
+          context,
+          title: 'common.error'.tr(),
+          message: errorMessage,
+        );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ErrorDialog.showError(context, 'auth.errors.server_error_message'.tr());
+        AppDialog.showError(
+          context,
+          title: 'common.error'.tr(),
+          message: 'auth.errors.server_error_message'.tr(),
+        );
       }
     }
   }
@@ -194,12 +212,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
           errorMessage = 'auth.errors.server_error_message'.tr();
         }
 
-        ErrorDialog.showError(context, errorMessage);
+        AppDialog.showError(
+          context,
+          title: 'common.error'.tr(),
+          message: errorMessage,
+        );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ErrorDialog.showError(context, 'auth.errors.server_error_message'.tr());
+        AppDialog.showError(
+          context,
+          title: 'common.error'.tr(),
+          message: 'auth.errors.server_error_message'.tr(),
+        );
       }
     }
   }
@@ -357,7 +383,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
     }
   }
 
-
   /// Step 1: Email input form
   Widget _buildEmailStep() {
     return Column(
@@ -379,8 +404,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                   if (value == null || value.isEmpty) {
                     return 'auth.error_email_required'.tr();
                   }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                      .hasMatch(value)) {
+                  if (!RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  ).hasMatch(value)) {
                     return 'auth.error_email_invalid'.tr();
                   }
                   return null;
@@ -526,9 +552,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
           decoration: BoxDecoration(
             color: AppColors.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: AppColors.success.withValues(alpha: 0.3),
-            ),
+            border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
           ),
           child: Column(
             children: [

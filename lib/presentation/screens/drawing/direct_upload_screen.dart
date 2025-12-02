@@ -15,6 +15,7 @@ import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/app_dialog.dart';
 
 /// Responsive helper class for calculating sizes based on screen dimensions
 class _ResponsiveHelper {
@@ -292,38 +293,12 @@ class _DirectUploadScreenState extends State<DirectUploadScreen>
 
   void _showRetryDialog(String error, VoidCallback onRetry) {
     if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(Icons.error_outline, color: AppColors.error),
-            const SizedBox(width: 12),
-            Text('common.error'.tr()),
-          ],
-        ),
-        content: Text(_getUserFriendlyError(error)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('common.cancel'.tr()),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              onRetry();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text('common.retry'.tr()),
-          ),
-        ],
-      ),
+    AppDialog.showError(
+      context,
+      title: 'common.error'.tr(),
+      message: _getUserFriendlyError(error),
+      buttonText: 'common.retry'.tr(),
+      onPressed: onRetry,
     );
   }
 

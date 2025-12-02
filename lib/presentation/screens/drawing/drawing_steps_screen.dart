@@ -91,69 +91,107 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
   }
 
   void _finishDrawing() {
+    // Show success dialog with custom buttons using AppDialog
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.celebration, size: 60, color: AppColors.success),
-            const SizedBox(height: 16),
-            Text(
-              'drawing_steps.great_job'.tr(),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-                fontFamily: 'Comic Sans MS',
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 8,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.success.withValues(alpha: 0.3),
+              width: 2,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.celebration,
+                    size: 40,
+                    color: AppColors.success,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'drawing_steps.drawing_complete'.tr(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.textDark.withValues(alpha: 0.7),
+              const SizedBox(height: 20),
+
+              // Title
+              Text(
+                'drawing_steps.great_job'.tr(),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.success,
+                  fontFamily: 'Comic Sans MS',
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 20),
+              // Message
+              Text(
+                'drawing_steps.drawing_complete'.tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textDark.withValues(alpha: 0.8),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
 
-            // Upload Drawing Button (Primary action)
-            CustomButton(
-              label: 'upload.upload_drawing',
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                context.push(
-                  '/drawings/${widget.category}/${widget.subject}/upload',
-                );
-              },
-              backgroundColor: AppColors.primary,
-              textColor: AppColors.white,
-              icon: Icons.camera_alt,
-              borderRadius: 12,
-            ),
+              // Upload Drawing Button (Primary action)
+              SizedBox(
+                width: double.infinity,
+                child: CustomButton(
+                  label: 'upload.upload_drawing',
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                    context.push(
+                      '/drawings/${widget.category}/${widget.subject}/upload',
+                    );
+                  },
+                  backgroundColor: AppColors.primary,
+                  textColor: AppColors.white,
+                  icon: Icons.camera_alt,
+                  borderRadius: 12,
+                ),
+              ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // Draw More Button (Secondary action)
-            CustomButton(
-              label: 'common.draw_another',
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                context.pushReplacement('/home');
-              },
-              backgroundColor: AppColors.white,
-              textColor: AppColors.primary,
-              borderColor: AppColors.primary,
-              variant: 'outlined',
-              icon: Icons.palette,
-              borderRadius: 12,
-            ),
-          ],
+              // Draw More Button (Secondary action)
+              SizedBox(
+                width: double.infinity,
+                child: CustomButton(
+                  label: 'common.draw_another',
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                    context.pushReplacement('/home');
+                  },
+                  backgroundColor: AppColors.white,
+                  textColor: AppColors.primary,
+                  borderColor: AppColors.primary,
+                  variant: 'outlined',
+                  icon: Icons.palette,
+                  borderRadius: 12,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -477,6 +477,12 @@
     "failed_to_save_image": "Failed to save image...",
     "no_image_to_save": "No image to save...",
     "error_saving_image": "Error saving image",
-    "re_edit": "Re-Edit"
+    "re_edit": "Re-Edit",
+    "delete_single_image_title": "Delete Drawing",
+    "delete_single_image_message": "This drawing contains only one image. Deleting it will remove the entire drawing.",
+    "delete_original_image_title": "Delete Original Image",
+    "delete_original_image_message": "You are deleting the original image. The entire drawing and all edited versions will be deleted.",
+    "delete": "Delete",
+    "cancel": "Cancel"
   }
 }
