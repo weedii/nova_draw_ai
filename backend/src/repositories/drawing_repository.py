@@ -6,7 +6,8 @@ For basic CRUD, use the @crud_enabled decorator methods on the Drawing model dir
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc
+from sqlalchemy.orm import selectinload
 from typing import Optional, List
 from uuid import UUID
 
@@ -85,6 +86,32 @@ class DrawingRepository:
         return result.scalar_one_or_none()
 
     @staticmethod
+    async def find_by_id_with_tutorial(
+        db: AsyncSession, drawing_id: UUID
+    ) -> Optional[Drawing]:
+        """
+        Find a drawing by ID with eager-loaded tutorial relationship.
+
+        Args:
+            db: Async database session
+            drawing_id: Drawing ID
+
+        Returns:
+            Drawing instance with tutorial loaded, or None if not found
+
+        Example:
+            drawing = await DrawingRepository.find_by_id_with_tutorial(db, drawing_id)
+        """
+
+        query = (
+            select(Drawing)
+            .where(Drawing.id == drawing_id)
+            .options(selectinload(Drawing.tutorial))
+        )
+        result = await db.execute(query)
+        return result.scalar_one_or_none()
+
+    @staticmethod
     async def get_user_drawings_count(db: AsyncSession, user_id: UUID) -> int:
         """
         Get the count of drawings created by a user.
@@ -101,6 +128,38 @@ class DrawingRepository:
         """
         drawings = await DrawingRepository.find_by_user_id(db, user_id)
         return len(drawings)
+
+    @staticmethod
+    async def get_user_drawings_paginated(
+        db: AsyncSession, user_id: UUID, page: int = 1, limit: int = 20
+    ) -> List[Drawing]:
+        """
+        Get paginated drawings for a user, ordered by most recent first.
+
+        Args:
+            db: Async database session
+            user_id: User ID
+            page: Page number (1-indexed)
+            limit: Items per page
+
+        Returns:
+            List of Drawing instances for the page
+
+        Example:
+            drawings = await DrawingRepository.get_user_drawings_paginated(db, user_id, page=1, limit=20)
+        """
+
+        offset = (page - 1) * limit
+        query = (
+            select(Drawing)
+            .where(Drawing.user_id == user_id)
+            .options(selectinload(Drawing.tutorial))
+            .order_by(desc(Drawing.created_at))
+            .offset(offset)
+            .limit(limit)
+        )
+        result = await db.execute(query)
+        return result.scalars().all()
 
     @staticmethod
     async def get_drawings_with_edits(db: AsyncSession, user_id: UUID) -> List[Drawing]:

@@ -482,6 +482,8 @@
     "delete_single_image_message": "Diese Zeichnung enthält nur ein Bild. Das Löschen entfernt die gesamte Zeichnung.",
     "delete_original_image_title": "Originalbild löschen",
     "delete_original_image_message": "Du löschst das Originalbild. Die gesamte Zeichnung und alle bearbeiteten Versionen werden gelöscht.",
+    "delete_edited_image_title": "Bearbeitetes Bild löschen",
+    "delete_edited_image_message": "Bist du sicher, dass du dieses bearbeitete Bild löschen möchtest?",
     "delete": "Löschen",
     "cancel": "Abbrechen"
   }

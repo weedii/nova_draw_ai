@@ -482,6 +482,8 @@
     "delete_single_image_message": "This drawing contains only one image. Deleting it will remove the entire drawing.",
     "delete_original_image_title": "Delete Original Image",
     "delete_original_image_message": "You are deleting the original image. The entire drawing and all edited versions will be deleted.",
+    "delete_edited_image_title": "Delete Edited Image",
+    "delete_edited_image_message": "Are you sure you want to delete this edited image?",
     "delete": "Delete",
     "cancel": "Cancel"
   }

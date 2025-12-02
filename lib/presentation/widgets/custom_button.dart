@@ -288,7 +288,7 @@ class _CustomButtonState extends State<CustomButton>
               color: borderColor,
               width: widget.variant == 'outlined' ? 2 : 0,
             ),
-            boxShadow: widget.showShadow
+            boxShadow: widget.showShadow && widget.variant == 'filled'
                 ? [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.2),

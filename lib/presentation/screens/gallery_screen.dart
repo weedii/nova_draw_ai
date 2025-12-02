@@ -251,7 +251,9 @@ class _GalleryScreenState extends State<GalleryScreen>
               fontFamily: 'Comic Sans MS',
             ),
           ),
+
           const SizedBox(height: 12),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
@@ -264,7 +266,9 @@ class _GalleryScreenState extends State<GalleryScreen>
               ),
             ),
           ),
+
           const SizedBox(height: 32),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -587,8 +591,15 @@ class _GalleryScreenState extends State<GalleryScreen>
         onConfirmed: () => _performDeleteImage(drawing, imageUrl),
       );
     } else {
-      // Multiple images and not the original - delete directly
-      await _performDeleteImage(drawing, imageUrl);
+      // Multiple images and not the original - show confirmation dialog
+      AppDialog.showConfirmation(
+        context,
+        title: 'gallery.delete_edited_image_title'.tr(),
+        message: 'gallery.delete_edited_image_message'.tr(),
+        confirmText: 'gallery.delete'.tr(),
+        cancelText: 'gallery.cancel'.tr(),
+        onConfirmed: () => _performDeleteImage(drawing, imageUrl),
+      );
     }
   }
 
@@ -853,7 +864,7 @@ class _GalleryScreenState extends State<GalleryScreen>
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.white.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
