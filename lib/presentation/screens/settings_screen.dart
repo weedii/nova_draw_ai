@@ -8,7 +8,7 @@ import '../../services/actions/auth_api_service.dart';
 import '../../services/actions/api_exceptions.dart';
 import '../animations/app_animations.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/error_dialog.dart';
+import '../widgets/app_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -237,14 +237,19 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 .tr();
                           }
 
-                          ErrorDialog.showError(dialogContext, errorMessage);
+                          AppDialog.showError(
+                            dialogContext,
+                            title: 'common.error'.tr(),
+                            message: errorMessage,
+                          );
                         }
                       } catch (e) {
                         setDialogState(() => isLoading = false);
                         if (mounted) {
-                          ErrorDialog.showError(
+                          AppDialog.showError(
                             dialogContext,
-                            'auth.errors.server_error_message'.tr(),
+                            title: 'common.error'.tr(),
+                            message: 'auth.errors.server_error_message'.tr(),
                           );
                         }
                       }

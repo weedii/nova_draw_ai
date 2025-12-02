@@ -8,7 +8,7 @@ import '../../../providers/user_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/custom_loading_widget.dart';
-import '../../widgets/error_dialog.dart';
+import '../../widgets/app_dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -114,15 +114,20 @@ class _SignUpScreenState extends State<SignUpScreen>
             errorMessage = "auth.errors.server_error_message".tr();
           }
 
-          ErrorDialog.showError(context, errorMessage);
+          AppDialog.showError(
+            context,
+            title: 'common.error'.tr(),
+            message: errorMessage,
+          );
         }
       } catch (e) {
         print('💥 Unexpected error during sign up: $e');
 
         if (mounted) {
-          ErrorDialog.showError(
+          AppDialog.showError(
             context,
-            "auth.errors.server_error_message".tr(),
+            title: 'common.error'.tr(),
+            message: "auth.errors.server_error_message".tr(),
           );
         }
       }

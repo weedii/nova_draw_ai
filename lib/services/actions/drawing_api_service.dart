@@ -683,4 +683,37 @@ class DrawingApiService {
       return result;
     });
   }
+
+  /// Delete a drawing from the gallery
+  /// Only the owner of the drawing can delete it
+  ///
+  /// [drawingId] - UUID of the drawing to delete
+  ///
+  /// Returns true if deletion was successful
+  /// Throws [ApiException] on error
+  static Future<bool> deleteDrawing(String drawingId) async {
+    return await BaseApiService.handleApiCall<bool>(() async {
+      print('🗑️  Deleting drawing: $drawingId');
+
+      // Validate input
+      if (drawingId.trim().isEmpty) {
+        print('❌ Drawing ID cannot be empty!');
+        throw ApiException('Drawing ID cannot be empty');
+      }
+
+      print('✅ Validation passed, making API request...');
+
+      // Make DELETE request
+      final response = await BaseApiService.delete('/api/drawings/$drawingId');
+
+      print('🎉 API request completed');
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+
+      print('✅ Drawing deleted successfully!');
+
+      return jsonData['success'] == true;
+    });
+  }
 }

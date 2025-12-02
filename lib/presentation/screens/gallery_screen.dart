@@ -9,6 +9,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_loading_widget.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/save_to_gallery_button.dart';
+import '../widgets/app_dialog.dart';
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
@@ -126,7 +127,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                   emoji: '🖼️',
                   showBackButton: false,
                   showAnimation: true,
-                  showSettingsButton: false,
+                  showSettingsButton: true,
                 ),
                 // Content
                 Expanded(child: _buildContent()),
@@ -250,7 +251,9 @@ class _GalleryScreenState extends State<GalleryScreen>
               fontFamily: 'Comic Sans MS',
             ),
           ),
+
           const SizedBox(height: 12),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
@@ -263,7 +266,9 @@ class _GalleryScreenState extends State<GalleryScreen>
               ),
             ),
           ),
+
           const SizedBox(height: 32),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -327,11 +332,10 @@ class _GalleryScreenState extends State<GalleryScreen>
 
     return GestureDetector(
       onTap: () {
-        if (allImages.length > 1) {
-          // Show image viewer if there are multiple images
-          _showImageViewer(drawing, allImages);
-        }
+        // Show image viewer for any number of images
+        _showImageViewer(drawing, allImages);
       },
+
       child: Card(
         elevation: isSelected ? 8 : 2,
         shape: RoundedRectangleBorder(
@@ -460,66 +464,64 @@ class _GalleryScreenState extends State<GalleryScreen>
                       const SizedBox(height: 6),
 
                       // Image count badge
-                      if (allImages.length > 1)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${allImages.length} ${allImages.length == 1 ? 'gallery.image'.tr() : 'gallery.images'.tr()}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Comic Sans MS',
-                            ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${allImages.length} ${allImages.length == 1 ? 'gallery.image'.tr() : 'gallery.images'.tr()}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Comic Sans MS',
                           ),
                         ),
+                      ),
                     ],
                   ),
                 ),
               ),
 
-              // Tap indicator for multiple images
-              if (allImages.length > 1)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.touch_app,
-                          size: 12,
+              // Tap indicator for all images
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.touch_app,
+                        size: 12,
+                        color: AppColors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'gallery.view_all'.tr(),
+                        style: const TextStyle(
+                          fontSize: 10,
                           color: AppColors.white,
+                          fontFamily: 'Comic Sans MS',
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'gallery.view_all'.tr(),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.white,
-                            fontFamily: 'Comic Sans MS',
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
             ],
           ),
         ),
@@ -546,6 +548,107 @@ class _GalleryScreenState extends State<GalleryScreen>
           'dbDrawingId': drawing.id,
         },
       );
+    }
+  }
+
+  Future<void> _deleteDrawingImage(
+    ApiGalleryDrawing drawing,
+    String imageUrl,
+  ) async {
+    // Check if this is the original/uploaded image
+    final isOriginalImage = drawing.uploadedImageUrl == imageUrl;
+
+    // Count total images
+    final allImages = <String>[];
+    if (drawing.uploadedImageUrl != null) {
+      allImages.add(drawing.uploadedImageUrl!);
+    }
+    if (drawing.editedImagesUrls != null) {
+      allImages.addAll(drawing.editedImagesUrls!);
+    }
+
+    final isSingleImage = allImages.length == 1;
+
+    // Show appropriate confirmation dialog
+    if (isOriginalImage) {
+      // Deleting original image - show warning dialog
+      AppDialog.showConfirmation(
+        context,
+        title: 'gallery.delete_original_image_title'.tr(),
+        message: 'gallery.delete_original_image_message'.tr(),
+        confirmText: 'gallery.delete'.tr(),
+        cancelText: 'gallery.cancel'.tr(),
+        onConfirmed: () => _performDeleteImage(drawing, imageUrl),
+      );
+    } else if (isSingleImage) {
+      // Only one image and it's not the original - show warning dialog
+      AppDialog.showConfirmation(
+        context,
+        title: 'gallery.delete_single_image_title'.tr(),
+        message: 'gallery.delete_single_image_message'.tr(),
+        confirmText: 'gallery.delete'.tr(),
+        cancelText: 'gallery.cancel'.tr(),
+        onConfirmed: () => _performDeleteImage(drawing, imageUrl),
+      );
+    } else {
+      // Multiple images and not the original - show confirmation dialog
+      AppDialog.showConfirmation(
+        context,
+        title: 'gallery.delete_edited_image_title'.tr(),
+        message: 'gallery.delete_edited_image_message'.tr(),
+        confirmText: 'gallery.delete'.tr(),
+        cancelText: 'gallery.cancel'.tr(),
+        onConfirmed: () => _performDeleteImage(drawing, imageUrl),
+      );
+    }
+  }
+
+  Future<void> _performDeleteImage(
+    ApiGalleryDrawing drawing,
+    String imageUrl,
+  ) async {
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('gallery.deleting_drawing'.tr()),
+          backgroundColor: AppColors.primary,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Call the API to delete the image
+      final success = await GalleryApiService.deleteDrawingImage(
+        drawing.id,
+        imageUrl,
+      );
+
+      if (success && mounted) {
+        // Refresh the gallery to get updated drawing data
+        await _loadGallery();
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('gallery.delete_success'.tr()),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Close the image viewer modal
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('gallery.delete_error'.tr()),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -711,19 +814,36 @@ class _GalleryScreenState extends State<GalleryScreen>
                                 ),
                               ),
                             ),
-                            // Save button (floating at bottom-right)
+
+                            // Delete button (positioned at bottom-right, left of save button)
                             Positioned(
-                              bottom: 12,
-                              right: 12,
-                              child: SaveToGalleryButton(
-                                imageUrl: images[index],
-                                displayMode: SaveButtonDisplayMode.iconOnly,
-                                backgroundColor: AppColors.success,
+                              bottom: 16,
+                              right: 60,
+                              child: CustomButton(
+                                label: 'gallery.delete_drawing',
+                                onPressed: () =>
+                                    _deleteDrawingImage(drawing, images[index]),
+                                backgroundColor: AppColors.error,
                                 textColor: AppColors.white,
-                                borderRadius: 12,
+                                icon: Icons.delete_outline,
+                                fontSize: 12,
                                 iconSize: 20,
-                                isFloating: true,
+                                borderRadius: 8,
+                                showShadow: true,
+                                iconOnly: true,
                               ),
+                            ),
+
+                            // Save button (floating at bottom-right)
+                            // Note: SaveToGalleryButton returns Positioned internally when isFloating=true
+                            SaveToGalleryButton(
+                              imageUrl: images[index],
+                              displayMode: SaveButtonDisplayMode.iconOnly,
+                              backgroundColor: AppColors.success,
+                              textColor: AppColors.white,
+                              borderRadius: 12,
+                              iconSize: 20,
+                              isFloating: true,
                             ),
                           ],
                         ),
@@ -744,7 +864,7 @@ class _GalleryScreenState extends State<GalleryScreen>
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.white.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
