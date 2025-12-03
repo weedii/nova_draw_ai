@@ -551,6 +551,21 @@ class _GalleryScreenState extends State<GalleryScreen>
     }
   }
 
+  void _navigateToStory(ApiGalleryDrawing drawing, String imageUrl) {
+    // Navigate to story screen with image URL and drawing info
+    if (drawing.tutorial != null) {
+      context.push(
+        '/drawings/${drawing.tutorial!.categoryEn}/${drawing.tutorial!.subjectEn}/story',
+        extra: {
+          'categoryId': drawing.tutorial!.categoryEn,
+          'drawingId': drawing.tutorial!.subjectEn,
+          'imageUrl': imageUrl,
+          'dbDrawingId': drawing.id,
+        },
+      );
+    }
+  }
+
   Future<void> _deleteDrawingImage(
     ApiGalleryDrawing drawing,
     String imageUrl,
@@ -814,6 +829,26 @@ class _GalleryScreenState extends State<GalleryScreen>
                                 ),
                               ),
                             ),
+
+                            // Story button (top-right, only for edited images)
+                            if (!isOriginal)
+                              Positioned(
+                                top: 12,
+                                right: 12,
+                                child: CustomButton(
+                                  label: 'gallery.story',
+                                  onPressed: () =>
+                                      _navigateToStory(drawing, images[index]),
+                                  backgroundColor: AppColors.secondary,
+                                  textColor: AppColors.white,
+                                  icon: Icons.book,
+                                  fontSize: 12,
+                                  iconSize: 16,
+                                  borderRadius: 20,
+                                  showShadow: true,
+                                  padding: EdgeInsets.symmetric(horizontal: 20),
+                                ),
+                              ),
 
                             // Delete button (positioned at bottom-right, left of save button)
                             Positioned(

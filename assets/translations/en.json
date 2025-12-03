@@ -348,7 +348,9 @@
     "this_may_take": "This may take a few moments",
     "try_again": "Try Again",
     "error_generating": "Something went wrong while creating your story.",
-    "create_another": "Create Another",
+    "draw_another": "Draw Another",
+    "generate_new_story": "Generate New Story",
+    "generate_new_story_description": "Create a different story for your drawing",
     "your_story_title": "Your Magical Story",
     "enhanced_artwork": "Enhanced Artwork",
     "your_masterpiece": "Your masterpiece tells a story!",
@@ -360,7 +362,14 @@
     "share_story": "Share Story",
     "read_aloud_coming_soon": "Read aloud functionality coming soon! ",
     "save_coming_soon": "Save story functionality coming soon! ",
-    "share_coming_soon": "Share story functionality coming soon! "
+    "share_coming_soon": "Share story functionality coming soon! ",
+    "no_story_yet": "No Story Yet",
+    "create_one_now": "Create one now",
+    "no_story_message": "This drawing doesn't have a story yet",
+    "create_story_description": "Create a story for your drawing and let your imagination come to life!",
+    "create_story_now": "Create Story",
+    "loading_story": "Loading your story...",
+    "loading_story_subtitle": "Fetching your magical story"
   },
   "edit_options": {
     "choose_edit_option": "Choose How to Edit",
@@ -485,6 +494,7 @@
     "delete_edited_image_title": "Delete Edited Image",
     "delete_edited_image_message": "Are you sure you want to delete this edited image?",
     "delete": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "story": "Story"
   }
 }

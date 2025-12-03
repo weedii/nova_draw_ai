@@ -3,11 +3,12 @@ import base64
 from io import BytesIO
 from PIL import Image
 from openai import OpenAI
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional, List
 from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from src.models import Story
+from src.models import Story, Drawing
+from src.repositories import StoryRepository, DrawingRepository
 from src.services.storage_service import StorageService
 from src.core.logger import logger
 from src.prompts import get_story_generation_prompt
@@ -323,3 +324,151 @@ class StoryService:
             generation_time_ms=generation_time_ms,
         )
         return story
+
+    async def get_story_for_image(
+        self,
+        db: AsyncSession,
+        drawing_id: UUID,
+        image_url: str,
+        user_id: UUID,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a specific story for a drawing and image URL.
+
+        Args:
+            db: Async database session
+            drawing_id: UUID of the drawing
+            image_url: URL of the image
+            user_id: UUID of the user (for ownership check)
+
+        Returns:
+            Story details if found, or None if not found
+
+        Raises:
+            ValueError: If drawing not found or user doesn't own it
+        """
+
+        try:
+            logger.info(
+                f"📖 Fetching story for drawing {drawing_id} and image {image_url}"
+            )
+
+            # Get drawing to verify ownership
+            drawing = await DrawingRepository.find_by_id_with_tutorial(db, drawing_id)
+
+            if not drawing:
+                logger.warning(f"Drawing not found: {drawing_id}")
+                raise ValueError("Drawing not found")
+
+            # Check ownership
+            if drawing.user_id != user_id:
+                logger.warning(
+                    f"Unauthorized access attempt to drawing {drawing_id} by user {user_id}"
+                )
+                raise ValueError("You don't have permission to access this drawing")
+
+            # Get story for this image
+            story = await StoryRepository.find_by_drawing_id_and_image_url(
+                db, drawing_id, image_url
+            )
+
+            if not story:
+                logger.info(
+                    f"No story found for drawing {drawing_id} and image {image_url}"
+                )
+                return None
+
+            logger.info(f"Retrieved story {story.id} for drawing {drawing_id}")
+
+            return {
+                "id": str(story.id),
+                "title": story.title,
+                "story_text_en": story.story_text_en,
+                "story_text_de": story.story_text_de,
+                "image_url": story.image_url,
+                "is_favorite": story.is_favorite,
+                "generation_time_ms": story.generation_time_ms,
+                "created_at": (
+                    story.created_at.isoformat() if story.created_at else None
+                ),
+            }
+
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Failed to fetch story for image: {str(e)}")
+            raise ValueError(f"Failed to fetch story for image: {str(e)}")
+
+    async def get_all_stories_for_drawing(
+        self,
+        db: AsyncSession,
+        drawing_id: UUID,
+        user_id: UUID,
+    ) -> Dict[str, Any]:
+        """
+        Get all stories for a drawing, organized by image URL.
+
+        Returns stories mapped by image_url for easy frontend lookup.
+        Includes stories for the original image and all edited images.
+
+        Args:
+            db: Async database session
+            drawing_id: UUID of the drawing
+            user_id: UUID of the user (for ownership check)
+
+        Returns:
+            Dictionary with stories organized by image_url
+
+        Raises:
+            ValueError: If drawing not found or user doesn't own it
+        """
+
+        try:
+            logger.info(f"📖 Fetching all stories for drawing: {drawing_id}")
+
+            # Get drawing to verify ownership
+            drawing = await DrawingRepository.find_by_id_with_tutorial(db, drawing_id)
+
+            if not drawing:
+                logger.warning(f"Drawing not found: {drawing_id}")
+                raise ValueError("Drawing not found")
+
+            # Check ownership
+            if drawing.user_id != user_id:
+                logger.warning(
+                    f"Unauthorized access attempt to drawing {drawing_id} by user {user_id}"
+                )
+                raise ValueError("You don't have permission to access this drawing")
+
+            # Get all stories for this drawing
+            stories = await StoryRepository.find_by_drawing_id(db, drawing_id)
+
+            logger.info(f"Retrieved {len(stories)} stories for drawing {drawing_id}")
+
+            # Organize stories by image_url
+            stories_by_image = {}
+            for story in stories:
+                stories_by_image[story.image_url] = {
+                    "id": str(story.id),
+                    "title": story.title,
+                    "story_text_en": story.story_text_en,
+                    "story_text_de": story.story_text_de,
+                    "image_url": story.image_url,
+                    "is_favorite": story.is_favorite,
+                    "generation_time_ms": story.generation_time_ms,
+                    "created_at": (
+                        story.created_at.isoformat() if story.created_at else None
+                    ),
+                }
+
+            return {
+                "success": True,
+                "drawing_id": str(drawing_id),
+                "stories_by_image": stories_by_image,
+            }
+
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Failed to fetch stories for drawing: {str(e)}")
+            raise ValueError(f"Failed to fetch stories for drawing: {str(e)}")

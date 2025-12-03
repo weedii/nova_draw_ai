@@ -36,6 +36,7 @@ class StoryRepository:
         Example:
             stories = await StoryRepository.find_by_user_id(db, user_id)
         """
+
         query = select(Story).where(Story.user_id == user_id)
         result = await db.execute(query)
         return result.scalars().all()
@@ -55,6 +56,7 @@ class StoryRepository:
         Example:
             stories = await StoryRepository.find_by_drawing_id(db, drawing_id)
         """
+
         query = select(Story).where(Story.drawing_id == drawing_id)
         result = await db.execute(query)
         return result.scalars().all()
@@ -74,6 +76,7 @@ class StoryRepository:
         Example:
             favorites = await StoryRepository.get_user_favorite_stories(db, user_id)
         """
+
         query = select(Story).where(
             Story.user_id == user_id,
             Story.is_favorite.is_(True),
@@ -96,6 +99,7 @@ class StoryRepository:
         Example:
             count = await StoryRepository.get_user_stories_count(db, user_id)
         """
+
         stories = await StoryRepository.find_by_user_id(db, user_id)
         return len(stories)
 
@@ -114,6 +118,7 @@ class StoryRepository:
         Example:
             count = await StoryRepository.get_user_favorite_stories_count(db, user_id)
         """
+
         stories = await StoryRepository.get_user_favorite_stories(db, user_id)
         return len(stories)
 
@@ -135,6 +140,7 @@ class StoryRepository:
         Example:
             story = await StoryRepository.find_by_title(db, user_id, "My Adventure")
         """
+
         query = select(Story).where(Story.user_id == user_id, Story.title == title)
         result = await db.execute(query)
         return result.scalar_one_or_none()
@@ -157,12 +163,39 @@ class StoryRepository:
         Example:
             stories = await StoryRepository.find_by_title_pattern(db, user_id, "adventure")
         """
+
         query = select(Story).where(
             Story.user_id == user_id,
             Story.title.ilike(f"%{pattern}%"),
         )
         result = await db.execute(query)
         return result.scalars().all()
+
+    @staticmethod
+    async def find_by_drawing_id_and_image_url(
+        db: AsyncSession, drawing_id: UUID, image_url: str
+    ) -> Optional[Story]:
+        """
+        Find a story by drawing ID and image URL.
+
+        Args:
+            db: Async database session
+            drawing_id: Drawing ID
+            image_url: Image URL
+
+        Returns:
+            Story instance or None if not found
+
+        Example:
+            story = await StoryRepository.find_by_drawing_id_and_image_url(db, drawing_id, image_url)
+        """
+
+        query = select(Story).where(
+            Story.drawing_id == drawing_id,
+            Story.image_url == image_url,
+        )
+        result = await db.execute(query)
+        return result.scalar_one_or_none()
 
     @staticmethod
     async def toggle_favorite(db: AsyncSession, story_id: UUID) -> Optional[Story]:
@@ -179,6 +212,7 @@ class StoryRepository:
         Example:
             story = await StoryRepository.toggle_favorite(db, story_id)
         """
+
         story = await Story.get_by_id(db, story_id)
         if not story:
             return None

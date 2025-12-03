@@ -10,6 +10,7 @@ import '../../../services/actions/api_exceptions.dart';
 import '../../animations/app_animations.dart';
 import '../../widgets/custom_loading_widget.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_button.dart';
 
 class DrawingStoryScreen extends StatefulWidget {
   final String categoryId;
@@ -44,6 +45,10 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   String _storyTitle = '';
   String? _storyImageUrl; // Image URL from the story response
 
+  // Story viewing/creation state
+  bool _storyNotFound = false; // True if story doesn't exist (show empty state)
+  bool _isFetchingExistingStory = false; // True when fetching existing story
+
   final FlutterTts _flutterTts = FlutterTts();
   Map? _currentVoice;
   bool _isSpeaking = false;
@@ -74,9 +79,64 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
 
     // Defer context-dependent operations(both are using context.locale) to after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _generateStory();
+      _initializeStory();
       initTTS();
     });
+  }
+
+  Future<void> _initializeStory() async {
+    // If we have dbDrawingId and imageUrl, try to fetch existing story first
+    if (widget.dbDrawingId != null && widget.imageUrl != null) {
+      await _fetchExistingStory();
+    } else {
+      // No drawing ID or image URL, generate new story
+      _generateStory();
+    }
+  }
+
+  Future<void> _fetchExistingStory() async {
+    try {
+      setState(() {
+        _isFetchingExistingStory = true;
+        _isGeneratingStory = true;
+      });
+
+      final story = await DrawingApiService.fetchStoryForImage(
+        widget.dbDrawingId!,
+        widget.imageUrl!,
+      );
+
+      if (mounted) {
+        if (story != null) {
+          // Story exists - display it
+          setState(() {
+            _isGeneratingStory = false;
+            _isFetchingExistingStory = false;
+            _generatedStory = story['story_text_en'] ?? '';
+            _storyTitle = story['title'] ?? '';
+            _storyImageUrl = story['image_url'];
+          });
+          // Trigger slide animation for story display
+          _slideController.forward();
+        } else {
+          // Story doesn't exist - show empty state
+          setState(() {
+            _storyNotFound = true;
+            _isGeneratingStory = false;
+            _isFetchingExistingStory = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching story: $e');
+      if (mounted) {
+        setState(() {
+          _storyNotFound = true;
+          _isGeneratingStory = false;
+          _isFetchingExistingStory = false;
+        });
+      }
+    }
   }
 
   @override
@@ -266,7 +326,21 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       _isGeneratingStory = true;
       _storyGenerationFailed = false;
       _generatedStory = '';
+      _storyTitle = '';
     });
+    _generateStory();
+  }
+
+  void _generateNewStory() {
+    // Generate a new story for the same image
+    setState(() {
+      _isGeneratingStory = true;
+      _storyGenerationFailed = false;
+      _generatedStory = '';
+      _storyTitle = '';
+      _isFetchingExistingStory = false;
+    });
+    _slideController.reset();
     _generateStory();
   }
 
@@ -351,6 +425,11 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       return _buildGeneratingView();
     }
 
+    // Show empty state if story not found
+    if (_storyNotFound) {
+      return _buildEmptyStoryState();
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
@@ -387,8 +466,12 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
 
   Widget _buildGeneratingView() {
     return CustomLoadingWidget(
-      message: 'story.generating_story',
-      subtitle: 'story.this_may_take',
+      message: _isFetchingExistingStory
+          ? 'story.loading_story'
+          : 'story.generating_story',
+      subtitle: _isFetchingExistingStory
+          ? 'story.loading_story_subtitle'
+          : 'story.this_may_take',
     );
   }
 
@@ -461,6 +544,129 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildEmptyStoryState() {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Column(
+              children: [
+                // Header
+                CustomAppBar(
+                  title: 'story.no_story_yet',
+                  subtitle: 'story.create_one_now',
+                  emoji: '📖',
+                  showAnimation: true,
+                ),
+                // Empty state content
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: widget.imageUrl != null
+                                  ? Image.network(
+                                      widget.imageUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Container(
+                                              color: AppColors.secondary
+                                                  .withValues(alpha: 0.1),
+                                              child: const Icon(
+                                                Icons.broken_image,
+                                                size: 60,
+                                                color: AppColors.secondary,
+                                              ),
+                                            );
+                                          },
+                                    )
+                                  : Container(
+                                      color: AppColors.secondary.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      child: const Icon(
+                                        Icons.book_outlined,
+                                        size: 60,
+                                        color: AppColors.secondary,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'story.no_story_message'.tr(),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                              fontFamily: 'Comic Sans MS',
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'story.create_story_description'.tr(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textDark.withValues(alpha: 0.7),
+                              fontFamily: 'Comic Sans MS',
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          CustomButton(
+                            label: 'story.create_story_now',
+                            onPressed: _createStoryForImage,
+                            backgroundColor: AppColors.secondary,
+                            textColor: AppColors.white,
+                            icon: Icons.add,
+                            height: 56,
+                            fontSize: 16,
+                            borderRadius: 12,
+                            showShadow: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _createStoryForImage() {
+    // Start generating story
+    setState(() {
+      _isGeneratingStory = true;
+      _storyNotFound = false;
+    });
+    _generateStory();
   }
 
   Widget _buildStoryView() {
@@ -556,58 +762,86 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
             const SizedBox(height: 24),
 
             // Action buttons
-            Row(
+            Column(
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _readStoryAloud,
-                    icon: Icon(_isSpeaking ? Icons.stop : Icons.volume_up),
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(_isSpeaking ? 'Stop' : 'story.read_aloud'.tr()),
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            _currentLanguage.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _readStoryAloud,
+                        icon: Icon(_isSpeaking ? Icons.stop : Icons.volume_up),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _isSpeaking ? 'Stop' : 'story.read_aloud'.tr(),
                             ),
-                          ),
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                _currentLanguage.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isSpeaking
-                          ? AppColors.accent
-                          : AppColors.primary,
-                      foregroundColor: AppColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isSpeaking
+                              ? AppColors.accent
+                              : AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                  ),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _createAnotherStory,
+                        icon: const Icon(Icons.palette),
+                        label: Text('story.draw_another'.tr()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.white,
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
+
+                const SizedBox(height: 16),
+
+                // Generate new story button
+                SizedBox(
+                  width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: _createAnotherStory,
-                    icon: const Icon(Icons.palette),
-                    label: Text('story.create_another'.tr()),
+                    onPressed: _generateNewStory,
+                    icon: const Icon(Icons.refresh),
+                    label: Text('story.generate_new_story'.tr()),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.white,
-                      foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: AppColors.primary),
+                      backgroundColor: AppColors.secondary,
+                      foregroundColor: AppColors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),

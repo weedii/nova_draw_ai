@@ -348,7 +348,9 @@
     "this_may_take": "Das kann einen Moment dauern",
     "try_again": "Nochmal versuchen",
     "error_generating": "Beim Erstellen deiner Geschichte ist etwas schief gelaufen.",
-    "create_another": "Noch eine erstellen",
+    "draw_another": "Noch eine zeichnen",
+    "generate_new_story": "Neue Geschichte generieren",
+    "generate_new_story_description": "Erfinde eine andere Geschichte für deine Zeichnung",
     "your_story_title": "Deine magische Geschichte",
     "enhanced_artwork": "Verbessertes Kunstwerk",
     "your_masterpiece": "Dein Meisterwerk erzählt eine Geschichte!",
@@ -360,7 +362,14 @@
     "share_story": "Geschichte teilen",
     "read_aloud_coming_soon": "Vorlese-Funktion kommt bald! ",
     "save_coming_soon": "Geschichte speichern-Funktion kommt bald! ",
-    "share_coming_soon": "Geschichte teilen-Funktion kommt bald! "
+    "share_coming_soon": "Geschichte teilen-Funktion kommt bald! ",
+    "no_story_yet": "Noch keine Geschichte",
+    "create_one_now": "Erstelle jetzt eine",
+    "no_story_message": "Diese Zeichnung hat noch keine Geschichte.",
+    "create_story_description": "Erfinde eine Geschichte zu deiner Zeichnung und lass deiner Fantasie freien Lauf!",
+    "create_story_now": "Geschichte erstellen",
+    "loading_story": "Deine Geschichte wird geladen...",
+    "loading_story_subtitle": "Abrufen deiner magischen Geschichte"
   },
   "edit_options": {
     "choose_edit_option": "Wähle Bearbeitungsart",
@@ -485,6 +494,7 @@
     "delete_edited_image_title": "Bearbeitetes Bild löschen",
     "delete_edited_image_message": "Bist du sicher, dass du dieses bearbeitete Bild löschen möchtest?",
     "delete": "Löschen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "story": "Geschichte"
   }
 }

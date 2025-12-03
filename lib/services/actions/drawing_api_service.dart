@@ -716,4 +716,54 @@ class DrawingApiService {
       return jsonData['success'] == true;
     });
   }
+
+  /// Fetch a specific story for a drawing and image URL
+  ///
+  /// [drawingId] - UUID of the drawing
+  /// [imageUrl] - URL of the image
+  ///
+  /// Returns story details if found, or null if not found
+  /// Throws [ApiException] on error
+  static Future<Map<String, dynamic>?> fetchStoryForImage(
+    String drawingId,
+    String imageUrl,
+  ) async {
+    return await BaseApiService.handleApiCall<Map<String, dynamic>?>(() async {
+      // Validate input
+      if (drawingId.trim().isEmpty) {
+        throw ApiException('Drawing ID cannot be empty');
+      }
+
+      if (imageUrl.trim().isEmpty) {
+        throw ApiException('Image URL cannot be empty');
+      }
+
+      // Encode image URL for use in query parameter
+      final encodedUrl = Uri.encodeComponent(imageUrl);
+
+      // Make API request with image_url as query parameter
+      final response = await BaseApiService.get(
+        '/api/drawings/$drawingId/stories?image_url=$encodedUrl',
+      );
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+      final story = jsonData['story'];
+
+      if (story == null) {
+        return null;
+      }
+
+      return {
+        'id': story['id'] ?? '',
+        'title': story['title'] ?? '',
+        'story_text_en': story['story_text_en'] ?? '',
+        'story_text_de': story['story_text_de'] ?? '',
+        'image_url': story['image_url'] ?? '',
+        'is_favorite': story['is_favorite'] ?? false,
+        'generation_time_ms': story['generation_time_ms'] ?? 0,
+        'created_at': story['created_at'],
+      };
+    });
+  }
 }
