@@ -321,8 +321,14 @@ class _CustomButtonState extends State<CustomButton>
   }
 
   /// Calculate responsive font size based on screen width
-  /// Scales from 12px on small screens to 18px on large screens
+  /// Uses widget.fontSize as base and scales it responsively
   double _calculateResponsiveFontSize(double screenWidth) {
+    // If custom fontSize is provided, use it directly without responsive scaling
+    if (widget.fontSize != 16) {
+      return widget.fontSize;
+    }
+
+    // Otherwise, apply responsive scaling to default fontSize
     if (screenWidth < 360) {
       return 12; // Small phones
     } else if (screenWidth < 480) {
@@ -337,8 +343,14 @@ class _CustomButtonState extends State<CustomButton>
   }
 
   /// Calculate responsive icon size based on screen width
-  /// Scales from 14px on small screens to 24px on large screens
+  /// Uses widget.iconSize as base and scales it responsively
   double _calculateResponsiveIconSize(double screenWidth) {
+    // If custom iconSize is provided, use it directly without responsive scaling
+    if (widget.iconSize != 20) {
+      return widget.iconSize;
+    }
+
+    // Otherwise, apply responsive scaling to default iconSize
     if (screenWidth < 360) {
       return 14; // Small phones
     } else if (screenWidth < 480) {

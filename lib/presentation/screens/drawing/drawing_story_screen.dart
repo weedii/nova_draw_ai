@@ -108,12 +108,23 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
 
       if (mounted) {
         if (story != null) {
+          // Get current app language
+          String currentLanguage = context.locale.languageCode;
+
+          // Select story text and title based on current app language
+          String storyText = currentLanguage == 'de'
+              ? (story['story_text_de'] ?? '')
+              : (story['story_text_en'] ?? '');
+          String storyTitle = currentLanguage == 'de'
+              ? (story['title_de'] ?? '')
+              : (story['title_en'] ?? '');
+
           // Story exists - display it
           setState(() {
             _isGeneratingStory = false;
             _isFetchingExistingStory = false;
-            _generatedStory = story['story_text_en'] ?? '';
-            _storyTitle = story['title'] ?? '';
+            _generatedStory = storyText;
+            _storyTitle = storyTitle;
             _storyImageUrl = story['image_url'];
           });
           // Trigger slide animation for story display
@@ -282,21 +293,28 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       // Get current app language
       String currentLanguage = context.locale.languageCode;
 
-      // Call the API to generate story with the current language
+      // Call the API to generate bilingual story
       // Pass imageUrl if available (from edited image), otherwise pass imageData
       final response = await DrawingApiService.createStory(
         imageData: widget.drawingImage,
         imageUrl: widget.imageUrl,
-        language: currentLanguage,
         drawingId: widget.dbDrawingId,
       );
 
       if (mounted) {
+        // Select story text and title based on current app language
+        String storyText = currentLanguage == 'de'
+            ? response.storyTextDe
+            : response.storyTextEn;
+        String storyTitle = currentLanguage == 'de'
+            ? response.titleDe
+            : response.titleEn;
+
         setState(() {
           _isGeneratingStory = false;
           _storyGenerationFailed = false;
-          _generatedStory = response.story;
-          _storyTitle = response.title;
+          _generatedStory = storyText;
+          _storyTitle = storyTitle;
           _storyImageUrl = response.imageUrl; // Store image URL from response
         });
 
@@ -471,7 +489,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
           : 'story.generating_story',
       subtitle: _isFetchingExistingStory
           ? 'story.loading_story_subtitle'
-          : 'story.this_may_take',
+          : 'common.this_may_take',
     );
   }
 
@@ -812,19 +830,17 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
                     const SizedBox(width: 16),
 
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: CustomButton(
+                        label: 'story.draw_another',
                         onPressed: _createAnotherStory,
-                        icon: const Icon(Icons.palette),
-                        label: Text('story.draw_another'.tr()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.white,
-                          foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
+                        icon: Icons.palette,
+                        backgroundColor: AppColors.white,
+                        textColor: AppColors.primary,
+                        borderColor: AppColors.primary,
+                        height: 53,
+                        fontSize: 14,
+                        borderRadius: 16,
+                        variant: 'outlined',
                       ),
                     ),
                   ],

@@ -27,7 +27,8 @@
     "draw_another": "Noch eine zeichnen",
     "create_story": "Geschichte erstellen",
     "compare": "Vergleichen",
-    "birthdate": "Geburtsdatum"
+    "birthdate": "Geburtsdatum",
+    "this_may_take": "Das kann einen Moment dauern"
   },
   "app_bar": {
     "enhanced_drawing": "Verbessertes Bild",
@@ -186,7 +187,6 @@
     "drawing_complete": "Du hast deine Zeichnung fertiggestellt!",
     "generating_tutorial": "Tutorial wird erstellt",
     "creating_drawing_steps": "Die Zeichenschritte werden erstellt",
-    "please_wait": "Das kann 30-60 Sekunden dauern",
     "error_occurred": "Fehler aufgetreten",
     "failed_to_generate": "Tutorial konnte nicht erstellt werden",
     "unknown_error": "Unbekannter Fehler aufgetreten",
@@ -321,7 +321,6 @@
     "ai_magic": "KI-Magie",
     "ai_magic_subtitle": "Deine Zeichnung wird magisch!",
     "processing_image": "Mach etwas Zauberei mit deinem Kunstwerk...",
-    "this_may_take": "Das kann einen Moment dauern",
     "enhanced_drawing": "Verbesserte Zeichnung",
     "your_masterpiece": "Dein Meisterwerk!",
     "ai_enhanced": "KI-verbesserte Version",
@@ -345,7 +344,6 @@
     "your_story": "Deine Geschichte",
     "story_ready": "Deine magische Geschichte ist bereit!",
     "generating_story": "Erstelle eine magische Geschichte über dein Kunstwerk...",
-    "this_may_take": "Das kann einen Moment dauern",
     "try_again": "Nochmal versuchen",
     "error_generating": "Beim Erstellen deiner Geschichte ist etwas schief gelaufen.",
     "draw_another": "Noch eine zeichnen",

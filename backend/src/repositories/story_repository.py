@@ -127,12 +127,12 @@ class StoryRepository:
         db: AsyncSession, user_id: UUID, title: str
     ) -> Optional[Story]:
         """
-        Find a story by user and title.
+        Find a story by user and title (searches in English title).
 
         Args:
             db: Async database session
             user_id: User ID
-            title: Story title
+            title: Story title (English)
 
         Returns:
             Story instance or None if not found
@@ -141,7 +141,7 @@ class StoryRepository:
             story = await StoryRepository.find_by_title(db, user_id, "My Adventure")
         """
 
-        query = select(Story).where(Story.user_id == user_id, Story.title == title)
+        query = select(Story).where(Story.user_id == user_id, Story.title_en == title)
         result = await db.execute(query)
         return result.scalar_one_or_none()
 
@@ -150,7 +150,7 @@ class StoryRepository:
         db: AsyncSession, user_id: UUID, pattern: str
     ) -> List[Story]:
         """
-        Find stories by title pattern (case-insensitive).
+        Find stories by title pattern (case-insensitive, searches in English title).
 
         Args:
             db: Async database session
@@ -166,7 +166,7 @@ class StoryRepository:
 
         query = select(Story).where(
             Story.user_id == user_id,
-            Story.title.ilike(f"%{pattern}%"),
+            Story.title_en.ilike(f"%{pattern}%"),
         )
         result = await db.execute(query)
         return result.scalars().all()

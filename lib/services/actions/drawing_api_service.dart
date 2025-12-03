@@ -250,21 +250,19 @@ class DrawingApiService {
   /// Supports two modes:
   /// 1. Upload image data directly (imageData provided as File or Uint8List)
   /// 2. Use image URL from Spaces (imageUrl provided)
-  /// Language parameter: 'en' for English or 'de' for German
+  /// Stories are always generated in both English and German.
   static Future<ApiStoryResponse> createStory({
     dynamic
     imageData, // Can be File or Uint8List (optional if imageUrl provided)
     String?
     imageUrl, // URL of image from Spaces (optional if imageData provided)
-    required String language, // 'en' or 'de'
     String? drawingId, // Optional drawing ID for linking story to drawing
   }) async {
     return await BaseApiService.handleApiCall<ApiStoryResponse>(() async {
-      print('📖 Starting story creation...');
-      print('   Language: $language');
+      print('📖 Starting story creation (bilingual EN + DE)...');
 
       // Prepare request body
-      final body = <String, dynamic>{'language': language};
+      final body = <String, dynamic>{};
 
       // Add image data or URL
       if (imageUrl != null) {
@@ -309,8 +307,10 @@ class DrawingApiService {
       final result = ApiStoryResponse.fromJson(jsonData);
 
       print('✅ Story created successfully!');
-      print('   Title: ${result.title}');
-      print('   Story length: ${result.story.length} characters');
+      print('   Title EN: ${result.titleEn}');
+      print('   Title DE: ${result.titleDe}');
+      print('   EN length: ${result.storyTextEn.length} characters');
+      print('   DE length: ${result.storyTextDe.length} characters');
       if (result.generationTime != null) {
         print('   Generation time: ${result.generationTime}s');
       }

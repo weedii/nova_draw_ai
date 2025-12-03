@@ -14,7 +14,7 @@ class AppColors {
   static const Color accent = Color(0xFFFF7EB9);
 
   /// Mint Green - Feels natural and creative (Success / Positive)
-  static const Color success = Color.fromARGB(255, 53, 232, 161);
+  static const Color success = Color.fromARGB(255, 88, 201, 92);
 
   /// Light Cream - Easy on eyes, gives warmth (Background)
   static const Color background = Color(0xFFFFF9E6);

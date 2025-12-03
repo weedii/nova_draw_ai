@@ -19,12 +19,11 @@ async def create_story(
     current_user: User = Depends(AuthService.get_current_user),
 ):
     """
-    Generate a children's story (ages 4-7) from an image.
+    Generate a children's story (ages 4-7) from an image in both English and German.
     Supports two modes:
     1. Upload image as base64 (request.image provided)
     2. Use image URL from Spaces (request.image_url provided)
 
-    Supports English ('en') and German ('de') story generation.
     Saves the generated story to the database and links it to a drawing if drawing_id provided.
 
     **Authentication Required:** User must be logged in.
@@ -42,7 +41,6 @@ async def create_story(
         result = await story_service.create_story(
             db=db,
             image_base64=request.image,
-            language=request.language,
             user_id=user_id,
             drawing_id=UUID(request.drawing_id) if request.drawing_id else None,
             image_url=request.image_url or "",
@@ -50,8 +48,10 @@ async def create_story(
 
         return StoryResponse(
             success="true",
-            story=result["story"],
-            title=result["title"],
+            title_en=result["title_en"],
+            title_de=result["title_de"],
+            story_text_en=result["story_text_en"],
+            story_text_de=result["story_text_de"],
             generation_time=result["generation_time"],
             story_id=result["story_id"],
             image_url=request.image_url,
