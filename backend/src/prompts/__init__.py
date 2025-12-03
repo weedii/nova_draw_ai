@@ -33,6 +33,7 @@ from src.prompts.story_prompts import (
     get_story_generation_prompt_de,
     get_story_generation_prompt_en,
     get_story_generation_prompt,
+    get_story_generation_prompt_bilingual,
 )
 
 # Image generation prompts
@@ -57,6 +58,7 @@ __all__ = [
     "get_story_generation_prompt_de",
     "get_story_generation_prompt_en",
     "get_story_generation_prompt",
+    "get_story_generation_prompt_bilingual",
     # Image generation prompts
     "get_step_image_generation_prompt_first_step",
     "get_step_image_editing_prompt_subsequent_steps",

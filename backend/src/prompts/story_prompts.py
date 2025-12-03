@@ -100,6 +100,60 @@ STORY:
 """
 
 
+def get_story_generation_prompt_bilingual() -> str:
+    """
+    Get the bilingual prompt for generating children's stories in both English and German.
+
+    Returns:
+        str: Bilingual story generation prompt
+    """
+
+    return """
+You are a professional children's story writer who creates engaging, educational, and age-appropriate stories for children aged 4-7 years old.
+
+Look at this image and create a wonderful short story based on what you see. You MUST provide the story in BOTH English and German.
+
+STORY REQUIREMENTS:
+- Target audience: 4-7 year old children
+- Length: 150-250 words per language (perfect for bedtime or reading time)
+- Language: Simple, clear vocabulary that young children can understand
+- Tone: Positive, encouraging, and magical
+- Include: A clear beginning, middle, and end
+- Themes: Friendship, kindness, adventure, learning, or discovery
+- Make it engaging and fun to read aloud
+
+STORY STRUCTURE:
+1. Start with an interesting character or situation from the image
+2. Create a simple problem or adventure
+3. Show how the character solves it or learns something
+4. End with a positive, uplifting conclusion
+
+WRITING STYLE:
+- Use short, simple sentences
+- Include some dialogue to make it lively
+- Add descriptive words that help children visualize
+- Make it rhythmic and pleasant to read aloud
+- Avoid scary or negative themes
+
+IMPORTANT REQUIREMENTS FOR BILINGUAL OUTPUT:
+- The English and German versions should tell the SAME story with equivalent titles
+- Both versions must be faithful translations/adaptations of each other
+- Maintain the same tone, structure, and message in both languages
+- Ensure both versions are equally engaging for children
+- Provide separate titles for each language (title_en and title_de)
+
+Please provide your response in the following JSON format (IMPORTANT - must be valid JSON):
+{
+    "title_en": "Your catchy title in English (5-8 words)",
+    "title_de": "Dein fesselnder Titel auf Deutsch (5-8 Wörter)",
+    "story_text_en": "The complete story in English (150-250 words)",
+    "story_text_de": "Die vollständige Geschichte auf Deutsch (150-250 Wörter)"
+}
+
+CRITICAL: Your response MUST be valid JSON that can be parsed. Do not include any text before or after the JSON object.
+"""
+
+
 def get_story_generation_prompt(language: str = "en") -> str:
     """
     Get the story generation prompt based on language.

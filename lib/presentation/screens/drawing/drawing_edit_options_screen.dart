@@ -614,7 +614,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   Widget _buildApplyingEditView() {
     return CustomLoadingWidget(
       message: 'ai_enhancement.processing_image',
-      subtitle: 'ai_enhancement.this_may_take',
+      subtitle: 'common.this_may_take',
     );
   }
 

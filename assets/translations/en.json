@@ -27,7 +27,8 @@
     "draw_another": "Draw Another",
     "create_story": "Create a Story",
     "compare": "Compare",
-    "birthdate": "Birthdate"
+    "birthdate": "Birthdate",
+    "this_may_take": "This may take a few moments"
   },
   "app_bar": {
     "enhanced_drawing": "Enhanced Drawing",
@@ -186,7 +187,6 @@
     "drawing_complete": "You've completed your drawing!",
     "generating_tutorial": "Generating Tutorial",
     "creating_drawing_steps": "Creating drawing steps",
-    "please_wait": "This may take 30-60 seconds",
     "error_occurred": "Error Occurred",
     "failed_to_generate": "Failed to Generate Tutorial",
     "unknown_error": "Unknown error occurred",
@@ -321,7 +321,6 @@
     "ai_magic": "AI Magic",
     "ai_magic_subtitle": "Your drawing is getting magical!",
     "processing_image": "Doing some magic on your artwork...",
-    "this_may_take": "This may take a few moments",
     "enhanced_drawing": "Enhanced Drawing",
     "your_masterpiece": "Your Masterpiece!",
     "ai_enhanced": "AI Enhanced Version",
@@ -345,10 +344,11 @@
     "your_story": "Your Story",
     "story_ready": "Your magical story is ready!",
     "generating_story": "Creating a magical story about your artwork...",
-    "this_may_take": "This may take a few moments",
     "try_again": "Try Again",
     "error_generating": "Something went wrong while creating your story.",
-    "create_another": "Create Another",
+    "draw_another": "Draw Another",
+    "generate_new_story": "Generate New Story",
+    "generate_new_story_description": "Create a different story for your drawing",
     "your_story_title": "Your Magical Story",
     "enhanced_artwork": "Enhanced Artwork",
     "your_masterpiece": "Your masterpiece tells a story!",
@@ -360,7 +360,20 @@
     "share_story": "Share Story",
     "read_aloud_coming_soon": "Read aloud functionality coming soon! ",
     "save_coming_soon": "Save story functionality coming soon! ",
-    "share_coming_soon": "Share story functionality coming soon! "
+    "share_coming_soon": "Share story functionality coming soon! ",
+    "no_story_yet": "No Story Yet",
+    "create_one_now": "Create one now",
+    "no_story_message": "This drawing doesn't have a story yet",
+    "create_story_description": "Create a story for your drawing and let your imagination come to life!",
+    "create_story_now": "Create Story",
+    "loading_story": "Loading your story...",
+    "loading_story_subtitle": "Fetching your magical story",
+    "error_loading_story": "Failed to Load Story",
+    "error_loading_story_message": "We couldn't load your story. Please check your connection and try again.",
+    "error_network": "Network Error",
+    "error_server": "Server Error",
+    "error_invalid_response": "Invalid Response",
+    "error_unknown": "Something went wrong"
   },
   "edit_options": {
     "choose_edit_option": "Choose How to Edit",
@@ -485,6 +498,7 @@
     "delete_edited_image_title": "Delete Edited Image",
     "delete_edited_image_message": "Are you sure you want to delete this edited image?",
     "delete": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "story": "Story"
   }
 }

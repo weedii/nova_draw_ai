@@ -1,16 +1,21 @@
 import time
 import base64
+import json
 from io import BytesIO
 from PIL import Image
 from openai import OpenAI
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional, List
 from src.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from src.models import Story
+from src.models import Story, Drawing
+from src.repositories import StoryRepository, DrawingRepository
 from src.services.storage_service import StorageService
 from src.core.logger import logger
-from src.prompts import get_story_generation_prompt
+from src.prompts import (
+    get_story_generation_prompt,
+    get_story_generation_prompt_bilingual,
+)
 
 
 class StoryService:
@@ -31,25 +36,22 @@ class StoryService:
             logger.warning(f"⚠️ StorageService initialization failed: {e}")
             self.storage_service = None
 
-    def generate_story(
-        self, image_base64: str, language: str = "en"
-    ) -> Tuple[str, str, float]:
+    def generate_story(self, image_base64: str) -> Tuple[str, str, str, str, float]:
         """
-        Generate a children's story from an image.
+        Generate a children's story from an image in both English and German.
 
         Args:
             image_base64: Base64 encoded image
-            language: Language for story generation ('en' or 'de')
 
         Returns:
-            Tuple of (story_title, story_text, generation_time)
+            Tuple of (title_en, title_de, story_text_en, story_text_de, generation_time)
         """
 
         start_time = time.time()
 
         try:
-            # Get prompt from centralized prompt module
-            story_prompt = get_story_generation_prompt(language)
+            # Get bilingual prompt
+            story_prompt = get_story_generation_prompt_bilingual()
 
             # Prepare the message with image
             messages = [
@@ -71,7 +73,7 @@ class StoryService:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                max_tokens=500,
+                max_tokens=1500,  # Increased for bilingual content
                 temperature=0.8,  # Creative but not too random
             )
 
@@ -80,46 +82,52 @@ class StoryService:
             if not response.choices or not response.choices[0].message.content:
                 raise ValueError("Empty response from OpenAI API")
 
-            # Parse the response
+            # Parse the response as JSON
             content = response.choices[0].message.content.strip()
 
-            # Extract title and story
-            lines = content.split("\n")
-            title = ""
-            story = ""
+            try:
+                # Remove markdown code blocks if present (```json ... ```)
+                if content.startswith("```"):
+                    # Remove opening ```json or ```
+                    content = content.split("```", 1)[1]
+                    if content.startswith("json"):
+                        content = content[4:]
+                    # Remove closing ```
+                    content = content.rsplit("```", 1)[0]
+                    content = content.strip()
 
-            # Find title (support both English "TITLE:" and German "TITEL:")
-            for line in lines:
-                if line.startswith("TITLE:") or line.startswith("TITEL:"):
-                    title = line.replace("TITLE:", "").replace("TITEL:", "").strip()
-                    break
-
-            # Find story (support both English "STORY:" and German "GESCHICHTE:")
-            story_started = False
-            story_lines = []
-            for line in lines:
-                if line.startswith("STORY:") or line.startswith("GESCHICHTE:"):
-                    story_started = True
-                    continue
-                if story_started:
-                    story_lines.append(line)
-
-            story = "\n".join(story_lines).strip()
-
-            # Fallback if parsing fails
-            if not title:
-                title = (
-                    "A Wonderful Adventure"
-                    if language == "en"
-                    else "Ein wunderbares Abenteuer"
+                logger.info(
+                    f" Cleaned response content (first 100 chars): {content[:100]}"
                 )
-            if not story:
-                story = content  # Use full content as story
 
-            return title, story, duration
+                # Try to parse as JSON
+                response_json = json.loads(content)
+                title_en = response_json.get("title_en", "A Wonderful Adventure")
+                title_de = response_json.get("title_de", "Ein wunderbares Abenteuer")
+                story_text_en = response_json.get("story_text_en", "")
+                story_text_de = response_json.get("story_text_de", "")
+
+                logger.info(
+                    f"✅ Successfully parsed bilingual story: EN='{title_en}', DE='{title_de}' "
+                    f"(EN: {len(story_text_en)} chars, DE: {len(story_text_de)} chars)"
+                )
+
+                # Validate that both languages have content
+                if not story_text_en or not story_text_de:
+                    raise ValueError("Missing story content in one or both languages")
+
+                return title_en, title_de, story_text_en, story_text_de, duration
+
+            except json.JSONDecodeError as e:
+                logger.error(f" Failed to parse JSON response: {str(e)}")
+                logger.error(f"Raw response: {content[:500]}")
+                raise ValueError(
+                    f"AI response was not valid JSON. Please try again. Error: {str(e)}"
+                )
 
         except Exception as e:
             duration = time.time() - start_time
+            logger.error(f"❌ Story generation failed: {str(e)}")
             raise ValueError(f"Story generation failed: {str(e)}")
 
     def validate_image_base64(self, image_base64: str) -> bool:
@@ -178,13 +186,12 @@ class StoryService:
         self,
         db: AsyncSession,
         image_base64: str,
-        language: str,
         user_id: UUID,
         drawing_id: UUID = None,
         image_url: str = "",
     ) -> Dict[str, Any]:
         """
-        Complete story creation flow: generate and save to database.
+        Complete story creation flow: generate bilingual story and save to database.
 
         Supports two modes:
         1. Direct base64 image (image_base64 provided)
@@ -193,13 +200,12 @@ class StoryService:
         Args:
             db: Async database session
             image_base64: Base64 encoded image (optional if image_url provided)
-            language: Language for story generation ('en' or 'de')
             user_id: UUID of the user creating the story
             drawing_id: Optional UUID of the associated drawing
             image_url: Optional URL of the image from Spaces
 
         Returns:
-            Dictionary with story_id, title, story, and generation_time
+            Dictionary with story_id, title, story_text_en, story_text_de, and generation_time
 
         Raises:
             ValueError: If image validation fails or generation fails
@@ -252,35 +258,51 @@ class StoryService:
                 "Invalid image data. Please provide a valid base64 encoded image."
             )
 
-        # Validate language
-        if language not in ["en", "de"]:
-            raise ValueError("Invalid language. Please provide 'en' or 'de'.")
-
-        # Generate story
-        title, story, generation_time = self.generate_story(
-            final_image_base64, language
+        # Generate bilingual story (both EN and DE in one call)
+        logger.info("🎨 Generating bilingual story (EN + DE)...")
+        title_en, title_de, story_text_en, story_text_de, generation_time = (
+            self.generate_story(final_image_base64)
         )
 
-        # Prepare story data for database
-        story_text_en = story if language == "en" else ""
-        story_text_de = story if language == "de" else ""
+        logger.info(
+            f"✅ Story generated successfully: EN='{title_en}', DE='{title_de}' "
+            f"(EN: {len(story_text_en)} chars, DE: {len(story_text_de)} chars)"
+        )
 
-        # Save story to database
+        # Check if a story already exists for this image
+        # If it does, delete it to ensure only one story per image
+        if image_url and drawing_id:
+            existing_story = await StoryRepository.find_by_drawing_id_and_image_url(
+                db, drawing_id, image_url
+            )
+            if existing_story:
+                logger.info(
+                    f"🗑️ Deleting existing story {existing_story.id} for image {image_url}"
+                )
+                await Story.delete(db, existing_story.id)
+                logger.info(f"✅ Existing story deleted")
+
+        # Save story to database with both languages
         saved_story = await Story.create(
             db,
             user_id=user_id,
             drawing_id=drawing_id,
-            title=title,
+            title_en=title_en,
+            title_de=title_de,
             story_text_en=story_text_en,
             story_text_de=story_text_de,
             image_url=image_url,
             generation_time_ms=int(generation_time * 1000),
         )
 
+        logger.info(f"💾 Story saved to database with ID: {saved_story.id}")
+
         return {
             "story_id": str(saved_story.id),
-            "title": title,
-            "story": story,
+            "title_en": title_en,
+            "title_de": title_de,
+            "story_text_en": story_text_en,
+            "story_text_de": story_text_de,
             "generation_time": generation_time,
         }
 
@@ -323,3 +345,153 @@ class StoryService:
             generation_time_ms=generation_time_ms,
         )
         return story
+
+    async def get_story_for_image(
+        self,
+        db: AsyncSession,
+        drawing_id: UUID,
+        image_url: str,
+        user_id: UUID,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a specific story for a drawing and image URL.
+
+        Args:
+            db: Async database session
+            drawing_id: UUID of the drawing
+            image_url: URL of the image
+            user_id: UUID of the user (for ownership check)
+
+        Returns:
+            Story details if found, or None if not found
+
+        Raises:
+            ValueError: If drawing not found or user doesn't own it
+        """
+
+        try:
+            logger.info(
+                f"📖 Fetching story for drawing {drawing_id} and image {image_url}"
+            )
+
+            # Get drawing to verify ownership
+            drawing = await DrawingRepository.find_by_id_with_tutorial(db, drawing_id)
+
+            if not drawing:
+                logger.warning(f"Drawing not found: {drawing_id}")
+                raise ValueError("Drawing not found")
+
+            # Check ownership
+            if drawing.user_id != user_id:
+                logger.warning(
+                    f"Unauthorized access attempt to drawing {drawing_id} by user {user_id}"
+                )
+                raise ValueError("You don't have permission to access this drawing")
+
+            # Get story for this image
+            story = await StoryRepository.find_by_drawing_id_and_image_url(
+                db, drawing_id, image_url
+            )
+
+            if not story:
+                logger.info(
+                    f"No story found for drawing {drawing_id} and image {image_url}"
+                )
+                return None
+
+            logger.info(f"Retrieved story {story.id} for drawing {drawing_id}")
+
+            return {
+                "id": str(story.id),
+                "title_en": story.title_en,
+                "title_de": story.title_de,
+                "story_text_en": story.story_text_en,
+                "story_text_de": story.story_text_de,
+                "image_url": story.image_url,
+                "is_favorite": story.is_favorite,
+                "generation_time_ms": story.generation_time_ms,
+                "created_at": (
+                    story.created_at.isoformat() if story.created_at else None
+                ),
+            }
+
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Failed to fetch story for image: {str(e)}")
+            raise ValueError(f"Failed to fetch story for image: {str(e)}")
+
+    async def get_all_stories_for_drawing(
+        self,
+        db: AsyncSession,
+        drawing_id: UUID,
+        user_id: UUID,
+    ) -> Dict[str, Any]:
+        """
+        Get all stories for a drawing, organized by image URL.
+
+        Returns stories mapped by image_url for easy frontend lookup.
+        Includes stories for the original image and all edited images.
+
+        Args:
+            db: Async database session
+            drawing_id: UUID of the drawing
+            user_id: UUID of the user (for ownership check)
+
+        Returns:
+            Dictionary with stories organized by image_url
+
+        Raises:
+            ValueError: If drawing not found or user doesn't own it
+        """
+
+        try:
+            logger.info(f"📖 Fetching all stories for drawing: {drawing_id}")
+
+            # Get drawing to verify ownership
+            drawing = await DrawingRepository.find_by_id_with_tutorial(db, drawing_id)
+
+            if not drawing:
+                logger.warning(f"Drawing not found: {drawing_id}")
+                raise ValueError("Drawing not found")
+
+            # Check ownership
+            if drawing.user_id != user_id:
+                logger.warning(
+                    f"Unauthorized access attempt to drawing {drawing_id} by user {user_id}"
+                )
+                raise ValueError("You don't have permission to access this drawing")
+
+            # Get all stories for this drawing
+            stories = await StoryRepository.find_by_drawing_id(db, drawing_id)
+
+            logger.info(f"Retrieved {len(stories)} stories for drawing {drawing_id}")
+
+            # Organize stories by image_url
+            stories_by_image = {}
+            for story in stories:
+                stories_by_image[story.image_url] = {
+                    "id": str(story.id),
+                    "title_en": story.title_en,
+                    "title_de": story.title_de,
+                    "story_text_en": story.story_text_en,
+                    "story_text_de": story.story_text_de,
+                    "image_url": story.image_url,
+                    "is_favorite": story.is_favorite,
+                    "generation_time_ms": story.generation_time_ms,
+                    "created_at": (
+                        story.created_at.isoformat() if story.created_at else None
+                    ),
+                }
+
+            return {
+                "success": True,
+                "drawing_id": str(drawing_id),
+                "stories_by_image": stories_by_image,
+            }
+
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Failed to fetch stories for drawing: {str(e)}")
+            raise ValueError(f"Failed to fetch stories for drawing: {str(e)}")
