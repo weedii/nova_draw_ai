@@ -367,7 +367,13 @@
     "create_story_description": "Create a story for your drawing and let your imagination come to life!",
     "create_story_now": "Create Story",
     "loading_story": "Loading your story...",
-    "loading_story_subtitle": "Fetching your magical story"
+    "loading_story_subtitle": "Fetching your magical story",
+    "error_loading_story": "Failed to Load Story",
+    "error_loading_story_message": "We couldn't load your story. Please check your connection and try again.",
+    "error_network": "Network Error",
+    "error_server": "Server Error",
+    "error_invalid_response": "Invalid Response",
+    "error_unknown": "Something went wrong"
   },
   "edit_options": {
     "choose_edit_option": "Choose How to Edit",

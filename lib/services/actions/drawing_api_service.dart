@@ -756,7 +756,8 @@ class DrawingApiService {
 
       return {
         'id': story['id'] ?? '',
-        'title': story['title'] ?? '',
+        'title_en': story['title_en'] ?? '',
+        'title_de': story['title_de'] ?? '',
         'story_text_en': story['story_text_en'] ?? '',
         'story_text_de': story['story_text_de'] ?? '',
         'image_url': story['image_url'] ?? '',

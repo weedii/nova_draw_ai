@@ -112,6 +112,10 @@ class _GalleryScreenState extends State<GalleryScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Access context.locale to make this widget reactive to locale changes
+    // This ensures the entire widget tree rebuilds when language changes
+    final _ = context.locale;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
@@ -418,13 +422,17 @@ class _GalleryScreenState extends State<GalleryScreen>
                               drawing.tutorial!.categoryEmoji,
                               style: const TextStyle(fontSize: 16),
                             ),
+
                             const SizedBox(width: 6),
+
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    drawing.tutorial!.subjectEn,
+                                    context.locale.languageCode == 'de'
+                                        ? drawing.tutorial!.subjectDe
+                                        : drawing.tutorial!.subjectEn,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
@@ -435,7 +443,9 @@ class _GalleryScreenState extends State<GalleryScreen>
                                     ),
                                   ),
                                   Text(
-                                    drawing.tutorial!.categoryEn,
+                                    context.locale.languageCode == 'de'
+                                        ? drawing.tutorial!.categoryDe
+                                        : drawing.tutorial!.categoryEn,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(

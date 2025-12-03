@@ -99,6 +99,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       setState(() {
         _isFetchingExistingStory = true;
         _isGeneratingStory = true;
+        _storyGenerationFailed = false;
       });
 
       final story = await DrawingApiService.fetchStoryForImage(
@@ -119,6 +120,21 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
               ? (story['title_de'] ?? '')
               : (story['title_en'] ?? '');
 
+          // TODO: Handle missing story content (empty title or text)
+          if (storyText.isEmpty || storyTitle.isEmpty) {
+            print('⚠️ Story has missing content (title or text)');
+            print("------------------------------------");
+            print(storyTitle);
+            print(storyText);
+            print("------------------------------------");
+            setState(() {
+              _storyGenerationFailed = true;
+              _isGeneratingStory = false;
+              _isFetchingExistingStory = false;
+            });
+            return;
+          }
+
           // Story exists - display it
           setState(() {
             _isGeneratingStory = false;
@@ -138,11 +154,30 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
           });
         }
       }
-    } catch (e) {
-      print('Error fetching story: $e');
+    } on ApiException catch (e) {
+      // TODO: Handle specific API errors:
+      // - 404: Story not found (show empty state)
+      // - 401: Unauthorized (redirect to login)
+      // - 403: Forbidden (show permission error)
+      // - 500: Server error (show retry option)
+      // - Network timeout (show connection error)
+      print('❌ API Error fetching story: ${e.message}');
       if (mounted) {
         setState(() {
-          _storyNotFound = true;
+          _storyGenerationFailed = true;
+          _isGeneratingStory = false;
+          _isFetchingExistingStory = false;
+        });
+      }
+    } catch (e) {
+      // TODO: Handle other errors:
+      // - JSON parsing errors
+      // - Invalid response format
+      // - Missing required fields
+      print('❌ Unexpected error fetching story: $e');
+      if (mounted) {
+        setState(() {
+          _storyGenerationFailed = true;
           _isGeneratingStory = false;
           _isFetchingExistingStory = false;
         });
@@ -321,6 +356,13 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         _slideController.forward();
       }
     } on ApiException catch (e) {
+      // TODO: Handle specific API errors:
+      // - 400: Invalid image (show user-friendly message)
+      // - 401: Unauthorized (redirect to login)
+      // - 413: Image too large (show size limit message)
+      // - 429: Rate limited (show retry after message)
+      // - 500: Server error (show retry option)
+      // - Network timeout (show connection error)
       print('❌ Story generation failed: ${e.message}');
       if (mounted) {
         setState(() {
@@ -329,6 +371,11 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         });
       }
     } catch (e) {
+      // TODO: Handle other errors:
+      // - JSON parsing errors
+      // - Invalid response format
+      // - Missing required fields in response
+      // - Image validation errors
       print('❌ Unexpected error during story generation: $e');
       if (mounted) {
         setState(() {
@@ -339,14 +386,15 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
     }
   }
 
-  void _retryStoryGeneration() {
+  void _retryOnFailure() {
     setState(() {
       _isGeneratingStory = true;
       _storyGenerationFailed = false;
       _generatedStory = '';
       _storyTitle = '';
     });
-    _generateStory();
+
+    _fetchExistingStory();
   }
 
   void _generateNewStory() {
@@ -500,10 +548,26 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 80, color: AppColors.error),
+            // Error icon with animation
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                size: 80,
+                color: AppColors.error,
+              ),
+            ),
             const SizedBox(height: 24),
+
+            // Error title
             Text(
-              'story.story_failed'.tr(),
+              _isFetchingExistingStory
+                  ? 'story.error_loading_story'.tr()
+                  : 'story.story_failed'.tr(),
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -511,52 +575,37 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
               ),
             ),
             const SizedBox(height: 16),
+
+            // Error message
             Text(
-              'story.error_generating'.tr(),
+              _isFetchingExistingStory
+                  ? 'story.error_loading_story_message'.tr()
+                  : 'story.error_generating'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
                 color: AppColors.textDark.withValues(alpha: 0.7),
+                height: 1.5,
               ),
             ),
             const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _retryStoryGeneration,
-                  icon: const Icon(Icons.refresh),
-                  label: Text('story.try_again'.tr()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
+
+            // Retry button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _retryOnFailure,
+                icon: const Icon(Icons.refresh),
+                label: Text('story.try_again'.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                ElevatedButton.icon(
-                  onPressed: _createAnotherStory,
-                  icon: const Icon(Icons.palette),
-                  label: Text('story.create_another'.tr()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.white,
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -659,9 +708,10 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
                             onPressed: _createStoryForImage,
                             backgroundColor: AppColors.secondary,
                             textColor: AppColors.white,
-                            icon: Icons.add,
+                            icon: Icons.add_circle,
                             height: 56,
                             fontSize: 16,
+                            iconSize: 24,
                             borderRadius: 12,
                             showShadow: true,
                           ),

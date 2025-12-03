@@ -367,7 +367,13 @@
     "create_story_description": "Erfinde eine Geschichte zu deiner Zeichnung und lass deiner Fantasie freien Lauf!",
     "create_story_now": "Geschichte erstellen",
     "loading_story": "Deine Geschichte wird geladen...",
-    "loading_story_subtitle": "Abrufen deiner magischen Geschichte"
+    "loading_story_subtitle": "Abrufen deiner magischen Geschichte",
+    "error_loading_story": "Fehler beim Laden der Geschichte",
+    "error_loading_story_message": "Wir konnten deine Geschichte nicht laden. Bitte überprüfe deine Verbindung und versuche es erneut.",
+    "error_network": "Netzwerkfehler",
+    "error_server": "Serverfehler",
+    "error_invalid_response": "Ungültige Antwort",
+    "error_unknown": "Etwas ist schief gelaufen"
   },
   "edit_options": {
     "choose_edit_option": "Wähle Bearbeitungsart",
