@@ -313,7 +313,7 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
   Widget _buildLoadingScreen() {
     return CustomLoadingWidget(
       message: 'drawing_steps.generating_tutorial',
-      subtitle: 'drawing_steps.please_wait',
+      subtitle: 'common.this_may_take',
       showBackButton: true,
       onBackPressed: () => context.pop(),
     );

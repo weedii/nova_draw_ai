@@ -10,14 +10,13 @@ class StoryRequest(BaseModel):
     Supports two modes:
     1. Upload image as base64 (image field provided)
     2. Use image URL from Spaces (image_url field provided)
+
+    Stories are always generated in both English and German.
     """
 
     image: Optional[str] = Field(
         None,
         description="Base64 encoded image to create story from (optional if image_url provided)",
-    )
-    language: str = Field(
-        ..., description="Language for story generation: 'en' or 'de'"
     )
     user_id: Optional[str] = Field(
         None,
@@ -33,11 +32,13 @@ class StoryRequest(BaseModel):
 
 
 class StoryResponse(BaseModel):
-    """Response with generated story."""
+    """Response with generated bilingual story."""
 
     success: str  # "true" or "false" as string
-    story: str  # Generated story text
-    title: str  # Story title
+    title_en: str  # Story title in English
+    title_de: str  # Story title in German
+    story_text_en: str  # Generated story text in English
+    story_text_de: str  # Generated story text in German
     generation_time: Optional[float] = None
     story_id: Optional[str] = None  # ID of the saved story in database
     image_url: Optional[str] = None  # URL of the image used for story generation

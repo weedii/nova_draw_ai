@@ -43,8 +43,9 @@ class Story(Base):
         nullable=True,
     )
 
-    # Story information
-    title = Column(String(200), nullable=False)
+    # Story information (bilingual)
+    title_en = Column(String(200), nullable=False)
+    title_de = Column(String(200), nullable=False)
     story_text_en = Column(String, nullable=False)
     story_text_de = Column(String, nullable=False)
     image_url = Column(String, nullable=False)
@@ -68,4 +69,4 @@ class Story(Base):
     # - Story.exists(db, id) -> bool
 
     def __repr__(self):
-        return f"<Story(id={self.id}, user_id={self.user_id}, title={self.title})>"
+        return f"<Story(id={self.id}, user_id={self.user_id}, title_en={self.title_en}, title_de={self.title_de})>"

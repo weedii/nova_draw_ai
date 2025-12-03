@@ -128,41 +128,53 @@ class ApiImageEditResponse {
   }
 }
 
-/// API response model for story generation
+/// API response model for story generation (bilingual)
 class ApiStoryResponse {
   final String success;
-  final String story;
-  final String title;
+  final String titleEn;
+  final String titleDe;
+  final String storyTextEn;
+  final String storyTextDe;
   final double? generationTime;
   final String? imageUrl;
+  final String? storyId;
 
   ApiStoryResponse({
     required this.success,
-    required this.story,
-    required this.title,
+    required this.titleEn,
+    required this.titleDe,
+    required this.storyTextEn,
+    required this.storyTextDe,
     this.generationTime,
     this.imageUrl,
+    this.storyId,
   });
 
   factory ApiStoryResponse.fromJson(Map<String, dynamic> json) {
     return ApiStoryResponse(
       success: json['success'] as String,
-      story: json['story'] as String,
-      title: json['title'] as String,
+      titleEn: json['title_en'] as String,
+      titleDe: json['title_de'] as String,
+      storyTextEn: json['story_text_en'] as String,
+      storyTextDe: json['story_text_de'] as String,
       generationTime: json['generation_time'] != null
           ? (json['generation_time'] as num).toDouble()
           : null,
       imageUrl: json['image_url'] as String?,
+      storyId: json['story_id'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'story': story,
-      'title': title,
+      'title_en': titleEn,
+      'title_de': titleDe,
+      'story_text_en': storyTextEn,
+      'story_text_de': storyTextDe,
       'generation_time': generationTime,
       'image_url': imageUrl,
+      'story_id': storyId,
     };
   }
 }

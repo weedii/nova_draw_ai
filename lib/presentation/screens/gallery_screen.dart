@@ -112,6 +112,10 @@ class _GalleryScreenState extends State<GalleryScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Access context.locale to make this widget reactive to locale changes
+    // This ensures the entire widget tree rebuilds when language changes
+    final _ = context.locale;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
@@ -418,13 +422,17 @@ class _GalleryScreenState extends State<GalleryScreen>
                               drawing.tutorial!.categoryEmoji,
                               style: const TextStyle(fontSize: 16),
                             ),
+
                             const SizedBox(width: 6),
+
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    drawing.tutorial!.subjectEn,
+                                    context.locale.languageCode == 'de'
+                                        ? drawing.tutorial!.subjectDe
+                                        : drawing.tutorial!.subjectEn,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
@@ -435,7 +443,9 @@ class _GalleryScreenState extends State<GalleryScreen>
                                     ),
                                   ),
                                   Text(
-                                    drawing.tutorial!.categoryEn,
+                                    context.locale.languageCode == 'de'
+                                        ? drawing.tutorial!.categoryDe
+                                        : drawing.tutorial!.categoryEn,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -545,6 +555,21 @@ class _GalleryScreenState extends State<GalleryScreen>
         '/drawings/${drawing.tutorial!.categoryEn}/${drawing.tutorial!.subjectEn}/edit-options',
         extra: {
           'originalImageUrl': drawing.uploadedImageUrl,
+          'dbDrawingId': drawing.id,
+        },
+      );
+    }
+  }
+
+  void _navigateToStory(ApiGalleryDrawing drawing, String imageUrl) {
+    // Navigate to story screen with image URL and drawing info
+    if (drawing.tutorial != null) {
+      context.push(
+        '/drawings/${drawing.tutorial!.categoryEn}/${drawing.tutorial!.subjectEn}/story',
+        extra: {
+          'categoryId': drawing.tutorial!.categoryEn,
+          'drawingId': drawing.tutorial!.subjectEn,
+          'imageUrl': imageUrl,
           'dbDrawingId': drawing.id,
         },
       );
@@ -814,6 +839,26 @@ class _GalleryScreenState extends State<GalleryScreen>
                                 ),
                               ),
                             ),
+
+                            // Story button (top-right, only for edited images)
+                            if (!isOriginal)
+                              Positioned(
+                                top: 12,
+                                right: 12,
+                                child: CustomButton(
+                                  label: 'gallery.story',
+                                  onPressed: () =>
+                                      _navigateToStory(drawing, images[index]),
+                                  backgroundColor: AppColors.secondary,
+                                  textColor: AppColors.white,
+                                  icon: Icons.book,
+                                  fontSize: 12,
+                                  iconSize: 16,
+                                  borderRadius: 20,
+                                  showShadow: true,
+                                  padding: EdgeInsets.symmetric(horizontal: 20),
+                                ),
+                              ),
 
                             // Delete button (positioned at bottom-right, left of save button)
                             Positioned(

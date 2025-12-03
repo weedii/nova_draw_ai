@@ -250,21 +250,19 @@ class DrawingApiService {
   /// Supports two modes:
   /// 1. Upload image data directly (imageData provided as File or Uint8List)
   /// 2. Use image URL from Spaces (imageUrl provided)
-  /// Language parameter: 'en' for English or 'de' for German
+  /// Stories are always generated in both English and German.
   static Future<ApiStoryResponse> createStory({
     dynamic
     imageData, // Can be File or Uint8List (optional if imageUrl provided)
     String?
     imageUrl, // URL of image from Spaces (optional if imageData provided)
-    required String language, // 'en' or 'de'
     String? drawingId, // Optional drawing ID for linking story to drawing
   }) async {
     return await BaseApiService.handleApiCall<ApiStoryResponse>(() async {
-      print('📖 Starting story creation...');
-      print('   Language: $language');
+      print('📖 Starting story creation (bilingual EN + DE)...');
 
       // Prepare request body
-      final body = <String, dynamic>{'language': language};
+      final body = <String, dynamic>{};
 
       // Add image data or URL
       if (imageUrl != null) {
@@ -309,8 +307,10 @@ class DrawingApiService {
       final result = ApiStoryResponse.fromJson(jsonData);
 
       print('✅ Story created successfully!');
-      print('   Title: ${result.title}');
-      print('   Story length: ${result.story.length} characters');
+      print('   Title EN: ${result.titleEn}');
+      print('   Title DE: ${result.titleDe}');
+      print('   EN length: ${result.storyTextEn.length} characters');
+      print('   DE length: ${result.storyTextDe.length} characters');
       if (result.generationTime != null) {
         print('   Generation time: ${result.generationTime}s');
       }
@@ -714,6 +714,57 @@ class DrawingApiService {
       print('✅ Drawing deleted successfully!');
 
       return jsonData['success'] == true;
+    });
+  }
+
+  /// Fetch a specific story for a drawing and image URL
+  ///
+  /// [drawingId] - UUID of the drawing
+  /// [imageUrl] - URL of the image
+  ///
+  /// Returns story details if found, or null if not found
+  /// Throws [ApiException] on error
+  static Future<Map<String, dynamic>?> fetchStoryForImage(
+    String drawingId,
+    String imageUrl,
+  ) async {
+    return await BaseApiService.handleApiCall<Map<String, dynamic>?>(() async {
+      // Validate input
+      if (drawingId.trim().isEmpty) {
+        throw ApiException('Drawing ID cannot be empty');
+      }
+
+      if (imageUrl.trim().isEmpty) {
+        throw ApiException('Image URL cannot be empty');
+      }
+
+      // Encode image URL for use in query parameter
+      final encodedUrl = Uri.encodeComponent(imageUrl);
+
+      // Make API request with image_url as query parameter
+      final response = await BaseApiService.get(
+        '/api/drawings/$drawingId/stories?image_url=$encodedUrl',
+      );
+
+      // Handle response
+      final jsonData = BaseApiService.handleResponse(response);
+      final story = jsonData['story'];
+
+      if (story == null) {
+        return null;
+      }
+
+      return {
+        'id': story['id'] ?? '',
+        'title_en': story['title_en'] ?? '',
+        'title_de': story['title_de'] ?? '',
+        'story_text_en': story['story_text_en'] ?? '',
+        'story_text_de': story['story_text_de'] ?? '',
+        'image_url': story['image_url'] ?? '',
+        'is_favorite': story['is_favorite'] ?? false,
+        'generation_time_ms': story['generation_time_ms'] ?? 0,
+        'created_at': story['created_at'],
+      };
     });
   }
 }

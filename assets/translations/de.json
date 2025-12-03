@@ -27,7 +27,8 @@
     "draw_another": "Noch eine zeichnen",
     "create_story": "Geschichte erstellen",
     "compare": "Vergleichen",
-    "birthdate": "Geburtsdatum"
+    "birthdate": "Geburtsdatum",
+    "this_may_take": "Das kann einen Moment dauern"
   },
   "app_bar": {
     "enhanced_drawing": "Verbessertes Bild",
@@ -186,7 +187,6 @@
     "drawing_complete": "Du hast deine Zeichnung fertiggestellt!",
     "generating_tutorial": "Tutorial wird erstellt",
     "creating_drawing_steps": "Die Zeichenschritte werden erstellt",
-    "please_wait": "Das kann 30-60 Sekunden dauern",
     "error_occurred": "Fehler aufgetreten",
     "failed_to_generate": "Tutorial konnte nicht erstellt werden",
     "unknown_error": "Unbekannter Fehler aufgetreten",
@@ -321,7 +321,6 @@
     "ai_magic": "KI-Magie",
     "ai_magic_subtitle": "Deine Zeichnung wird magisch!",
     "processing_image": "Mach etwas Zauberei mit deinem Kunstwerk...",
-    "this_may_take": "Das kann einen Moment dauern",
     "enhanced_drawing": "Verbesserte Zeichnung",
     "your_masterpiece": "Dein Meisterwerk!",
     "ai_enhanced": "KI-verbesserte Version",
@@ -345,10 +344,11 @@
     "your_story": "Deine Geschichte",
     "story_ready": "Deine magische Geschichte ist bereit!",
     "generating_story": "Erstelle eine magische Geschichte über dein Kunstwerk...",
-    "this_may_take": "Das kann einen Moment dauern",
     "try_again": "Nochmal versuchen",
     "error_generating": "Beim Erstellen deiner Geschichte ist etwas schief gelaufen.",
-    "create_another": "Noch eine erstellen",
+    "draw_another": "Noch eine zeichnen",
+    "generate_new_story": "Neue Geschichte generieren",
+    "generate_new_story_description": "Erfinde eine andere Geschichte für deine Zeichnung",
     "your_story_title": "Deine magische Geschichte",
     "enhanced_artwork": "Verbessertes Kunstwerk",
     "your_masterpiece": "Dein Meisterwerk erzählt eine Geschichte!",
@@ -360,7 +360,20 @@
     "share_story": "Geschichte teilen",
     "read_aloud_coming_soon": "Vorlese-Funktion kommt bald! ",
     "save_coming_soon": "Geschichte speichern-Funktion kommt bald! ",
-    "share_coming_soon": "Geschichte teilen-Funktion kommt bald! "
+    "share_coming_soon": "Geschichte teilen-Funktion kommt bald! ",
+    "no_story_yet": "Noch keine Geschichte",
+    "create_one_now": "Erstelle jetzt eine",
+    "no_story_message": "Diese Zeichnung hat noch keine Geschichte.",
+    "create_story_description": "Erfinde eine Geschichte zu deiner Zeichnung und lass deiner Fantasie freien Lauf!",
+    "create_story_now": "Geschichte erstellen",
+    "loading_story": "Deine Geschichte wird geladen...",
+    "loading_story_subtitle": "Abrufen deiner magischen Geschichte",
+    "error_loading_story": "Fehler beim Laden der Geschichte",
+    "error_loading_story_message": "Wir konnten deine Geschichte nicht laden. Bitte überprüfe deine Verbindung und versuche es erneut.",
+    "error_network": "Netzwerkfehler",
+    "error_server": "Serverfehler",
+    "error_invalid_response": "Ungültige Antwort",
+    "error_unknown": "Etwas ist schief gelaufen"
   },
   "edit_options": {
     "choose_edit_option": "Wähle Bearbeitungsart",
@@ -485,6 +498,7 @@
     "delete_edited_image_title": "Bearbeitetes Bild löschen",
     "delete_edited_image_message": "Bist du sicher, dass du dieses bearbeitete Bild löschen möchtest?",
     "delete": "Löschen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "story": "Geschichte"
   }
 }
