@@ -150,7 +150,12 @@
     "vehicles_description": "Draw cars, planes, and other vehicles!",
     "food_description": "Draw delicious food and treats!",
     "characters_description": "Create magical characters and people!",
-    "loading_categories": "Loading Categories"
+    "loading_categories": "Loading Categories",
+    "error": "Failed to Load Categories",
+    "error_no_categories": "No categories available. Please try again later.",
+    "error_no_drawings": "No drawings found in this category.",
+    "error_server": "Server error. Please try again later.",
+    "error_unknown": "Something went wrong, Please try again."
   },
   "drawings": {
     "select_drawing": "Select a Drawing",
@@ -195,7 +200,11 @@
     "use_imagination": "Use your imagination! 🎨",
     "failed_load_image": "Failed to load image",
     "image_error": "Image Error",
-    "previous": "Previous"
+    "previous": "Previous",
+    "error_subject_not_found": "Subject not found. Please try a different subject.",
+    "error_no_steps": "No steps available for this subject. Please try another one.",
+    "error_server": "Server error. Please try again later.",
+    "error_unknown": "Something went wrong. Please try again."
   },
   "step_instructions": {
     "draw_circle_head": "Draw a Circle for the Head",
@@ -373,7 +382,18 @@
     "error_network": "Network Error",
     "error_server": "Server Error",
     "error_invalid_response": "Invalid Response",
-    "error_unknown": "Something went wrong"
+    "error_unknown": "Something went wrong",
+    "error": "Failed to Generate Story",
+    "error_no_image": "No image provided. Please upload an image to create a story.",
+    "error_invalid_image": "Invalid image data. Please provide a valid image.",
+    "error_generation_failed": "Story generation failed. Please try again.",
+    "error_invalid_json": "Story generation produced invalid data. Please try again.",
+    "error_missing_content": "Story content is incomplete. Please try again.",
+    "error_download_failed": "Failed to download image. Please try again.",
+    "error_invalid_url": "Invalid image URL. Please provide a valid URL.",
+    "error_permission_denied": "You don't have permission to access this drawing.",
+    "error_drawing_not_found": "Drawing not found. Please select a valid drawing.",
+    "error_story_not_found": "Story not found for this image."
   },
   "edit_options": {
     "choose_edit_option": "Choose How to Edit",
@@ -396,7 +416,14 @@
     "loading_options": "Loading Options",
     "fetching_from_server": "Fetching editing options from server...",
     "loading_failed": "Failed to Load Options",
-    "loading_error": "An error occurred while loading the editing options. Please try again."
+    "loading_error": "An error occurred while loading the editing options. Please try again.",
+    "error": "Failed to Load Edit Options",
+    "error_no_options": "No edit options available for this subject. Try voice editing instead.",
+    "error_no_categories": "No categories available. Please try again later.",
+    "error_no_subjects": "No subjects available in this category. Please try another category.",
+    "error_category_not_found": "Category not found. Please select a different category.",
+    "error_server": "Server error. Please try again later.",
+    "error_unknown": "Something went wrong while loading edit options. Please try again."
   },
   "final_result": {
     "your_amazing_drawing": "Your Amazing Drawing!",
@@ -464,8 +491,6 @@
     "no_drawings_yet": "No Drawings Yet",
     "start_drawing_message": "Start drawing to see your creations here!",
     "loading_gallery": "Loading your gallery...",
-    "error_loading_gallery": "Failed to Load Gallery",
-    "error_loading_message": "An error occurred while loading your gallery. Please try again.",
     "retry": "Retry",
     "drawing_count": "drawings",
     "created_on": "Created on",
@@ -499,6 +524,29 @@
     "delete_edited_image_message": "Are you sure you want to delete this edited image?",
     "delete": "Delete",
     "cancel": "Cancel",
-    "story": "Story"
+    "story": "Story",
+    "error": "Gallery Error",
+    "error_loading_gallery": "Failed to load your gallery. Please check your connection and try again.",
+    "error_invalid_pagination": "Invalid page or limit parameters. Please try again.",
+    "error_drawing_not_found": "Drawing not found. It may have been deleted.",
+    "error_permission_denied": "You don't have permission to access this drawing.",
+    "error_delete_failed": "Failed to delete the drawing. Please try again.",
+    "error_delete_image_failed": "Failed to delete the image. Please try again.",
+    "error_image_not_found": "Image not found in this drawing.",
+    "error_stats_failed": "Failed to load gallery statistics. Please try again.",
+    "error_server": "Server error. Please try again later.",
+    "error_unknown": "Something went wrong with your gallery. Please try again."
+  },
+  "image_edit": {
+    "error": "Failed to Edit Image",
+    "error_no_image": "No image provided. Please upload an image or select one to edit.",
+    "error_invalid_image": "Invalid image or image too large (max 2048x2048 pixels).",
+    "error_service_unavailable": "Image processing service is not available. Please try again later.",
+    "error_invalid_prompt": "Invalid editing instruction. Please provide a valid prompt.",
+    "error_processing_failed": "Image processing failed. Please try again.",
+    "error_upload_failed": "Failed to upload image. Please try again.",
+    "error_server": "Server error. Please try again later.",
+    "error_timeout": "Image processing took too long. Please try again.",
+    "error_unknown": "Something went wrong while editing the image. Please try again."
   }
 }

@@ -14,7 +14,7 @@ class DrawingApiService {
   /// [subject] - What to draw (e.g., "cat", "dog", "butterfly")
   ///
   /// Returns [ApiDrawingStepResponse] with all steps and base64 images
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<ApiDrawingStepResponse> generateTutorial(String subject) async {
     return await BaseApiService.handleApiCall<ApiDrawingStepResponse>(() async {
       // Validate input
@@ -26,6 +26,8 @@ class DrawingApiService {
         throw ApiException('Subject name too long (max 100 characters)');
       }
 
+      print('📚 Generating tutorial for subject: $subject');
+
       // Make API request
       final response = await BaseApiService.post(
         '/api/generate-tutorial',
@@ -34,7 +36,26 @@ class DrawingApiService {
 
       // Handle response
       final jsonData = BaseApiService.handleResponse(response);
-      return ApiDrawingStepResponse.fromJson(jsonData);
+      final result = ApiDrawingStepResponse.fromJson(jsonData);
+      print(
+        '✅ Tutorial generated successfully with ${result.steps.length} steps',
+      );
+      return result;
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 404) {
+          if (error.message.contains('not found')) {
+            throw ApiException('drawing_steps.error_subject_not_found');
+          } else if (error.message.contains('No steps')) {
+            throw ApiException('drawing_steps.error_no_steps');
+          }
+        } else if (error.statusCode == 500) {
+          throw ApiException('drawing_steps.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('drawing_steps.error_unknown');
     });
   }
 
@@ -143,7 +164,7 @@ class DrawingApiService {
   /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<ApiImageEditResponse> editImage({
     File? imageFile,
     String? imageUrl,
@@ -162,12 +183,12 @@ class DrawingApiService {
       // Validate that either imageFile or imageUrl is provided
       if (imageFile == null && imageUrl == null) {
         print('❌ Either imageFile or imageUrl must be provided!');
-        throw ApiException('Either image file or image URL must be provided');
+        throw ApiException('image_edit.error_no_image');
       }
 
       if (prompt.trim().isEmpty) {
         print('❌ Option is empty!');
-        throw ApiException('Option cannot be empty');
+        throw ApiException('image_edit.error_invalid_prompt');
       }
 
       print('✅ Validation passed, making API request...');
@@ -200,7 +221,7 @@ class DrawingApiService {
 
         if (!imageFile.existsSync()) {
           print('❌ Image file does not exist!');
-          throw ApiException('Image file does not exist');
+          throw ApiException('image_edit.error_no_image');
         }
 
         final response = await BaseApiService.postMultipart(
@@ -243,6 +264,23 @@ class DrawingApiService {
 
         return result;
       }
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 400) {
+          if (error.message.contains('image')) {
+            throw ApiException('image_edit.error_invalid_image');
+          } else if (error.message.contains('prompt')) {
+            throw ApiException('image_edit.error_invalid_prompt');
+          }
+        } else if (error.statusCode == 503) {
+          throw ApiException('image_edit.error_service_unavailable');
+        } else if (error.statusCode == 500) {
+          throw ApiException('image_edit.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('image_edit.error_unknown');
     });
   }
 
@@ -251,6 +289,7 @@ class DrawingApiService {
   /// 1. Upload image data directly (imageData provided as File or Uint8List)
   /// 2. Use image URL from Spaces (imageUrl provided)
   /// Stories are always generated in both English and German.
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<ApiStoryResponse> createStory({
     dynamic
     imageData, // Can be File or Uint8List (optional if imageUrl provided)
@@ -260,6 +299,12 @@ class DrawingApiService {
   }) async {
     return await BaseApiService.handleApiCall<ApiStoryResponse>(() async {
       print('📖 Starting story creation (bilingual EN + DE)...');
+
+      // Validate that either imageData or imageUrl is provided
+      if (imageData == null && imageUrl == null) {
+        print('❌ Either imageData or imageUrl must be provided!');
+        throw ApiException('story.error_no_image');
+      }
 
       // Prepare request body
       final body = <String, dynamic>{};
@@ -280,14 +325,12 @@ class DrawingApiService {
           print('📦 Converting Uint8List to base64...');
           base64Image = base64Encode(imageData);
         } else {
-          throw Exception('Invalid image data type. Must be File or Uint8List');
+          throw ApiException('story.error_invalid_image');
         }
 
         print('📤 Image converted to base64');
         print('   Image size: ${base64Image.length} characters');
         body['image'] = base64Image;
-      } else {
-        throw Exception('Either imageData or imageUrl must be provided');
       }
 
       // Add drawing ID if provided
@@ -316,6 +359,23 @@ class DrawingApiService {
       }
 
       return result;
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 400) {
+          if (error.message.contains('image')) {
+            throw ApiException('story.error_invalid_image');
+          } else if (error.message.contains('JSON')) {
+            throw ApiException('story.error_invalid_json');
+          } else if (error.message.contains('content')) {
+            throw ApiException('story.error_missing_content');
+          }
+        } else if (error.statusCode == 500) {
+          throw ApiException('story.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('story.error_unknown');
     });
   }
 
@@ -334,7 +394,7 @@ class DrawingApiService {
   /// [drawingId] - UUID of existing drawing to append edit to (optional for re-editing)
   ///
   /// Returns [ApiImageEditResponse] with the edited image URLs
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<ApiImageEditResponse> editImageWithVoice({
     File? imageFile,
     String? imageUrl,
@@ -352,18 +412,18 @@ class DrawingApiService {
       // Validate that either imageFile or imageUrl is provided
       if (imageFile == null && imageUrl == null) {
         print('❌ Either imageFile or imageUrl must be provided!');
-        throw ApiException('Either image file or image URL must be provided');
+        throw ApiException('image_edit.error_no_image');
       }
 
       if (audioBytes.isEmpty) {
         print('❌ Audio data is empty!');
-        throw ApiException('Audio data cannot be empty');
+        throw ApiException('image_edit.error_invalid_prompt');
       }
 
       // Validate language code
       if (language != 'en' && language != 'de') {
         print('❌ Invalid language code: $language');
-        throw ApiException('Language must be "en" or "de"');
+        throw ApiException('image_edit.error_invalid_prompt');
       }
 
       print('✅ All validations passed');
@@ -400,7 +460,7 @@ class DrawingApiService {
 
         if (!imageFile.existsSync()) {
           print('❌ Image file does not exist!');
-          throw ApiException('Image file does not exist');
+          throw ApiException('image_edit.error_no_image');
         }
 
         // Audio bytes are sent directly without saving to disk (memory efficient)
@@ -474,6 +534,23 @@ class DrawingApiService {
       );
 
       return result;
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 400) {
+          if (error.message.contains('image')) {
+            throw ApiException('image_edit.error_invalid_image');
+          } else if (error.message.contains('audio')) {
+            throw ApiException('image_edit.error_invalid_prompt');
+          }
+        } else if (error.statusCode == 503) {
+          throw ApiException('image_edit.error_service_unavailable');
+        } else if (error.statusCode == 500) {
+          throw ApiException('image_edit.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('image_edit.error_unknown');
     });
   }
 
@@ -483,7 +560,7 @@ class DrawingApiService {
   /// drawing information for each category.
   ///
   /// Returns [List<ApiCategoryWithDrawings>] with categories and their drawings
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<List<ApiCategoryWithDrawings>>
   getCategoriesWithDrawings() async {
     return await BaseApiService.handleApiCall<List<ApiCategoryWithDrawings>>(
@@ -511,7 +588,20 @@ class DrawingApiService {
 
         return categories;
       },
-    );
+    ).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 404) {
+          if (error.message.contains('No tutorials')) {
+            throw ApiException('categories.error_no_categories');
+          }
+        } else if (error.statusCode == 500) {
+          throw ApiException('categories.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('categories.error_unknown');
+    });
   }
 
   /// Get drawings for a specific category
@@ -519,7 +609,7 @@ class DrawingApiService {
   /// [category] - Category name (e.g., "Animals", "Nature")
   ///
   /// Returns [List<ApiDrawing>] with drawings in the category
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<List<ApiDrawing>> getDrawingsByCategory(String category) async {
     return await BaseApiService.handleApiCall<List<ApiDrawing>>(() async {
       if (category.trim().isEmpty) {
@@ -544,6 +634,19 @@ class DrawingApiService {
       print('📦 Parsed ${drawings.length} drawings');
 
       return drawings;
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 404) {
+          if (error.message.contains('No drawings')) {
+            throw ApiException('categories.error_no_drawings');
+          }
+        } else if (error.statusCode == 500) {
+          throw ApiException('categories.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('categories.error_unknown');
     });
   }
 
@@ -723,7 +826,7 @@ class DrawingApiService {
   /// [imageUrl] - URL of the image
   ///
   /// Returns story details if found, or null if not found
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<Map<String, dynamic>?> fetchStoryForImage(
     String drawingId,
     String imageUrl,
@@ -731,11 +834,11 @@ class DrawingApiService {
     return await BaseApiService.handleApiCall<Map<String, dynamic>?>(() async {
       // Validate input
       if (drawingId.trim().isEmpty) {
-        throw ApiException('Drawing ID cannot be empty');
+        throw ApiException('story.error_drawing_not_found');
       }
 
       if (imageUrl.trim().isEmpty) {
-        throw ApiException('Image URL cannot be empty');
+        throw ApiException('story.error_invalid_url');
       }
 
       // Encode image URL for use in query parameter
@@ -765,6 +868,25 @@ class DrawingApiService {
         'generation_time_ms': story['generation_time_ms'] ?? 0,
         'created_at': story['created_at'],
       };
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 403) {
+          throw ApiException('story.error_permission_denied');
+        } else if (error.statusCode == 404) {
+          if (error.message.contains('Drawing not found')) {
+            throw ApiException('story.error_drawing_not_found');
+          } else if (error.message.contains('permission')) {
+            throw ApiException('story.error_permission_denied');
+          } else {
+            throw ApiException('story.error_story_not_found');
+          }
+        } else if (error.statusCode == 500) {
+          throw ApiException('story.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('story.error_unknown');
     });
   }
 }

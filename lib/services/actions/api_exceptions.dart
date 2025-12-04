@@ -4,17 +4,17 @@ class ApiException implements Exception {
   final int? statusCode;
   final String? errorCode;
 
-  const ApiException(
-    this.message, {
-    this.statusCode,
-    this.errorCode,
-  });
+  const ApiException(this.message, {this.statusCode, this.errorCode});
 
   @override
   String toString() => 'ApiException: $message';
 
   /// Create an ApiException from HTTP response
-  factory ApiException.fromResponse(int statusCode, String? reasonPhrase, [String? detail]) {
+  factory ApiException.fromResponse(
+    int statusCode,
+    String? reasonPhrase, [
+    String? detail,
+  ]) {
     return ApiException(
       detail ?? 'HTTP Error ($statusCode): $reasonPhrase',
       statusCode: statusCode,
@@ -23,18 +23,12 @@ class ApiException implements Exception {
 
   /// Create an ApiException for network errors
   factory ApiException.network(String message) {
-    return ApiException(
-      'Network error: $message',
-      errorCode: 'NETWORK_ERROR',
-    );
+    return ApiException('Network error: $message', errorCode: 'NETWORK_ERROR');
   }
 
   /// Create an ApiException for timeout errors
   factory ApiException.timeout() {
-    return ApiException(
-      'Request timeout',
-      errorCode: 'TIMEOUT',
-    );
+    return ApiException('Request timeout', errorCode: 'TIMEOUT');
   }
 
   /// Create an ApiException for validation errors

@@ -169,7 +169,8 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    provider.categoriesError ?? 'Unknown error',
+                    (provider.categoriesError ?? 'categories.error_unknown')
+                        .tr(),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
@@ -180,7 +181,7 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                   ElevatedButton.icon(
                     onPressed: () => provider.retryLoadCategories(),
                     icon: const Icon(Icons.refresh),
-                    label: Text('categories.retry'.tr()),
+                    label: Text('common.retry'.tr()),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.white,
