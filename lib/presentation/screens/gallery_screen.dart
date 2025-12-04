@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/colors.dart';
 import '../../models/api_models.dart';
 import '../../services/actions/gallery_api_service.dart';
+import '../../services/actions/api_exceptions.dart';
 import '../animations/app_animations.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_loading_widget.dart';
@@ -27,6 +28,7 @@ class _GalleryScreenState extends State<GalleryScreen>
   List<ApiGalleryDrawing> _drawings = [];
   bool _isLoading = true;
   bool _hasError = false;
+  String? _errorMessage; // Translated error message to display
   int _currentPage = 1;
   bool _isLoadingMore = false;
   bool _hasMoreDrawings = true;
@@ -69,6 +71,7 @@ class _GalleryScreenState extends State<GalleryScreen>
       setState(() {
         _isLoading = true;
         _hasError = false;
+        _errorMessage = null;
       });
 
       final response = await GalleryApiService.fetchGallery(page: 1, limit: 20);
@@ -79,10 +82,19 @@ class _GalleryScreenState extends State<GalleryScreen>
         _hasMoreDrawings = response.data.length >= 20;
         _isLoading = false;
       });
-    } catch (e) {
+    } on ApiException catch (e) {
+      print('❌ API Error loading gallery: ${e.message}');
       setState(() {
         _hasError = true;
         _isLoading = false;
+        _errorMessage = (e.message).tr();
+      });
+    } catch (e) {
+      print('❌ Unexpected error loading gallery: $e');
+      setState(() {
+        _hasError = true;
+        _isLoading = false;
+        _errorMessage = 'gallery.error_unknown'.tr();
       });
     }
   }
@@ -184,6 +196,7 @@ class _GalleryScreenState extends State<GalleryScreen>
           const SizedBox(height: 24),
           Text(
             'gallery.error_loading_gallery'.tr(),
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -195,7 +208,7 @@ class _GalleryScreenState extends State<GalleryScreen>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'gallery.error_loading_message'.tr(),
+              _errorMessage ?? 'gallery.error_loading_message'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -664,11 +677,23 @@ class _GalleryScreenState extends State<GalleryScreen>
         // Close the image viewer modal
         Navigator.pop(context);
       }
-    } catch (e) {
+    } on ApiException catch (e) {
+      print('❌ API Error deleting image: ${e.message}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('gallery.delete_error'.tr()),
+            content: Text((e.message).tr()),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('❌ Unexpected error deleting image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('gallery.error_delete_image_failed'.tr()),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 3),
           ),

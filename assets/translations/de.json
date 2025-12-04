@@ -150,7 +150,12 @@
     "vehicles_description": "Zeichne Autos, Flugzeuge und andere Fahrzeuge!",
     "food_description": "Zeichne leckeres Essen und Süßigkeiten!",
     "characters_description": "Erschaffe magische Charaktere und Menschen!",
-    "loading_categories": "Kategorien werden geladen"
+    "loading_categories": "Kategorien werden geladen",
+    "error": "Fehler beim Laden der Kategorien",
+    "error_no_categories": "Keine Kategorien verfügbar. Bitte versuche es später erneut.",
+    "error_no_drawings": "Keine Zeichnungen in dieser Kategorie gefunden.",
+    "error_server": "Serverfehler. Bitte versuche es später erneut.",
+    "error_unknown": "Etwas ist schief gelaufen, Bitte versuche es erneut."
   },
   "drawings": {
     "select_drawing": "Wähle eine Zeichnung",
@@ -195,7 +200,11 @@
     "use_imagination": "Nutze deine Fantasie! 🎨",
     "failed_load_image": "Bild konnte nicht geladen werden",
     "image_error": "Bildfehler",
-    "previous": "Zurück"
+    "previous": "Zurück",
+    "error_subject_not_found": "Motiv nicht gefunden. Bitte versuche ein anderes Motiv.",
+    "error_no_steps": "Keine Schritte für dieses Motiv verfügbar. Bitte versuche ein anderes.",
+    "error_server": "Serverfehler. Bitte versuche es später erneut.",
+    "error_unknown": "Etwas ist schief gelaufen. Bitte versuche es erneut."
   },
   "step_instructions": {
     "draw_circle_head": "Zeichne einen Kreis für den Kopf",
@@ -373,7 +382,18 @@
     "error_network": "Netzwerkfehler",
     "error_server": "Serverfehler",
     "error_invalid_response": "Ungültige Antwort",
-    "error_unknown": "Etwas ist schief gelaufen"
+    "error_unknown": "Etwas ist schief gelaufen",
+    "error": "Fehler beim Generieren der Geschichte",
+    "error_no_image": "Kein Bild bereitgestellt. Bitte lade ein Bild hoch, um eine Geschichte zu erstellen.",
+    "error_invalid_image": "Ungültige Bilddaten. Bitte stelle ein gültiges Bild bereit.",
+    "error_generation_failed": "Geschichtengenerierung fehlgeschlagen. Bitte versuche es erneut.",
+    "error_invalid_json": "Geschichtengenerierung hat ungültige Daten produziert. Bitte versuche es erneut.",
+    "error_missing_content": "Geschichteninhalt ist unvollständig. Bitte versuche es erneut.",
+    "error_download_failed": "Fehler beim Herunterladen des Bildes. Bitte versuche es erneut.",
+    "error_invalid_url": "Ungültige Bild-URL. Bitte stelle eine gültige URL bereit.",
+    "error_permission_denied": "Du hast keine Berechtigung, auf diese Zeichnung zuzugreifen.",
+    "error_drawing_not_found": "Zeichnung nicht gefunden. Bitte wähle eine gültige Zeichnung.",
+    "error_story_not_found": "Geschichte für dieses Bild nicht gefunden."
   },
   "edit_options": {
     "choose_edit_option": "Wähle Bearbeitungsart",
@@ -396,7 +416,14 @@
     "loading_options": "Optionen werden geladen",
     "fetching_from_server": "Bearbeitungsoptionen vom Server abrufen...",
     "loading_failed": "Optionen konnten nicht geladen werden",
-    "loading_error": "Ein Fehler ist beim Laden der Bearbeitungsoptionen aufgetreten. Bitte versuchen Sie es erneut."
+    "loading_error": "Ein Fehler ist beim Laden der Bearbeitungsoptionen aufgetreten. Bitte versuchen Sie es erneut.",
+    "error": "Fehler beim Laden der Bearbeitungsoptionen",
+    "error_no_options": "Keine Bearbeitungsoptionen für dieses Motiv verfügbar. Versuche stattdessen Sprachbearbeitung.",
+    "error_no_categories": "Keine Kategorien verfügbar. Bitte versuche es später erneut.",
+    "error_no_subjects": "Keine Motive in dieser Kategorie verfügbar. Bitte versuche eine andere Kategorie.",
+    "error_category_not_found": "Kategorie nicht gefunden. Bitte wähle eine andere Kategorie.",
+    "error_server": "Serverfehler. Bitte versuche es später erneut.",
+    "error_unknown": "Etwas ist beim Laden der Bearbeitungsoptionen schief gelaufen. Bitte versuche es erneut."
   },
   "final_result": {
     "your_amazing_drawing": "Deine fantastische Zeichnung!",
@@ -464,8 +491,6 @@
     "no_drawings_yet": "Noch keine Zeichnungen",
     "start_drawing_message": "Beginne zu zeichnen, um deine Kreationen hier zu sehen!",
     "loading_gallery": "Lade deine Galerie...",
-    "error_loading_gallery": "Galerie konnte nicht geladen werden",
-    "error_loading_message": "Ein Fehler ist beim Laden deiner Galerie aufgetreten. Bitte versuche es erneut.",
     "retry": "Erneut versuchen",
     "drawing_count": "Zeichnungen",
     "created_on": "Erstellt am",
@@ -499,6 +524,29 @@
     "delete_edited_image_message": "Bist du sicher, dass du dieses bearbeitete Bild löschen möchtest?",
     "delete": "Löschen",
     "cancel": "Abbrechen",
-    "story": "Geschichte"
+    "story": "Geschichte",
+    "error": "Galeriefehler",
+    "error_loading_gallery": "Galerie konnte nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.",
+    "error_invalid_pagination": "Ungültige Seite oder Limit-Parameter. Bitte versuche es erneut.",
+    "error_drawing_not_found": "Zeichnung nicht gefunden. Sie wurde möglicherweise gelöscht.",
+    "error_permission_denied": "Du hast keine Berechtigung, auf diese Zeichnung zuzugreifen.",
+    "error_delete_failed": "Fehler beim Löschen der Zeichnung. Bitte versuche es erneut.",
+    "error_delete_image_failed": "Fehler beim Löschen des Bildes. Bitte versuche es erneut.",
+    "error_image_not_found": "Bild nicht in dieser Zeichnung gefunden.",
+    "error_stats_failed": "Fehler beim Laden der Galeriestatistiken. Bitte versuche es erneut.",
+    "error_server": "Serverfehler. Bitte versuche es später erneut.",
+    "error_unknown": "Etwas ist mit deiner Galerie schief gelaufen. Bitte versuche es erneut."
+  },
+  "image_edit": {
+    "error": "Fehler beim Bearbeiten des Bildes",
+    "error_no_image": "Kein Bild bereitgestellt. Bitte lade ein Bild hoch oder wähle eines zum Bearbeiten.",
+    "error_invalid_image": "Ungültiges Bild oder Bild zu groß (max. 2048x2048 Pixel).",
+    "error_service_unavailable": "Bildverarbeitungsdienst ist nicht verfügbar. Bitte versuche es später erneut.",
+    "error_invalid_prompt": "Ungültige Bearbeitungsanweisung. Bitte gib eine gültige Anweisung ein.",
+    "error_processing_failed": "Bildverarbeitung fehlgeschlagen. Bitte versuche es erneut.",
+    "error_upload_failed": "Fehler beim Hochladen des Bildes. Bitte versuche es erneut.",
+    "error_server": "Serverfehler. Bitte versuche es später erneut.",
+    "error_timeout": "Bildverarbeitung hat zu lange gedauert. Bitte versuche es erneut.",
+    "error_unknown": "Etwas ist beim Bearbeiten des Bildes schief gelaufen. Bitte versuche es erneut."
   }
 }
