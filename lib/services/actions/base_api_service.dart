@@ -14,6 +14,9 @@ abstract class BaseApiService {
   /// Authentication token for API requests
   static String? _authToken;
 
+  /// Callback for handling 401 Unauthorized errors
+  static Function()? _onUnauthorized;
+
   /// Get the base URL for API requests from .env file
   static String get baseUrl {
     final url = dotenv.env['API_BASE_URL'];
@@ -44,6 +47,12 @@ abstract class BaseApiService {
 
   /// Get the current authentication token (for internal use)
   static String? getAuthToken() => _authToken;
+
+  /// Set callback for handling 401 Unauthorized errors
+  static void setOnUnauthorizedCallback(Function() callback) {
+    _onUnauthorized = callback;
+    print('🔐 Unauthorized callback registered');
+  }
 
   /// Get default headers with optional auth token
   static Map<String, String> _getHeaders({
@@ -422,6 +431,12 @@ abstract class BaseApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);
     } else {
+      // Handle 401 Unauthorized - trigger logout
+      if (response.statusCode == 401) {
+        print('🚨 401 Unauthorized - Logging out user');
+        _onUnauthorized?.call();
+      }
+
       // Try to parse error response
       try {
         final errorData = jsonDecode(response.body);

@@ -7,6 +7,7 @@ import 'core/constants/colors.dart';
 import 'providers/user_provider.dart';
 import 'providers/drawing_provider.dart';
 import 'routes/app_router.dart';
+import 'services/actions/base_api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,12 @@ class _MainAppState extends State<MainApp> {
     // Create router once and reuse it
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     _router = createAppRouter(userProvider);
+
+    // Register 401 Unauthorized callback to logout user
+    BaseApiService.setOnUnauthorizedCallback(() {
+      print('🔐 Handling 401 - Logging out user');
+      userProvider.logout();
+    });
   }
 
   @override
