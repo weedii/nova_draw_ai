@@ -151,10 +151,10 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
     } on ApiException catch (e) {
       print('❌ API Error loading edit options: ${e.message}');
 
-      // Check if this is a "No edit options found" error (404)
+      // Check if this is a "No edit options found" error (translation key)
       // In this case, we don't show an error - just proceed without edit options
       // The voice editing option will still be available
-      if (e.message.contains('No edit options found')) {
+      if (e.message == 'edit_options.error_no_options') {
         print(
           'ℹ️ No edit options available for this subject, but voice editing is still available',
         );
@@ -166,11 +166,11 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           });
         }
       } else {
-        // For other API errors, show the error screen
+        // For other API errors, show the translated error message
         if (mounted) {
           setState(() {
             _isLoadingOptions = false;
-            _loadingError = e.message;
+            _loadingError = (e.message).tr();
           });
         }
       }
@@ -179,7 +179,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
       if (mounted) {
         setState(() {
           _isLoadingOptions = false;
-          _loadingError = 'edit_options.loading_error'.tr();
+          _loadingError = 'edit_options.error_unknown'.tr();
         });
       }
     }
@@ -242,10 +242,10 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           _isApplyingEdit = false;
         });
 
-        // Show error message
+        // Show translated error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to edit image: ${e.message}'),
+            content: Text((e.message).tr()),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),
@@ -260,7 +260,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
         // Show generic error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('An unexpected error occurred: ${e.toString()}'),
+            content: Text('image_edit.error_unknown'.tr()),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),
@@ -538,7 +538,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.message}'),
+            content: Text((e.message).tr()),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),
@@ -553,7 +553,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('image_edit.error_unknown'.tr()),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),

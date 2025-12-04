@@ -359,7 +359,8 @@ class _DrawingStepsScreenState extends State<DrawingStepsScreen>
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          provider.error ?? 'drawing_steps.unknown_error'.tr(),
+                          (provider.error ?? 'drawing_steps.error_unknown')
+                              .tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,

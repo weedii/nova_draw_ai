@@ -11,7 +11,7 @@ class GalleryApiService {
   /// [limit] - Items per page (default: 20, max: 100)
   ///
   /// Returns [ApiGalleryListResponse] with paginated drawings
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<ApiGalleryListResponse> fetchGallery({
     int page = 1,
     int limit = 50,
@@ -19,11 +19,11 @@ class GalleryApiService {
     return await BaseApiService.handleApiCall<ApiGalleryListResponse>(() async {
       // Validate pagination parameters
       if (page < 1) {
-        throw ApiException('Page number must be at least 1');
+        throw ApiException('gallery.error_invalid_pagination');
       }
 
       if (limit < 1 || limit > 100) {
-        throw ApiException('Limit must be between 1 and 100');
+        throw ApiException('gallery.error_invalid_pagination');
       }
 
       // Make API request
@@ -34,6 +34,17 @@ class GalleryApiService {
       // Handle response
       final jsonData = BaseApiService.handleResponse(response);
       return ApiGalleryListResponse.fromJson(jsonData);
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 400) {
+          throw ApiException('gallery.error_invalid_pagination');
+        } else if (error.statusCode == 500) {
+          throw ApiException('gallery.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('gallery.error_unknown');
     });
   }
 
@@ -42,12 +53,12 @@ class GalleryApiService {
   /// [drawingId] - UUID of the drawing
   ///
   /// Returns [ApiGalleryDrawing] with drawing details
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<ApiGalleryDrawing> fetchDrawing(String drawingId) async {
     return await BaseApiService.handleApiCall<ApiGalleryDrawing>(() async {
       // Validate input
       if (drawingId.trim().isEmpty) {
-        throw ApiException('Drawing ID cannot be empty');
+        throw ApiException('gallery.error_drawing_not_found');
       }
 
       // Make API request
@@ -56,6 +67,19 @@ class GalleryApiService {
       // Handle response
       final jsonData = BaseApiService.handleResponse(response);
       return ApiGalleryDrawing.fromJson(jsonData);
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 403) {
+          throw ApiException('gallery.error_permission_denied');
+        } else if (error.statusCode == 404) {
+          throw ApiException('gallery.error_drawing_not_found');
+        } else if (error.statusCode == 500) {
+          throw ApiException('gallery.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('gallery.error_unknown');
     });
   }
 
@@ -64,12 +88,12 @@ class GalleryApiService {
   /// [drawingId] - UUID of the drawing to delete
   ///
   /// Returns success status
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<bool> deleteDrawing(String drawingId) async {
     return await BaseApiService.handleApiCall<bool>(() async {
       // Validate input
       if (drawingId.trim().isEmpty) {
-        throw ApiException('Drawing ID cannot be empty');
+        throw ApiException('gallery.error_drawing_not_found');
       }
 
       // Make API request
@@ -78,6 +102,19 @@ class GalleryApiService {
       // Handle response
       final jsonData = BaseApiService.handleResponse(response);
       return jsonData['success'] == true || jsonData['success'] == 'true';
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 403) {
+          throw ApiException('gallery.error_permission_denied');
+        } else if (error.statusCode == 404) {
+          throw ApiException('gallery.error_drawing_not_found');
+        } else if (error.statusCode == 500) {
+          throw ApiException('gallery.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('gallery.error_delete_failed');
     });
   }
 
@@ -87,7 +124,7 @@ class GalleryApiService {
   /// [imageUrl] - URL of the image to delete
   ///
   /// Returns success status
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<bool> deleteDrawingImage(
     String drawingId,
     String imageUrl,
@@ -95,11 +132,11 @@ class GalleryApiService {
     return await BaseApiService.handleApiCall<bool>(() async {
       // Validate input
       if (drawingId.trim().isEmpty) {
-        throw ApiException('Drawing ID cannot be empty');
+        throw ApiException('gallery.error_drawing_not_found');
       }
 
       if (imageUrl.trim().isEmpty) {
-        throw ApiException('Image URL cannot be empty');
+        throw ApiException('gallery.error_image_not_found');
       }
 
       // Make API request with image_url as query parameter
@@ -111,13 +148,30 @@ class GalleryApiService {
       // Handle response
       final jsonData = BaseApiService.handleResponse(response);
       return jsonData['success'] == true || jsonData['success'] == 'true';
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code and error message to map to correct translation key
+        if (error.statusCode == 403) {
+          throw ApiException('gallery.error_permission_denied');
+        } else if (error.statusCode == 404) {
+          if (error.message.contains('Drawing not found')) {
+            throw ApiException('gallery.error_drawing_not_found');
+          } else if (error.message.contains('Image not found')) {
+            throw ApiException('gallery.error_image_not_found');
+          }
+        } else if (error.statusCode == 500) {
+          throw ApiException('gallery.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('gallery.error_delete_image_failed');
     });
   }
 
   /// Fetch gallery statistics
   ///
   /// Returns map with stats: total_drawings, edited_drawings, tutorial_drawings
-  /// Throws [ApiException] on error
+  /// Throws [ApiException] on error with specific error translation keys
   static Future<Map<String, int>> fetchGalleryStats() async {
     return await BaseApiService.handleApiCall<Map<String, int>>(() async {
       // Make API request
@@ -130,6 +184,15 @@ class GalleryApiService {
         'edited_drawings': jsonData['edited_drawings'] ?? 0,
         'tutorial_drawings': jsonData['tutorial_drawings'] ?? 0,
       };
+    }).catchError((error) {
+      if (error is ApiException) {
+        // Check status code to map to correct translation key
+        if (error.statusCode == 500) {
+          throw ApiException('gallery.error_server');
+        }
+      }
+      // For any other error, throw generic error
+      throw ApiException('gallery.error_stats_failed');
     });
   }
 }

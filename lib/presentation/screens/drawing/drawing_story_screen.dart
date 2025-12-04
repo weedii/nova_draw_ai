@@ -44,6 +44,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
   String _generatedStory = '';
   String _storyTitle = '';
   String? _storyImageUrl; // Image URL from the story response
+  String? _errorMessage; // Translated error message to display
 
   // Story viewing/creation state
   bool _storyNotFound = false; // True if story doesn't exist (show empty state)
@@ -155,31 +156,23 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         }
       }
     } on ApiException catch (e) {
-      // TODO: Handle specific API errors:
-      // - 404: Story not found (show empty state)
-      // - 401: Unauthorized (redirect to login)
-      // - 403: Forbidden (show permission error)
-      // - 500: Server error (show retry option)
-      // - Network timeout (show connection error)
       print('❌ API Error fetching story: ${e.message}');
       if (mounted) {
         setState(() {
           _storyGenerationFailed = true;
           _isGeneratingStory = false;
           _isFetchingExistingStory = false;
+          _errorMessage = (e.message).tr();
         });
       }
     } catch (e) {
-      // TODO: Handle other errors:
-      // - JSON parsing errors
-      // - Invalid response format
-      // - Missing required fields
       print('❌ Unexpected error fetching story: $e');
       if (mounted) {
         setState(() {
           _storyGenerationFailed = true;
           _isGeneratingStory = false;
           _isFetchingExistingStory = false;
+          _errorMessage = 'story.error_unknown'.tr();
         });
       }
     }
@@ -356,31 +349,21 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
         _slideController.forward();
       }
     } on ApiException catch (e) {
-      // TODO: Handle specific API errors:
-      // - 400: Invalid image (show user-friendly message)
-      // - 401: Unauthorized (redirect to login)
-      // - 413: Image too large (show size limit message)
-      // - 429: Rate limited (show retry after message)
-      // - 500: Server error (show retry option)
-      // - Network timeout (show connection error)
       print('❌ Story generation failed: ${e.message}');
       if (mounted) {
         setState(() {
           _isGeneratingStory = false;
           _storyGenerationFailed = true;
+          _errorMessage = (e.message).tr();
         });
       }
     } catch (e) {
-      // TODO: Handle other errors:
-      // - JSON parsing errors
-      // - Invalid response format
-      // - Missing required fields in response
-      // - Image validation errors
       print('❌ Unexpected error during story generation: $e');
       if (mounted) {
         setState(() {
           _isGeneratingStory = false;
           _storyGenerationFailed = true;
+          _errorMessage = 'story.error_unknown'.tr();
         });
       }
     }
@@ -392,6 +375,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       _storyGenerationFailed = false;
       _generatedStory = '';
       _storyTitle = '';
+      _errorMessage = null;
     });
 
     _fetchExistingStory();
@@ -405,6 +389,7 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
       _generatedStory = '';
       _storyTitle = '';
       _isFetchingExistingStory = false;
+      _errorMessage = null;
     });
     _slideController.reset();
     _generateStory();
@@ -578,9 +563,10 @@ class _DrawingStoryScreenState extends State<DrawingStoryScreen>
 
             // Error message
             Text(
-              _isFetchingExistingStory
-                  ? 'story.error_loading_story_message'.tr()
-                  : 'story.error_generating'.tr(),
+              _errorMessage ??
+                  (_isFetchingExistingStory
+                      ? 'story.error_loading_story_message'.tr()
+                      : 'story.error_generating'.tr()),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
