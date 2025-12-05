@@ -270,16 +270,8 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   }
 
   void _skipEditing() {
-    // Navigate to result screen without editing
-    context.pushReplacement(
-      '/drawings/${widget.category}/${widget.subject}/result',
-      extra: {
-        'uploadedImage': widget.uploadedImage,
-        'originalImageUrl': widget.originalImageUrl,
-        'editedImageUrl': widget.originalImageUrl,
-        'selectedEditOption': null,
-      },
-    );
+    // Navigate to home
+    context.go('/home');
   }
 
   /// Start recording audio from the device microphone
