@@ -517,7 +517,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           promptDe: 'Sprachbasierte Bearbeitung',
         );
 
-        // Navigate to the final result screen with the edited image URLs and drawing ID
+        // Navigate to the final result screen with the edited image URLs, transcribed text, and drawing ID
         context.pushReplacement(
           '/drawings/${widget.category}/${widget.subject}/result',
           extra: {
@@ -526,6 +526,8 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
             'selectedEditOption': voiceEditOption,
             'drawing_id':
                 response.drawingId, // Store DB drawing ID for re-editing
+            'transcribedText':
+                response.transcribedText, // Pass the transcribed audio text
           },
         );
       }

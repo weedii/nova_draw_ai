@@ -667,7 +667,7 @@ class ImageProcessingService:
             "drawing_id": str(saved_drawing.id),
             "original_image_url": original_image_url,
             "edited_image_url": edited_image_url,
-            "prompt": transcribed_text,
+            "transcribed_text": transcribed_text,
             "processing_time": total_time,
         }
 

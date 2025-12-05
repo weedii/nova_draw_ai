@@ -8,7 +8,7 @@ class EditImageWithAudioResponse(BaseModel):
     """Response from audio-based image editing."""
 
     success: str  # "true" or "false" as string
-    prompt: str  # Transcribed and enhanced prompt from audio
+    transcribed_text: str  # Audio transcribed to text (what the user said)
     original_image_url: Optional[str] = None  # URL of the original uploaded image
     edited_image_url: Optional[str] = None  # URL of the edited image
     processing_time: Optional[float] = None
