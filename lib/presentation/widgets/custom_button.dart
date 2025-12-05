@@ -123,6 +123,20 @@ class _CustomButtonState extends State<CustomButton>
   }
 
   Color _getBackgroundColor() {
+    // If loading, keep the original color but reduce opacity
+    if (widget.isLoading) {
+      switch (widget.variant) {
+        case 'outlined':
+          return Colors.transparent;
+        case 'text':
+          return Colors.transparent;
+        default:
+          return (widget.backgroundColor ?? AppColors.primary).withValues(
+            alpha: 0.6,
+          );
+      }
+    }
+
     if (!widget.enabled) {
       return AppColors.textDark.withValues(alpha: 0.3);
     }
