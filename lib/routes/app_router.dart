@@ -198,6 +198,7 @@ GoRouter createAppRouter(UserProvider userProvider) {
           final editedImageUrl = extra?['editedImageUrl'] as String?;
           final selectedEditOption = extra?['selectedEditOption'];
           final dbDrawingId = extra?['drawing_id'] as String?;
+          final transcribedText = extra?['transcribedText'] as String?;
           return DrawingFinalResultScreen(
             category: category,
             subject: subject,
@@ -205,6 +206,7 @@ GoRouter createAppRouter(UserProvider userProvider) {
             editedImageUrl: editedImageUrl,
             selectedEditOption: selectedEditOption,
             dbDrawingId: dbDrawingId,
+            transcribedText: transcribedText,
           );
         },
       ),

@@ -436,7 +436,8 @@
     "error_saving_drawing": "Error saving drawing",
     "original": "Original",
     "edited": "Enhanced",
-    "try_another_prompt": "More Magic! ✨"
+    "try_another_prompt": "More Magic! ✨",
+    "your_voice": "What You Said 🎤"
   },
   "settings": {
     "settings": "Settings",

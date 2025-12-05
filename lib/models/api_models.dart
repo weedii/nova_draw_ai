@@ -86,7 +86,9 @@ class ApiDrawingStep {
 
 class ApiImageEditResponse {
   final bool success;
-  final String prompt;
+  final String prompt; // For text-based edits
+  final String?
+  transcribedText; // For voice-based edits (audio transcribed to text)
   final String? originalImageUrl; // URL of the original uploaded image
   final String? editedImageUrl; // URL of the edited image
   final double processingTime;
@@ -96,6 +98,7 @@ class ApiImageEditResponse {
   const ApiImageEditResponse({
     required this.success,
     required this.prompt,
+    this.transcribedText,
     this.originalImageUrl,
     this.editedImageUrl,
     required this.processingTime,
@@ -107,6 +110,8 @@ class ApiImageEditResponse {
     return ApiImageEditResponse(
       success: json['success'] == 'true' || json['success'] == true,
       prompt: json['prompt'] ?? '',
+      transcribedText:
+          json['transcribed_text'], // Can be null for text-based edits
       originalImageUrl: json['original_image_url'],
       editedImageUrl: json['edited_image_url'],
       processingTime: (json['processing_time'] ?? 0.0).toDouble(),
@@ -119,6 +124,7 @@ class ApiImageEditResponse {
     return {
       'success': success.toString(),
       'prompt': prompt,
+      'transcribed_text': transcribedText,
       'original_image_url': originalImageUrl,
       'edited_image_url': editedImageUrl,
       'processing_time': processingTime,

@@ -229,7 +229,7 @@ async def edit_image_with_audio(
 
         return EditImageWithAudioResponse(
             success="true",
-            prompt=result["prompt"],
+            transcribed_text=result["transcribed_text"],
             original_image_url=result["original_image_url"],
             edited_image_url=result["edited_image_url"],
             processing_time=result["processing_time"],

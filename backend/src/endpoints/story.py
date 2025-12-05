@@ -105,10 +105,8 @@ async def get_story_for_image(
             user_id=current_user.id,
         )
 
-        logger.info(f"✅ Retrieved story for drawing {drawing_id}")
-        logger.info("=============================================================")
-        logger.info(result)
-        logger.info("=============================================================")
+        logger.info(f"✅ Retrieving story for drawing ID {drawing_id}")
+        logger.info(result if result else "No story found for this image")
 
         return {"success": True, "story": result}
 

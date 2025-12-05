@@ -15,6 +15,8 @@ class DrawingFinalResultScreen extends StatefulWidget {
   final String? editedImageUrl; // URL of the edited image
   final EditOption? selectedEditOption;
   final String? dbDrawingId; // Database Drawing record ID for re-editing
+  final String?
+  transcribedText; // Audio transcribed to text (what the user said)
 
   const DrawingFinalResultScreen({
     super.key,
@@ -24,6 +26,7 @@ class DrawingFinalResultScreen extends StatefulWidget {
     this.editedImageUrl,
     this.selectedEditOption,
     this.dbDrawingId,
+    this.transcribedText,
   });
 
   @override
@@ -200,10 +203,21 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
 
             const SizedBox(height: 24),
 
-            // Edit option info (if applied)
-            if (widget.selectedEditOption != null) _buildEditInfoCard(),
+            // Edit option info (if applied) - only show if not voice editing
+            if (widget.selectedEditOption != null &&
+                widget.selectedEditOption!.id != 'voice_edit')
+              _buildEditInfoCard(),
 
-            const SizedBox(height: 24),
+            // Transcribed text display (if voice editing was used)
+            if (widget.transcribedText != null &&
+                widget.transcribedText!.isNotEmpty)
+              _buildTranscribedTextCard(),
+
+            if ((widget.selectedEditOption != null &&
+                    widget.selectedEditOption!.id != 'voice_edit') ||
+                (widget.transcribedText != null &&
+                    widget.transcribedText!.isNotEmpty))
+              const SizedBox(height: 24),
 
             // Action buttons
             _buildActionButtons(),
@@ -504,6 +518,57 @@ class _DrawingFinalResultScreenState extends State<DrawingFinalResultScreen>
             color: widget.selectedEditOption!.color,
             size: 24,
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTranscribedTextCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.accent.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.accent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text('🎤', style: TextStyle(fontSize: 24)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'final_result.your_voice'.tr(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.accent,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.transcribedText!,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textDark.withValues(alpha: 0.7),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.check_circle, color: AppColors.accent, size: 24),
         ],
       ),
     );
