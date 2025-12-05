@@ -13,21 +13,83 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _selectedIndex = 0;
 
   // Screens for bottom navigation (removed DirectUploadScreen)
   late final List<Widget> _screens;
 
+  // Animation controller for bottom nav visibility
+  late AnimationController _navAnimationController;
+  late Animation<Offset> _navOffsetAnimation;
+
+  bool _isNavVisible = true;
+  double _lastScrollOffset = 0;
+
   @override
   void initState() {
     super.initState();
     _screens = [const DrawingCategoriesScreen(), const GalleryScreen()];
+
+    // Initialize animation controller for bottom nav
+    _navAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _navOffsetAnimation =
+        Tween<Offset>(
+          begin: Offset.zero,
+          end: const Offset(0, 1.5), // Slide down off screen
+        ).animate(
+          CurvedAnimation(
+            parent: _navAnimationController,
+            curve: Curves.easeInOut,
+          ),
+        );
+  }
+
+  @override
+  void dispose() {
+    _navAnimationController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      final currentOffset = notification.metrics.pixels;
+      final delta = currentOffset - _lastScrollOffset;
+
+      // Only trigger animation if scroll delta is significant (> 5 pixels)
+      if (delta.abs() > 5) {
+        if (delta > 0) {
+          // Scrolling down - hide nav
+          if (_isNavVisible) {
+            setState(() => _isNavVisible = false);
+            _navAnimationController.forward();
+          }
+        } else {
+          // Scrolling up - show nav
+          if (!_isNavVisible) {
+            setState(() => _isNavVisible = true);
+            _navAnimationController.reverse();
+          }
+        }
+        _lastScrollOffset = currentOffset;
+      }
+    }
   }
 
   void _onNavItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+
+      // Reset nav visibility when switching tabs
+      if (!_isNavVisible) {
+        _isNavVisible = true;
+        _navAnimationController.reverse();
+      }
+      _lastScrollOffset = 0;
     });
   }
 
@@ -40,13 +102,23 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          _screens[_selectedIndex],
-          // Floating Navigation Bar - positioned absolutely
+          // Wrap screen with NotificationListener to detect scroll events
+          NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              _onScroll(notification);
+              return false; // Allow notification to bubble up
+            },
+            child: _screens[_selectedIndex],
+          ),
+          // Floating Navigation Bar - positioned absolutely with animation
           Positioned(
             left: 25,
             right: 25,
             bottom: 30,
-            child: _buildFloatingNavigationBar(),
+            child: SlideTransition(
+              position: _navOffsetAnimation,
+              child: _buildFloatingNavigationBar(),
+            ),
           ),
         ],
       ),

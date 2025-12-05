@@ -107,9 +107,13 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                               horizontal: 24.0,
                             ),
                             child: GridView.builder(
+                              padding: const EdgeInsets.only(
+                                top: 16.0,
+                                bottom: 120.0,
+                              ),
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                    mainAxisExtent: 200,
+                                    mainAxisExtent: 220,
                                     crossAxisCount: 2,
                                     childAspectRatio: 1.0,
                                     crossAxisSpacing: 16,
@@ -127,8 +131,6 @@ class _DrawingCategoriesScreenState extends State<DrawingCategoriesScreen>
                             ),
                           ),
                         ),
-
-                        const SizedBox(height: 24),
                       ],
                     ),
                   ),

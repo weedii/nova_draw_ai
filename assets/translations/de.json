@@ -436,7 +436,8 @@
     "error_saving_drawing": "Fehler beim Speichern der Zeichnung",
     "original": "Original",
     "edited": "Bearbeitet",
-    "try_another_prompt": "Mehr Magie! ✨"
+    "try_another_prompt": "Mehr Magie! ✨",
+    "your_voice": "Was du gesagt hast 🎤"
   },
   "settings": {
     "settings": "Einstellungen",

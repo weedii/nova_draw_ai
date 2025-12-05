@@ -270,16 +270,8 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
   }
 
   void _skipEditing() {
-    // Navigate to result screen without editing
-    context.pushReplacement(
-      '/drawings/${widget.category}/${widget.subject}/result',
-      extra: {
-        'uploadedImage': widget.uploadedImage,
-        'originalImageUrl': widget.originalImageUrl,
-        'editedImageUrl': widget.originalImageUrl,
-        'selectedEditOption': null,
-      },
-    );
+    // Navigate to home
+    context.go('/home');
   }
 
   /// Start recording audio from the device microphone
@@ -517,7 +509,7 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
           promptDe: 'Sprachbasierte Bearbeitung',
         );
 
-        // Navigate to the final result screen with the edited image URLs and drawing ID
+        // Navigate to the final result screen with the edited image URLs, transcribed text, and drawing ID
         context.pushReplacement(
           '/drawings/${widget.category}/${widget.subject}/result',
           extra: {
@@ -526,6 +518,8 @@ class _DrawingEditOptionsScreenState extends State<DrawingEditOptionsScreen>
             'selectedEditOption': voiceEditOption,
             'drawing_id':
                 response.drawingId, // Store DB drawing ID for re-editing
+            'transcribedText':
+                response.transcribedText, // Pass the transcribed audio text
           },
         );
       }
